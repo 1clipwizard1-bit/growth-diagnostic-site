@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 
+// ─── N8N Webhook ─────────────────────────────────────────────────────────────
+const N8N_WEBHOOK_URL = 'https://learning11b.app.n8n.cloud/webhook/34e63fac-0d56-4720-8f08-366bee6e8d90';
+
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface FormData {
   // Step 1
@@ -547,7 +550,8 @@ export default function DiagnosticForm() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<FormData>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-  const [status, setStatus] = useState<'form' | 'analyzing' | 'success'>('form');
+  const [status, setStatus] = useState<'form' | 'analyzing' | 'success' | 'error'>('form');
+  const [submitError, setSubmitError] = useState('');
 
   const onChange = (key: keyof FormData, value: string) => {
     setData(d => ({ ...d, [key]: value }));
@@ -609,8 +613,7 @@ export default function DiagnosticForm() {
 
   const handleSubmit = async () => {
     setStatus('analyzing');
-
-    const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
+    setSubmitError('');
 
     const payload = {
       // Step 1
@@ -637,20 +640,24 @@ export default function DiagnosticForm() {
     };
 
     try {
-      if (webhookUrl) {
-        await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-      }
-    } catch (err) {
-      // Silent fail — report generation handled by n8n
-      console.error('Webhook error:', err);
-    }
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    // Minimum 4s "analyzing" UX regardless of webhook speed
-    setTimeout(() => setStatus('success'), 4000);
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      // Success — show analyzing UX for at least 4s
+      setTimeout(() => setStatus('success'), 4000);
+    } catch (err) {
+      console.error('Webhook error:', err);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setSubmitError(`Submission failed: ${message}. Please try again.`);
+      setStatus('error');
+    }
   };
 
   return (
@@ -759,6 +766,27 @@ export default function DiagnosticForm() {
 
         {status === 'analyzing' && <AnalyzingScreen />}
         {status === 'success' && <SuccessScreen email={data.email} />}
+        {status === 'error' && (
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
+              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #ef4444' }}>
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+            <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Submission failed</h2>
+            <p className="text-sm mb-8 max-w-sm" style={{ color: '#a3a3a3' }}>{submitError}</p>
+            <button
+              onClick={() => { setStatus('form'); setSubmitError(''); }}
+              className="px-6 py-3 rounded-lg text-sm font-bold transition-all"
+              style={{ background: '#f97316', color: '#fff' }}
+              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
+              onMouseOut={e => e.currentTarget.style.background = '#f97316'}
+            >
+              ← Try Again
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

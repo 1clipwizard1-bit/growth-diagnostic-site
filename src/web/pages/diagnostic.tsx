@@ -363,8 +363,9 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         <Label required helper="From first contact to signed deal, how long does it typically take?">Sales Cycle</Label>
         <Select value={data.salesCycle} onChange={v => onChange('salesCycle', v)} placeholder="Select sales cycle" error={errors.salesCycle}
           options={[
-            { value: 'same-day', label: 'Same day' },
-            { value: '1-7-days', label: '1–7 days' },
+          { value: 'same-day', label: 'Same day' },
+            { value: '1-3-days', label: '1–3 days' },
+            { value: '4-7-days', label: '4–7 days' },
             { value: '1-2-weeks', label: '1–2 weeks' },
             { value: '2plus-weeks', label: '2+ weeks' },
           ]}

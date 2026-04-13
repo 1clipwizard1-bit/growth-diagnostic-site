@@ -250,6 +250,23 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
             </button>
           ))}
         </div>
+
+        {/* Soft warning for Other business type */}
+        {data.businessType === 'other' && (
+          <div className="rounded-xl border p-4 mt-1 transition-all" style={{ borderColor: 'rgba(249,115,22,0.35)', background: 'rgba(249,115,22,0.06)' }}>
+            <div className="flex items-start gap-3">
+              <span style={{ fontSize: '16px', lineHeight: 1.4 }}>⚠️</span>
+              <div>
+                <div className="text-sm font-semibold mb-1" style={{ color: '#f97316' }}>Different funnel model detected</div>
+                <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                  This diagnostic is built for service businesses with a sales call funnel. You can still complete the form —
+                  we'll review your data manually and send a <strong style={{ color: '#f5f5f5' }}>custom analysis</strong> tailored to your business model. No charge.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {errors.businessType && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.businessType}</div>}
       </div>
 
@@ -364,7 +381,8 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         <Select value={data.salesCycle} onChange={v => onChange('salesCycle', v)} placeholder="Select sales cycle" error={errors.salesCycle}
           options={[
             { value: 'same-day', label: 'Same day' },
-            { value: '1-7-days', label: '1–7 days' },
+            { value: '1-3-days', label: '1–3 days' },
+            { value: '4-7-days', label: '4–7 days' },
             { value: '1-2-weeks', label: '1–2 weeks' },
             { value: '2plus-weeks', label: '2+ weeks' },
           ]}
@@ -512,30 +530,78 @@ function AnalyzingScreen() {
 }
 
 // ─── Success Screen ───────────────────────────────────────────────────────────
-function SuccessScreen({ email }: { email: string }) {
+function SuccessScreen({ email, businessType }: { email: string; businessType: string }) {
+  const isOther = businessType === 'other';
+
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8" style={{ background: 'rgba(34,197,94,0.1)', border: '2px solid #22c55e' }}>
-        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L13 23L26 10" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
+        style={{
+          background: isOther ? 'rgba(249,115,22,0.1)' : 'rgba(34,197,94,0.1)',
+          border: `2px solid ${isOther ? '#f97316' : '#22c55e'}`,
+        }}>
+        {isOther ? (
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+            <path d="M16 6C10.477 6 6 10.477 6 16s4.477 10 10 10 10-4.477 10-10S21.523 6 16 6z" stroke="#f97316" strokeWidth="2"/>
+            <path d="M16 11v6M16 22v1" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"/>
+          </svg>
+        ) : (
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L13 23L26 10" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        )}
       </div>
-      <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
-      <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
-      <p className="text-sm mb-10" style={{ color: '#666' }}>
-        It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
-      </p>
-      <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-        <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR REPORT WILL INCLUDE</div>
-        <div className="space-y-2">
-          {['Funnel analysis', 'Unit economics breakdown', 'Benchmark comparison', 'Cost of inaction', 'Bottleneck diagnosis', '90-day action plan'].map(item => (
-            <div key={item} className="flex items-center gap-2 text-sm">
-              <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
-                <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-              </div>
-              <span style={{ color: '#a3a3a3' }}>{item}</span>
+
+      {isOther ? (
+        <>
+          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Request received!</h2>
+          <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
+            This diagnostic is optimized for service-based businesses.
+          </p>
+          <p className="text-sm mb-8" style={{ color: '#666' }}>
+            Your business model is a bit different — <span style={{ color: '#f5f5f5' }}>but we can still help.</span>
+          </p>
+          <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
+            <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT HAPPENS NEXT</div>
+            <div className="space-y-3">
+              {[
+                { icon: '🔍', text: 'We review your data manually' },
+                { icon: '📊', text: 'Identify constraints specific to your model' },
+                { icon: '📩', text: `Custom analysis sent to ${email}` },
+                { icon: '⏱', text: 'Typically within 24–48 hours' },
+              ].map(item => (
+                <div key={item.text} className="flex items-center gap-3 text-sm">
+                  <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                  <span style={{ color: '#a3a3a3' }}>{item.text}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+          <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#555', border: '1px solid #2a2a2a' }}>
+            ✓ No charge — custom analysis is free
+          </div>
+        </>
+      ) : (
+        <>
+          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
+          <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
+          <p className="text-sm mb-10" style={{ color: '#666' }}>
+            It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
+          </p>
+          <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+            <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR REPORT WILL INCLUDE</div>
+            <div className="space-y-2">
+              {['Funnel analysis', 'Unit economics breakdown', 'Benchmark comparison', 'Cost of inaction', 'Bottleneck diagnosis', '90-day action plan'].map(item => (
+                <div key={item} className="flex items-center gap-2 text-sm">
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
+                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  </div>
+                  <span style={{ color: '#a3a3a3' }}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
+
       <a href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
         onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
         onMouseOut={e => e.currentTarget.style.color = '#555'}>
@@ -637,6 +703,7 @@ export default function DiagnosticForm() {
       email: data.email,
       // Meta
       submittedAt: new Date().toISOString(),
+      isCustomRequest: data.businessType === 'other',
     };
 
     try {
@@ -747,6 +814,8 @@ export default function DiagnosticForm() {
                 >
                   {step < 4 ? (
                     <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
+                  ) : data.businessType === 'other' ? (
+                    <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
                   ) : (
                     <>Generate My Report — $9.99 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
                   )}
@@ -765,7 +834,7 @@ export default function DiagnosticForm() {
         )}
 
         {status === 'analyzing' && <AnalyzingScreen />}
-        {status === 'success' && <SuccessScreen email={data.email} />}
+        {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"

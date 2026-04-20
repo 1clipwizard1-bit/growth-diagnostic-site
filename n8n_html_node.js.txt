@@ -519,6 +519,10 @@ const computedReferenceHtml =
   "<div class=\"loss-card\"><div class=\"loss-label\">Customer Lifetime Value (LTV)</div><div class=\"loss-value\">" + _ltv + "</div></div>" +
   "<div class=\"loss-card\"><div class=\"loss-label\">Target Scalability Ratio</div><div class=\"loss-value\">" + _ltvCacTarget + " : 1</div></div>" +
   "</div>" +
+  "<div class=\"micro-callout\" style=\"margin-top:10px; font-style:italic; font-size: 11px;\">" +
+  "Note: Customer Lifetime Value (LTV) is estimated based on your average deal size and industry-specific backend multipliers. " +
+  "If your actual retention or repeat purchase rate is higher, your real scalability index may exceed these estimates." +
+  "</div>" +
   (ltvCacRatioRaw && ltvCacRatioRaw < 1.5 ? "<div class=\"micro-callout\" style=\"border-color: #ef4444; background: #fff5f5; color: #991b1b;\"><strong>Warning:</strong> Current unit economics indicate that you may be acquiring customers at a cost close to or exceeding their front-end value. Priority must be shifted to conversion efficiency before increasing budget.</div>" : "") +
   "</div>";
 

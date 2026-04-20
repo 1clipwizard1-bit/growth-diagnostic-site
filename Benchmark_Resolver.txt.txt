@@ -1,0 +1,213 @@
+// n8n Code Node: Benchmark Resolver
+// Position: AFTER "Validate Business Logic", BEFORE "Compute Audit Metrics"
+// Purpose: resolve benchmark profile from canonical business category / industry
+// Output fields:
+// - benchmark_profile
+// - benchmark_meta
+// - benchmark_confidence
+//
+// Notes:
+// 1. This node does NOT compute audit metrics.
+// 2. This node does NOT overwrite canonical business fields.
+// 3. Downstream "Compute Audit Metrics" must read benchmarks ONLY from this node output.
+// 4. All benchmark values are normalized numeric scales:
+//    - rates: decimals (0.35 = 35%)
+//    - roas: multiplier (3.0)
+//    - cpl: currency/unit amount
+//    - response_time_minutes: integer minutes
+
+function pickFirst(obj, keys, fallback = null) {
+  for (const key of keys) {
+    if (obj[key] !== undefined && obj[key] !== null && obj[key] !== '') {
+      return obj[key];
+    }
+  }
+  return fallback;
+}
+
+function normalizeString(v) {
+  if (v === null || v === undefined) return null;
+  return String(v).trim().toLowerCase();
+}
+
+function resolveIndustryKey(input) {
+  // Only canonical / likely canonical inputs.
+  // Add/remove aliases here ONLY if still needed before schema is fully stabilized.
+  const rawIndustry = pickFirst(input, [
+    'industry',
+    'industry_resolved',
+    'business_category',
+    'business_type',
+    'niche'
+  ]);
+
+  const industry = normalizeString(rawIndustry);
+
+  if (!industry) {
+    return {
+      key: 'generic',
+      confidence: 'low',
+      reason: 'missing_industry'
+    };
+  }
+
+  // Local services cluster — includes exact form value 'local'
+  if (
+    industry === 'local' ||
+    industry.includes('local service') ||
+    industry.includes('local_service') ||
+    industry.includes('home service') ||
+    industry.includes('home_service') ||
+    industry.includes('home_services') ||
+    industry.includes('roofing') ||
+    industry.includes('hvac') ||
+    industry.includes('plumbing') ||
+    industry.includes('electrical') ||
+    industry.includes('contractor') ||
+    industry.includes('garage door') ||
+    industry.includes('landscaping') ||
+    industry.includes('cleaning')
+  ) {
+    return {
+      key: 'local_services',
+      confidence: 'medium',
+      reason: 'industry_keyword_match'
+    };
+  }
+
+  // Agency / service businesses — includes exact form value 'agency'
+  if (
+    industry === 'agency' ||
+    industry.includes('agency') ||
+    industry.includes('marketing agency') ||
+    industry.includes('lead gen agency') ||
+    industry.includes('consulting') ||
+    industry.includes('service business')
+  ) {
+    return {
+      key: 'agency_services',
+      confidence: 'medium',
+      reason: 'industry_keyword_match'
+    };
+  }
+
+  // Coaching / info — includes exact form value 'coaching'
+  if (
+    industry === 'coaching' ||
+    industry.includes('coach') ||
+    industry.includes('coaching') ||
+    industry.includes('consultant') ||
+    industry.includes('info product') ||
+    industry.includes('course')
+  ) {
+    return {
+      key: 'coaching_consulting',
+      confidence: 'medium',
+      reason: 'industry_keyword_match'
+    };
+  }
+
+  // Clinics / medspa / dental — includes exact form value 'clinic'
+  if (
+    industry === 'clinic' ||
+    industry.includes('clinic') ||
+    industry.includes('medspa') ||
+    industry.includes('dental') ||
+    industry.includes('healthcare') ||
+    industry.includes('chiropractic') ||
+    industry.includes('medical')
+  ) {
+    return {
+      key: 'clinic',
+      confidence: 'medium',
+      reason: 'industry_keyword_match'
+    };
+  }
+
+  return {
+    key: 'generic',
+    confidence: 'low',
+    reason: 'no_specific_match'
+  };
+}
+
+const BENCHMARKS = {
+  // Source: WordStream, uproas.io, industry aggregates 2025-2026
+  local_services: {
+    lead_to_booked_rate:       0.35,  // avg 35-38% for paid search local services
+    booked_to_completed_rate:  0.75,  // industry standard show-up rate
+    completed_to_close_rate:   0.25,  // typical close rate for local service calls
+    lead_to_close_rate:        0.066, // 0.35 * 0.75 * 0.25
+    roas:                      3.2,   // median 3.0-3.3x (uproas.io 2025)
+    cpl:                       85,    // median $75-100 (WordStream 2025)
+    response_time_minutes:     10     // top-performer standard; avg is 40+ min
+  },
+  // Source: HubSpot, Databox B2B benchmarks 2025
+  agency_services: {
+    lead_to_booked_rate:       0.30,  // 30% booked call rate for qualified B2B leads
+    booked_to_completed_rate:  0.80,  // high show rate for pre-qualified agency prospects
+    completed_to_close_rate:   0.20,  // typical B2B services close rate
+    lead_to_close_rate:        0.048, // 0.30 * 0.80 * 0.20
+    roas:                      2.5,   // conservative for B2B longer sales cycles
+    cpl:                       130,   // B2B leads cost more; $100-160 range
+    response_time_minutes:     30     // less urgency than local services
+  },
+  // Source: causalfunnel.com, chilipiper.com high-ticket benchmarks 2025
+  coaching_consulting: {
+    lead_to_booked_rate:       0.30,  // 30-67% for qualified applicants (floor is 30%)
+    booked_to_completed_rate:  0.70,  // show rate for high-ticket calls
+    completed_to_close_rate:   0.20,  // 13-29% close rate; 20% is mid-range
+    lead_to_close_rate:        0.042, // 0.30 * 0.70 * 0.20
+    roas:                      2.2,   // reasonable for high-ticket coaching
+    cpl:                       180,   // paid search avg $70-350+; $180 is mid
+    response_time_minutes:     60     // acceptable delay for consultative model
+  },
+  // Source: elevatedds.com, pennock.co, influxmd.com clinic benchmarks 2025
+  clinic: {
+    lead_to_booked_rate:       0.45,  // 50-65% with good follow-up; 45% conservative
+    booked_to_completed_rate:  0.80,  // confirmed appointment show rate
+    completed_to_close_rate:   0.30,  // treatment acceptance rate
+    lead_to_close_rate:        0.108, // 0.45 * 0.80 * 0.30
+    roas:                      3.5,   // 3.0-5.0x range; 3.5 is conservative mid
+    cpl:                       75,    // dental $50-85, medspa $40-120; avg ~$75
+    response_time_minutes:     8      // speed is critical; sub-10 min is gold standard
+  },
+  generic: {
+    lead_to_booked_rate:       null,
+    booked_to_completed_rate:  null,
+    completed_to_close_rate:   null,
+    lead_to_close_rate:        null,
+    roas:                      null,
+    cpl:                       null,
+    response_time_minutes:     null
+  }
+};
+
+return items.map((item) => {
+  const input = item.json;
+
+  const resolution = resolveIndustryKey(input);
+  const benchmarkKey = resolution.key;
+  const profile = BENCHMARKS[benchmarkKey] || BENCHMARKS.generic;
+
+  item.json.benchmark_profile = {
+    lead_to_booked_rate:      profile.lead_to_booked_rate,
+    booked_to_completed_rate: profile.booked_to_completed_rate,
+    completed_to_close_rate:  profile.completed_to_close_rate,
+    lead_to_close_rate:       profile.lead_to_close_rate,
+    roas:                     profile.roas,
+    cpl:                      profile.cpl,
+    response_time_minutes:    profile.response_time_minutes
+  };
+
+  item.json.benchmark_meta = {
+    industry_resolved: benchmarkKey,
+    source_type: 'internal_static_map',
+    version: '2026-Q2',
+    resolution_reason: resolution.reason
+  };
+
+  item.json.benchmark_confidence = resolution.confidence;
+
+  return item;
+});

@@ -10,14 +10,14 @@ export function FinalCTA() {
               <span style={{ color: '#a3a3a3' }}>Now find out exactly what it is.</span>
             </h2>
             <p style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
-              The bottleneck exists whether you diagnose it or not. The difference is that right now, you're paying for it without knowing the fix. For $9.99, you get the specific diagnosis, the financial impact, and the exact next step.
+              The bottleneck exists whether you diagnose it or not. The difference is that right now, you're paying for it without knowing the fix. For $4.99, you get the specific diagnosis, the financial impact, and the exact next step.
             </p>
           </div>
 
           <div className="shrink-0 w-full lg:w-auto">
             <div className="rounded-2xl border p-8" style={{ borderColor: '#2a2a2a', background: '#111', minWidth: '320px' }}>
               <div className="text-center mb-6">
-                <div className="text-4xl font-black mb-1" style={{ color: '#f97316' }}>$9.99</div>
+                <div className="text-4xl font-black mb-1" style={{ color: '#f97316' }}>$4.99</div>
                 <div className="text-sm" style={{ color: '#666' }}>Complete Diagnostic Report</div>
               </div>
               <div className="space-y-3 mb-6">

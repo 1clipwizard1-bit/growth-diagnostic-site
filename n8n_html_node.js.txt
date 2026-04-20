@@ -1,0 +1,854 @@
+const data = $json;
+
+// -------------------------
+// Helpers
+// -------------------------
+function displayMoney(value, status) {
+  if (status !== "ok" || value === null || value === undefined) return "Insufficient data";
+  const n = Number(value);
+  if (!Number.isFinite(n)) return "Insufficient data";
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function displayText(value, status) {
+  if (status !== "ok" || value === null || value === undefined || value === "") return "Insufficient data";
+  return String(value);
+}
+
+function esc(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/\n/g, "<br>")
+    .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+}
+
+function toConsultingLabel(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase())
+    .replace(/(\w+)\s+To\s+(\w+)/g, "$1-to-$2")
+    .replace(/\bCpl\b/g, "CPL")
+    .replace(/\bCac\b/g, "CAC")
+    .replace(/\bRoas\b/g, "ROAS")
+    .replace(/\bAds\b/g, "Ad Spend");
+}
+
+function toPremiumBottleneckLabel(value) {
+  const base = toConsultingLabel(value || "");
+  if (!base) return "";
+  return base
+    .replace(/\bSpeed-to-Contact\b/g, "Speed-to-Lead")
+    .replace(/\bLead Capture And Speed-to-Lead\b/g, "Lead Capture Reliability and Speed-to-Lead")
+    .replace(/\bLead Capture And Speed To Lead\b/g, "Lead Capture Reliability and Speed-to-Lead")
+    .replace(/\bLead Capture Failure And Slow Response\b/g, "Lead Capture Reliability and Slow Response")
+    .replace(/\bLead Capture Failure And Slow\/No Response-To-New Leads\b/g, "Lead Capture Reliability and Response-to-Lead")
+    .replace(/\bLead Capture Failure And Slow\/No Response To New Leads\b/g, "Lead Capture Reliability and Response-to-Lead");
+}
+
+function polishNarrativeText(value) {
+  if (!value) return "";
+  return String(value)
+    .replace(/lead_capture_and_speed_to_contact/gi, "Lead Capture Reliability and Speed-to-Lead")
+    .replace(/lead_capture_and_speed_to_lead/gi, "Lead Capture Reliability and Speed-to-Lead")
+    .replace(/speed_to_contact/gi, "speed-to-lead")
+    .replace(/speed_to_lead/gi, "speed-to-lead");
+}
+
+function formatDate(value) {
+  if (!value) return "";
+  try {
+    // Extract only the date part YYYY-MM-DD to avoid timezone shifting
+    const datePart = String(value).split("T")[0];
+    const parts = datePart.split("-");
+    if (parts.length === 3) {
+      const year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+      const d = new Date(year, month, day);
+      return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    }
+    return datePart;
+  } catch { return String(value); }
+}
+
+function numberOrNull(value) {
+  if (value === null || value === undefined || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+function money(value) {
+  const n = numberOrNull(value);
+  if (n === null) return "\u2014";
+  return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function num(value, digits) {
+  digits = digits === undefined ? 2 : digits;
+  const n = numberOrNull(value);
+  if (n === null) return "\u2014";
+  return n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: digits });
+}
+
+function pctDecimal(value, digits) {
+  digits = digits === undefined ? 1 : digits;
+  const n = numberOrNull(value);
+  if (n === null) return "\u2014";
+  return (n * 100).toFixed(digits) + "%";
+}
+
+function pctWhole(value) {
+  const n = numberOrNull(value);
+  if (n === null) return null;
+  return n * 100;
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function renderList(items) {
+  if (!Array.isArray(items) || items.length === 0) return '<p class="muted">No items available.</p>';
+  return "<ul>" + items.map(function(item) {
+    return "<li>" + esc(polishNarrativeText(item)) + "</li>";
+  }).join("") + "</ul>";
+}
+
+function healthClass(value) {
+  const v = String(value || "").toLowerCase();
+  if (v.includes("strong") || v.includes("healthy")) return "health-strong";
+  if (v.includes("average")) return "health-average";
+  if (v.includes("weak") || v.includes("underperforming") || v.includes("critical")) return "health-weak";
+  return "";
+}
+
+function scoreStatus(score) {
+  const n = Number(score);
+  if (!Number.isFinite(n)) return "Unknown";
+  if (n < 65) return "Underperforming";
+  if (n < 85) return "Average";
+  return "Strong";
+}
+
+function progressBar(score, statusClassName) {
+  const width = clamp(Number(score) || 0, 0, 100);
+  return '<div class="bar-track"><div class="bar-fill ' + (statusClassName || "") + '" style="width:' + width + '%"></div></div>';
+}
+
+function subscoreStatusClass(score) {
+  const n = Number(score);
+  if (!Number.isFinite(n)) return "bar-weak";
+  if (n <= 30) return "bar-weak";
+  if (n <= 60) return "bar-average";
+  return "bar-strong";
+}
+
+function renderSubscoreCard(label, score, note) {
+  const safeScore = Number.isFinite(Number(score)) ? Math.round(Number(score)) : 0;
+  const safeNote = note || "Insufficient data";
+  return (
+    '<div class="subscore-card">' +
+      '<div class="subscore-head">' +
+        '<div class="subscore-label">' + esc(label) + "</div>" +
+        '<div class="subscore-value">' + safeScore + "<span>/100</span></div>" +
+      "</div>" +
+      progressBar(safeScore, subscoreStatusClass(safeScore)) +
+      '<div class="subscore-note">' + esc(safeNote) + "</div>" +
+    "</div>"
+  );
+}
+
+function renderGapCardsFromStructured(gaps) {
+  if (!gaps || typeof gaps !== "object") return '<p class="muted">No benchmark gaps available.</p>';
+  const config = [
+    { key: "lead_to_booked_rate",      label: "Lead-to-Booked Rate",      note: "Ability to convert inbound demand into booked calls.",                        lowerIsBetter: false },
+    { key: "booked_to_completed_rate", label: "Booked-to-Completed Rate", note: "Efficiency of converting booked calls into completed conversations.",          lowerIsBetter: false },
+    { key: "completed_to_close_rate",  label: "Completed-to-Close Rate",  note: "Sales effectiveness after the conversation takes place.",                      lowerIsBetter: false },
+    { key: "lead_to_close_rate",       label: "Lead-to-Close Rate",       note: "End-to-end funnel efficiency from lead to closed deal.",                       lowerIsBetter: false },
+    { key: "roas",                     label: "ROAS",                     note: "Return generated relative to advertising spend.",                              lowerIsBetter: false },
+    { key: "cpl",                      label: "CPL",                      note: "Cost to acquire each lead versus benchmark efficiency.",                       lowerIsBetter: true  },
+    { key: "response_time_minutes",    label: "Response Time Minutes",    note: "Operational speed in following up with new leads.",                            lowerIsBetter: true  }
+  ];
+  const items = config.map(function(cfg) {
+    const g = gaps[cfg.key];
+    if (!g) return null;
+    let diffText = "\u2014";
+    if (g.difference_pp != null) diffText = num(g.difference_pp, 2) + " pp";
+    else if (g.relative_gap_pct != null) diffText = num(g.relative_gap_pct, 2) + "%";
+    else if (g.difference != null) diffText = num(g.difference, 2);
+    const actualFmt = cfg.key.includes("rate") ? pctDecimal(g.actual, 1) : cfg.key === "response_time_minutes" ? num(g.actual, 0) : cfg.key === "cpl" ? money(g.actual) : cfg.key === "roas" ? num(g.actual, 2) : num(g.actual, 2);
+    const benchmarkFmt = cfg.key.includes("rate") ? pctDecimal(g.benchmark, 1) : cfg.key === "response_time_minutes" ? num(g.benchmark, 0) : cfg.key === "cpl" ? money(g.benchmark) : cfg.key === "roas" ? num(g.benchmark, 2) : num(g.benchmark, 2);
+    const rawDiff = numberOrNull(g.relative_gap_pct) != null ? Number(g.relative_gap_pct)
+                  : numberOrNull(g.difference_pp)    != null ? Number(g.difference_pp)
+                  : numberOrNull(g.difference)        != null ? Number(g.difference) : null;
+    // null rawDiff = no benchmark available → neutral styling
+    const isPositive = rawDiff !== null ? (cfg.lowerIsBetter ? rawDiff <= 0 : rawDiff >= 0) : null;
+    return {
+      label: cfg.label, actual: actualFmt, benchmark: benchmarkFmt, diff: diffText, note: cfg.note,
+      magnitude: rawDiff !== null ? Math.abs(rawDiff) : 0,
+      isPositive: isPositive
+    };
+  }).filter(Boolean).sort(function(a, b) { return b.magnitude - a.magnitude; }).slice(0, 4);
+  if (!items.length) return '<p class="muted">No benchmark gaps available.</p>';
+  const largestMagnitude = items[0].magnitude;
+  const cards = items.map(function(item) {
+    return (
+      '<div class="gap-card">' +
+      (item.magnitude === largestMagnitude ? '<div class="gap-badge">Largest Measured Gap</div>' : "") +
+      '<div class="gap-metric">' + esc(item.label) + "</div>" +
+      '<div class="gap-rows">' +
+        '<div class="gap-row"><span class="gap-label">Current</span><span class="gap-val">' + esc(item.actual) + "</span></div>" +
+        '<div class="gap-row"><span class="gap-label">Benchmark</span><span class="gap-val">' + esc(item.benchmark) + "</span></div>" +
+        '<div class="gap-row gap-row-diff"><span class="gap-label">Gap</span><span class="gap-val ' + (item.isPositive === null ? '' : item.isPositive ? 'gap-diff-positive' : 'gap-diff') + '">' + esc(item.diff) + "</span></div>" +
+      "</div>" +
+      '<div class="gap-note">' + esc(item.note) + "</div>" +
+      "</div>"
+    );
+  }).join("");
+  return '<div class="gap-grid">' + cards + "</div>";
+}
+
+// -------------------------
+// Revenue Unlock Opportunity
+// Source: data.impact_simulation ONLY
+// -------------------------
+function renderRevenueUnlockSection(impactSimulation) {
+  if (!impactSimulation || impactSimulation.status !== "ok" || !impactSimulation.primary_fix) return "";
+
+  const fix = impactSimulation.primary_fix;
+
+  const additionalDealsRaw   = numberOrNull(fix.expected_additional_closed_deals);
+  const additionalRevenueRaw = numberOrNull(fix.expected_additional_revenue);
+  const additionalProfitRaw  = numberOrNull(fix.expected_additional_gross_profit);
+
+  const hasDeals   = additionalDealsRaw !== null;
+  const hasRevenue = additionalRevenueRaw !== null;
+  const hasProfit  = additionalProfitRaw !== null;
+
+  const additionalDeals   = hasDeals   ? (Math.round(additionalDealsRaw * 10) / 10).toLocaleString("en-US") : "Insufficient data";
+  const additionalRevenue = hasRevenue ? Math.round(additionalRevenueRaw).toLocaleString("en-US") : "Insufficient data";
+  const additionalProfit  = hasProfit  ? Math.round(additionalProfitRaw).toLocaleString("en-US")  : "Insufficient data";
+
+  const currentRaw = numberOrNull(fix.current);
+  const targetRaw  = numberOrNull(fix.target);
+  const metricRaw  = String(fix.metric || "").toLowerCase();
+
+  let currentDisplay = "Insufficient data";
+  let targetDisplay  = "Insufficient data";
+
+  if (metricRaw === "roas") {
+    currentDisplay = currentRaw !== null ? currentRaw.toFixed(2) + "x" : "Insufficient data";
+    targetDisplay  = targetRaw  !== null ? targetRaw.toFixed(2) + "x"  : "Insufficient data";
+  } else {
+    currentDisplay = currentRaw !== null ? (Math.round(currentRaw * 1000) / 10).toLocaleString("en-US") + "%" : "Insufficient data";
+    targetDisplay  = targetRaw  !== null ? (Math.round(targetRaw * 1000) / 10).toLocaleString("en-US") + "%"  : "Insufficient data";
+  }
+
+  const metricLabel  = toConsultingLabel(fix.metric || "primary metric");
+  const modelingNote = fix.modeling_note
+    ? '<div class="impact-model-note">' + esc(fix.modeling_note) + "</div>"
+    : "";
+
+  return (
+    "<div class=\"section\">" +
+    "<div class=\"section-title\">Revenue Unlock Opportunity</div>" +
+    "<div class=\"card impact-main\">" +
+    "<div class=\"impact-headline\">Fixing this constraint can generate:</div>" +
+    "<div class=\"impact-grid\">" +
+    "<div class=\"impact-card\"><div class=\"impact-value\">" + (hasDeals   ? "+" + additionalDeals   : additionalDeals)   + "</div><div class=\"impact-label\">Additional Deals / Month</div></div>" +
+    "<div class=\"impact-card\"><div class=\"impact-value\">" + (hasRevenue ? "+$" + additionalRevenue : additionalRevenue) + "</div><div class=\"impact-label\">Additional Revenue</div></div>" +
+    "<div class=\"impact-card highlight\"><div class=\"impact-value\">" + (hasProfit ? "+$" + additionalProfit : additionalProfit) + "</div><div class=\"impact-label\">Additional Profit</div></div>" +
+    "</div>" +
+    "<div class=\"impact-details\">This scenario models the impact of improving <strong>" + esc(metricLabel) + "</strong> from <strong>" + esc(currentDisplay) + "</strong> to <strong>" + esc(targetDisplay) + "</strong>.</div>" +
+    modelingNote +
+    "<div class=\"impact-footnote\">This block estimates the upside from fixing the primary bottleneck only. It is not the same as the full benchmark-gap scenario shown in Revenue at Risk.</div>" +
+    "</div>" +
+    "</div>"
+  );
+}
+
+// -------------------------
+// Extract structured sources
+// -------------------------
+const createdAt         = data.created_at || "";
+const industry          = data.industry || "";
+const industryDisplay   = (function(ind) {
+  const map = {
+    'local':          'Local Service Business',
+    'local_service':  'Local Service Business',
+    'home_services':  'Local Service Business',
+    'home_service':   'Local Service Business',
+    'local_services': 'Local Service Business',
+    'agency':         'Agency / Consulting',
+    'agency_services':'Agency / Consulting',
+    'coaching':       'Coaching / Education',
+    'coaching_consulting': 'Coaching / Consulting',
+    'clinic':         'Clinic / Medical',
+    'other':          'Other Business',
+  };
+  return map[String(ind).toLowerCase().trim()] || ind || 'Service Business';
+})(industry);
+const rawScoreValue     = (data.score !== null && data.score !== undefined) ? Number(data.score) : null;
+const hasValidScore     = rawScoreValue !== null && Number.isFinite(rawScoreValue);
+const score             = hasValidScore ? rawScoreValue : 0;
+const primaryBottleneck = toPremiumBottleneckLabel(data.primary_bottleneck || "");
+const dataConfidence    = data.data_confidence || "";
+
+const computed = data.computed_audit || {};
+const ai       = data.ai_report || {};
+
+const metrics                = computed.metrics || {};
+const benchmarks             = computed.benchmarks || {};
+const gaps                   = computed.gaps || {};
+const input                  = computed.input || {};
+const costOfInactionComputed = computed.cost_of_inaction || {};
+const valueAtRisk            = computed.value_at_risk || {};
+const fieldStatus            = computed.field_status || {};
+
+const benchmarkMeta       = benchmarks.meta || {};
+const benchmarkProfile    = benchmarks.profile || {};
+const benchmarkIndustry   = benchmarkMeta.industry_resolved || null;
+const benchmarkVersion    = benchmarkMeta.version || null;
+const benchmarkConfidence = benchmarks.confidence || null;
+const hasBenchmarks       = !!(benchmarkProfile && Object.values(benchmarkProfile).some(v => v !== null && v !== undefined));
+
+const executiveSummary        = ai.executive_summary || {};
+const bottleneckAnalysis      = ai.primary_bottleneck_analysis || {};
+const benchmarkAnalysis       = ai.benchmark_analysis || {};
+const costOfInactionAI        = ai.cost_of_inaction || {};
+const actionPlan              = ai.action_plan || {};
+const strategicRecommendation = ai.strategic_recommendation || {};
+
+const impactSimulation = (data.impact_simulation && typeof data.impact_simulation === "object")
+  ? data.impact_simulation
+  : { status: "insufficient_data" };
+
+// -------------------------
+// Key Finding text — динамічний залежно від bottleneck
+// -------------------------
+const keyFindingText = String(data.primary_bottleneck || "") === "insufficient_data"
+  ? (hasValidScore && score >= 85
+      ? "Current data suggests strong overall funnel performance. Improving tracking visibility will enable more precise optimization as the business scales."
+      : "No industry benchmark is available for this business type. Establishing basic tracking and data capture is the essential first step toward meaningful performance analysis.")
+  : String(data.primary_bottleneck || "") === "economics_efficiency"
+    ? "This constraint currently limits the ability of the business to convert marketing spend into efficient revenue and profit."
+    : "This constraint currently limits the ability of the funnel to convert demand into booked opportunities and revenue.";
+
+// -------------------------
+// Custom Executive Summary — динамічний залежно від bottleneck
+// -------------------------
+const execCurrentLeadToBookedRaw   = metrics.lead_to_booked_rate;
+const gapObj                       = gaps.lead_to_booked_rate || {};
+const execGapLeadToBookedRaw       = gapObj.relative_gap_pct;
+const execBenchmarkLeadToBookedRaw = benchmarkProfile.lead_to_booked_rate;
+
+const execCurrentLeadToBooked = Number.isFinite(Number(execCurrentLeadToBookedRaw))
+  ? (Math.round(Number(execCurrentLeadToBookedRaw) * 1000) / 10).toLocaleString("en-US")
+  : "Insufficient data";
+
+const execGapLeadToBookedAbs = Number.isFinite(Number(execGapLeadToBookedRaw))
+  ? Math.abs(Number(execGapLeadToBookedRaw)).toFixed(2)
+  : "Insufficient data";
+const execGapDirection = Number.isFinite(Number(execGapLeadToBookedRaw))
+  ? (Number(execGapLeadToBookedRaw) >= 0 ? "above" : "below")
+  : "versus";
+
+const execBenchmarkLeadToBooked = Number.isFinite(Number(execBenchmarkLeadToBookedRaw))
+  ? (Math.round(Number(execBenchmarkLeadToBookedRaw) * 1000) / 10).toLocaleString("en-US")
+  : "Insufficient data";
+
+const customExecutiveSummaryHtml = String(data.primary_bottleneck || "") === "economics_efficiency"
+  ? (
+    "<div class=\"section\">" +
+    "<div class=\"section-title\">Executive Summary</div>" +
+    "<div class=\"card accent\">" +
+    "<p>Your current growth is constrained less by lead volume and more by how efficiently advertising spend turns into profitable revenue.</p>" +
+    "<p style=\"margin-top:12px;\">Right now, your ROAS is <strong>" + esc(num(metrics.roas, 2)) + "x</strong>, which is below the industry benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">This means demand is being generated, but the current funnel economics are not converting that spend into healthy returns.</p>" +
+    "<p style=\"margin-top:12px;\">If this constraint is corrected, the upside is immediate and measurable &mdash; improving revenue and profit without requiring additional ad spend.</p>" +
+    "<p style=\"margin-top:12px;\">The fastest path to growth is not more traffic &mdash; it is improving monetization efficiency and conversion economics first.</p>" +
+    "</div>" +
+    "</div>"
+  )
+  : String(data.primary_bottleneck || "") === "insufficient_data"
+  ? (
+    "<div class=\"section\">" +
+    "<div class=\"section-title\">Executive Summary</div>" +
+    "<div class=\"card accent\">" +
+    (hasValidScore && score >= 85 && hasBenchmarks
+      ? "<p>Your funnel is currently outperforming industry benchmarks across all measured metrics &mdash; lead conversion, sales effectiveness, and return on ad spend are all materially above average.</p>" +
+        "<p style=\"margin-top:12px;\">Your lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark of <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>, and your ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> significantly exceeds the benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
+        "<p style=\"margin-top:12px;\">At this stage, the primary opportunity is not fixing a funnel problem &mdash; it is gaining full visibility into your conversion data so that future optimization efforts are based on accurate, complete information.</p>" +
+        "<p style=\"margin-top:12px;\">Enabling offline conversion tracking and adding SMS/WhatsApp follow-up will complete your data foundation and unlock the next level of scalable growth.</p>"
+      : "<p>A complete performance assessment could not be conducted because no industry benchmark data is available for this business type.</p>" +
+        "<p style=\"margin-top:12px;\">Your current funnel shows a lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and a ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> &mdash; however, without a benchmark reference, it is not possible to determine whether these figures represent strong or weak performance relative to peers.</p>" +
+        "<p style=\"margin-top:12px;\">The highest-leverage action at this stage is building tracking infrastructure &mdash; CRM, lead source attribution, and offline conversion data &mdash; so that a meaningful diagnostic can be completed and growth can be optimized with confidence.</p>" +
+        "<p style=\"margin-top:12px;\">Until that data foundation is in place, any changes to the funnel or ad spend risk being misdirected.</p>") +
+    "</div>" +
+    "</div>"
+  )
+  : (
+    "<div class=\"section\">" +
+    "<div class=\"section-title\">Executive Summary</div>" +
+    "<div class=\"card accent\">" +
+    "<p>Your current growth is not limited by lead volume &mdash; it is constrained by how many of those leads turn into booked calls.</p>" +
+    "<p style=\"margin-top:12px;\">Right now, your lead-to-booked conversion rate is <strong>" + esc(execCurrentLeadToBooked) + "%</strong>," +
+    " which is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark of <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">This means a significant portion of your paid leads never enter the sales process, limiting revenue and increasing acquisition costs.</p>" +
+    "<p style=\"margin-top:12px;\">If this constraint is corrected, the impact is immediate and measurable &mdash; unlocking additional deals, revenue, and profit without increasing ad spend.</p>" +
+    "<p style=\"margin-top:12px;\">The fastest path to growth is not more traffic &mdash; it is improving how efficiently your current leads convert into booked calls.</p>" +
+    "</div>" +
+    "</div>"
+  );
+
+const revenueUnlockHtml = renderRevenueUnlockSection(impactSimulation);
+
+// -------------------------
+// Derived copy blocks
+// -------------------------
+const scoreInterpretation = !hasValidScore || !hasBenchmarks
+  ? "A full performance assessment could not be completed. No benchmark data is available for this industry type. Establishing tracking infrastructure and data capture is the priority."
+  : score >= 85
+    ? "Based on the available data, current funnel economics are outperforming industry benchmark expectations" + (primaryBottleneck ? ", with the primary area for further optimization noted as " + primaryBottleneck + "." : ".")
+    : primaryBottleneck
+      ? "Based on the available data, current funnel economics are materially underperforming benchmark expectations, with the main constraint concentrated in " + primaryBottleneck + "."
+      : "Based on the available data, current funnel economics are materially underperforming benchmark expectations and require correction before additional scaling.";
+
+const confidenceNote = "Data confidence reflects the completeness and reliability of the provided marketing, funnel, and tracking inputs.";
+
+const monthlyLossNumber =
+  numberOrNull(valueAtRisk.monthly_value_at_risk) != null
+    ? numberOrNull(valueAtRisk.monthly_value_at_risk)
+    : numberOrNull(costOfInactionComputed.estimated_missed_gross_profit_per_month);
+
+const missedGrossProfitRaw = numberOrNull(costOfInactionComputed.estimated_missed_gross_profit_per_month);
+const missedRevenueRaw     = numberOrNull(costOfInactionComputed.estimated_missed_revenue_per_month);
+const adSpendAtRiskRaw     = numberOrNull(valueAtRisk.ad_spend_at_risk);
+const primaryLossChannel   = primaryBottleneck || "\u2014";
+
+const monthlyLossDisplay = displayMoney(
+  monthlyLossNumber,
+  fieldStatus.monthly_value_at_risk === "ok" || fieldStatus.estimated_missed_gross_profit_per_month === "ok" ? "ok" : "insufficient_data"
+);
+
+const monthlyValueAtRiskDisplay = displayMoney(valueAtRisk.monthly_value_at_risk, fieldStatus.monthly_value_at_risk);
+const adSpendAtRiskDisplay      = displayMoney(adSpendAtRiskRaw, fieldStatus.ad_spend_at_risk);
+
+const recommendedEngagementText = String(data.primary_bottleneck || "") === "insufficient_data"
+  ? "A focused implementation sprint to complete conversion tracking infrastructure, expand lead follow-up channels, and establish full funnel visibility — enabling data-driven optimization at scale."
+  : primaryBottleneck
+    ? "A focused implementation sprint to stabilize " + primaryBottleneck + ", improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel."
+    : "A focused implementation sprint to stabilize the primary conversion bottleneck, improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel.";
+
+const expectedOutcomeText        = "Improved lead handling reliability, faster response times, clearer attribution, and stronger conversion economics before additional budget is deployed.";
+const implementationOpportunityText1 = "If this diagnostic reflects the current state of your funnel, the next step is typically a short implementation sprint focused on correcting the primary constraint identified in this report.";
+const implementationOpportunityText2 = "This usually involves stabilizing lead capture and CRM integrations, reducing response time through automation, and implementing reliable attribution and conversion tracking.";
+const implementationOpportunityText3 = "If helpful, these findings can be translated into a practical implementation plan with clear priorities, owners, and expected operating outcomes.";
+const methodologyNote            = "This audit is based on the data provided, benchmark comparisons, and modeled estimates of performance loss across the funnel. It is intended as a strategic diagnostic to identify the highest-leverage constraint limiting growth.";
+
+// -------------------------
+// Score / subscore logic
+// -------------------------
+const scorecard = computed.scorecard || {};
+
+const trackingScoreFromCompute = numberOrNull(scorecard.tracking_score);
+let fallbackTrackingScore = 0;
+if (input.has_crm === true)                                                fallbackTrackingScore += 30;
+if (input.lead_source_tracked === true)                                    fallbackTrackingScore += 20;
+if (input.offline_conversions_tracked === true)                            fallbackTrackingScore += 30;
+if (input.has_email_followups === true || input.has_sms_whatsapp === true) fallbackTrackingScore += 10;
+if (input.retargeting_running === true)                                    fallbackTrackingScore += 10;
+fallbackTrackingScore = clamp(fallbackTrackingScore, 0, 100);
+
+const leadCaptureScore    = numberOrNull(scorecard.traffic_score);
+const responseSpeedScore  = numberOrNull(scorecard.speed_score);
+const conversionFlowScore = numberOrNull(scorecard.funnel_score);
+const trackingScore       = trackingScoreFromCompute !== null ? trackingScoreFromCompute : fallbackTrackingScore;
+
+const subscoresHtml =
+  renderSubscoreCard("Traffic Efficiency",  leadCaptureScore    !== null ? leadCaptureScore    : 0, leadCaptureScore    !== null ? "Performance versus benchmark on cost efficiency and return."              : "Insufficient data") +
+  renderSubscoreCard("Funnel Performance",  conversionFlowScore !== null ? conversionFlowScore : 0, conversionFlowScore !== null ? "Efficiency of the funnel from lead through downstream conversion."       : "Insufficient data") +
+  renderSubscoreCard("Speed-to-Lead",       responseSpeedScore  !== null ? responseSpeedScore  : 0, responseSpeedScore  !== null ? "Operational response speed relative to benchmark handling expectations." : "Insufficient data") +
+  renderSubscoreCard("Tracking Readiness",  trackingScore,                                          "Reliability of measurement, attribution, and feedback-loop visibility.");
+
+const computedReferenceHtml =
+  "<h3>Computed Reference</h3><p>Missed gross profit: <strong>" +
+  esc(displayMoney(missedGrossProfitRaw, fieldStatus.estimated_missed_gross_profit_per_month)) +
+  "</strong> &nbsp;&middot;&nbsp; Missed revenue: <strong>" +
+  esc(displayMoney(missedRevenueRaw, fieldStatus.estimated_missed_revenue_per_month)) +
+  "</strong></p>";
+
+const whatGoodLooksLikeHtml =
+  "<div class=\"good-box\">" +
+  "<div class=\"good-label\">Performance Standards</div>" +
+  "<p class=\"good-text\">Typical high-performing " + esc(industryDisplay) + " funnels are expected to meet or exceed the following benchmarks:</p>" +
+  "<ul class=\"good-list\">" +
+  "<li>Lead-to-Booked Rate: 35\u201345%</li>" +
+  "<li>Booked-to-Completed Rate: 70\u201385%</li>" +
+  "<li>Completed-to-Close Rate: 25\u201335%</li>" +
+  "<li>Response Time: under 15 minutes</li>" +
+  "<li>ROAS: 3\u20135\u00d7</li>" +
+  "</ul>" +
+  "<p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p>" +
+  "</div>";
+
+const benchmarkAuthorityHtml =
+  "<div class=\"section\">" +
+  "<div class=\"section-title\">Benchmark Reference</div>" +
+  "<div class=\"card\">" +
+  "<div class=\"grid-2\">" +
+  "<div><h3>Industry Benchmark</h3><p>" + esc(displayText(benchmarkIndustry, benchmarkIndustry ? "ok" : "insufficient_data")) + "</p></div>" +
+  "<div><h3>Benchmark Version</h3><p>"  + esc(displayText(benchmarkVersion,  benchmarkVersion  ? "ok" : "insufficient_data")) + "</p></div>" +
+  "</div>" +
+  "<div style=\"margin-top:12px;\"><h3>Confidence</h3><p>" + esc(displayText(benchmarkConfidence, benchmarkConfidence ? "ok" : "insufficient_data")) + "</p></div>" +
+  "</div>" +
+  "</div>";
+
+const methodologyClarifierHtml =
+  "<div class=\"micro-callout\">Revenue Unlock Opportunity estimates the upside from fixing the single primary bottleneck only. Revenue at Risk reflects the broader gap versus the full benchmark scenario across the funnel.</div>";
+
+// -------------------------
+// Pre-build all dynamic strings
+// -------------------------
+const _industry       = esc(industryDisplay);
+const _date           = esc(formatDate(createdAt));
+const _score          = esc(String(score));
+const _scoreStatus    = esc(scoreStatus(score));
+const _healthClass    = healthClass(_scoreStatus);
+const _bottleneck     = esc(primaryBottleneck);
+const _confidence     = esc(dataConfidence);
+const _scoreInterp    = esc(scoreInterpretation);
+const _confNote       = esc(confidenceNote);
+const _keyFindingText = esc(keyFindingText);
+const _bCtx           = esc(polishNarrativeText(executiveSummary.business_context || ""));
+const _bAssess        = esc(polishNarrativeText(executiveSummary.overall_assessment || ""));
+const _bPrimary = (function() {
+  const raw = executiveSummary.primary_bottleneck || "";
+  // if it's a snake_case key (contains underscore) → format via label helper
+  // if it's an AI-generated sentence → preserve as plain text
+  return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(polishNarrativeText(raw));
+})();
+const _bWhy           = esc(polishNarrativeText(executiveSummary.why_it_matters || ""));
+const _bnName         = esc(toPremiumBottleneckLabel(bottleneckAnalysis.bottleneck_name || data.primary_bottleneck || "Primary Conversion Constraint"));
+const _bnImpact       = esc(polishNarrativeText(bottleneckAnalysis.business_impact || ""));
+const _symptoms       = renderList(bottleneckAnalysis.symptoms);
+const _evidence       = renderList(bottleneckAnalysis.evidence);
+const _rootCauses     = renderList(bottleneckAnalysis.likely_root_causes);
+const _bmSummary      = esc(polishNarrativeText(benchmarkAnalysis.summary || ""));
+const _gapCards       = renderGapCardsFromStructured(gaps);
+const _lossDisplay    = esc(monthlyLossDisplay);
+const _urgency        = esc(costOfInactionAI.urgency_statement || "");
+const _lossVal        = esc(monthlyValueAtRiskDisplay);
+const _adSpend        = esc(adSpendAtRiskDisplay);
+const _lossChannel    = esc(primaryLossChannel);
+const _explanation    = esc(polishNarrativeText(costOfInactionAI.explanation || ""));
+const _next7          = renderList(actionPlan.next_7_days);
+const _next30         = renderList(actionPlan.next_30_days);
+const _next90         = renderList(actionPlan.next_90_days);
+const _bestMove       = esc(polishNarrativeText(strategicRecommendation.best_next_move || ""));
+const _whyFirst       = esc(polishNarrativeText(strategicRecommendation.why_this_first || ""));
+const _notYet         = esc(polishNarrativeText(strategicRecommendation.what_not_to_do_yet || ""));
+const _engagement     = esc(recommendedEngagementText);
+const _outcome        = esc(expectedOutcomeText);
+const _implText1      = esc(implementationOpportunityText1);
+const _implText2      = esc(implementationOpportunityText2);
+const _implText3      = esc(implementationOpportunityText3);
+const _methodology    = esc(methodologyNote);
+
+// -------------------------
+// HTML
+// -------------------------
+const html = "<!doctype html>\n" +
+"<html lang=\"en\">\n" +
+"<head>\n" +
+"  <meta charset=\"utf-8\">\n" +
+"  <title>AI Lead Economics Audit</title>\n" +
+"  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n" +
+"  <style>\n" +
+"    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }\n" +
+"\n" +
+"    @page {\n" +
+"      size: A4;\n" +
+"      margin: 14mm 0 14mm 0;\n" +
+"      @top-left    { content: 'AI Lead Economics Audit \u2014 Growth Diagnostic'; font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #6b7a99; padding-top: 4mm; }\n" +
+"      @top-right   { content: '" + _industry + " \u00b7 " + _date + "'; font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #6b7a99; padding-top: 4mm; }\n" +
+"      @bottom-left { content: 'Confidential'; font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #6b7a99; padding-bottom: 4mm; }\n" +
+"      @bottom-right{ content: 'Page ' counter(page) ' of ' counter(pages); font-family: Arial, Helvetica, sans-serif; font-size: 9px; color: #6b7a99; padding-bottom: 4mm; }\n" +
+"    }\n" +
+"\n" +
+"    body { background: #f0f2f7; font-family: Georgia, 'Times New Roman', serif; color: #1a1f2e; line-height: 1.62; font-size: 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .page { width: 100%; max-width: 100%; margin: 0; background: #ffffff; }\n" +
+"    @media screen { body { background: #e8eaf0; padding: 24px 0; } .page { max-width: 960px; margin: 0 auto; box-shadow: 0 4px 32px rgba(0,0,0,0.12); } }\n" +
+"\n" +
+"    .header { background: #0d1b3e; color: #ffffff; padding: 40px 48px 36px; width: 100%; }\n" +
+"    .eyebrow { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2.3px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 10px; }\n" +
+"    .header h1 { font-size: 31px; font-weight: normal; letter-spacing: -0.4px; line-height: 1.15; margin-bottom: 8px; }\n" +
+"    .header .sub { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #a8b8d8; }\n" +
+"\n" +
+"    .score-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: #162248; border-top: 1px solid #263a6e; width: 100%; }\n" +
+"    .score-cell { min-width: 0; padding: 18px 15px; border-right: 1px solid #263a6e; }\n" +
+"    .score-cell:last-child { border-right: none; }\n" +
+"    .score-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
+"    .score-value { font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.2; white-space: nowrap; }\n" +
+"    .score-value.small { font-size: 15px; line-height: 1.35; }\n" +
+"    .health-strong { color: #8ef0c2; } .health-average { color: #ffd66e; } .health-weak { color: #ff8b8b; }\n" +
+"\n" +
+"    .key-finding { background: #f6f9ff; border-left: 6px solid #1a5fff; padding: 22px 26px; margin: 22px 48px 0; border-radius: 6px; page-break-inside: avoid; }\n" +
+"    .kf-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; letter-spacing: 0.4px; text-transform: uppercase; font-weight: 700; color: #1a5fff; margin-bottom: 6px; }\n" +
+"    .kf-title { font-size: 20px; font-weight: 700; color: #0d1b3e; margin-bottom: 6px; line-height: 1.25; }\n" +
+"    .kf-text { font-size: 14px; color: #4a5268; line-height: 1.58; }\n" +
+"    .score-interpretation { margin: 16px 48px 0; font-size: 13px; color: #4f5a73; line-height: 1.68; }\n" +
+"    .confidence-note { margin: 10px 48px 0; font-size: 11px; color: #7a859c; line-height: 1.55; }\n" +
+"\n" +
+"    .body { padding: 26px 48px 46px; }\n" +
+"    .section { margin-top: 30px; page-break-inside: avoid; }\n" +
+"    .section-title { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #1a5fff; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid #e4eaff; }\n" +
+"    .section-intro { font-family: Arial, Helvetica, sans-serif; font-size: 12px; color: #6b7a99; line-height: 1.6; margin-bottom: 12px; }\n" +
+"\n" +
+"    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }\n" +
+"    .card { border: 1px solid #dde3f0; border-radius: 8px; padding: 20px 22px; background: #fafbff; page-break-inside: avoid; }\n" +
+"    .card h3 { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.3px; text-transform: uppercase; color: #8a94b0; margin-bottom: 8px; margin-top: 16px; }\n" +
+"    .card h3:first-child { margin-top: 0; }\n" +
+"    .card p, .card li { font-size: 13.5px; line-height: 1.62; white-space: pre-wrap; }\n" +
+"    .card ul { padding-left: 18px; } .card li { margin-bottom: 5px; }\n" +
+"    .card.accent { background: #f0f5ff; border-color: #c0d0f8; }\n" +
+"\n" +
+"    .snapshot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }\n" +
+"    .subscore-card { border: 1px solid #dce4f3; border-radius: 8px; padding: 15px 16px; background: #ffffff; page-break-inside: avoid; }\n" +
+"    .subscore-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 10px; }\n" +
+"    .subscore-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; color: #25314f; letter-spacing: 0.2px; }\n" +
+"    .subscore-value { font-family: Arial, Helvetica, sans-serif; font-size: 18px; font-weight: 700; color: #0d1b3e; white-space: nowrap; }\n" +
+"    .subscore-value span { font-size: 11px; color: #7a859c; font-weight: 600; margin-left: 2px; }\n" +
+"    .bar-track { width: 100%; height: 8px; border-radius: 999px; background: #e8edf8; overflow: hidden; margin-bottom: 10px; }\n" +
+"    .bar-fill { height: 100%; border-radius: 999px; }\n" +
+"    .bar-weak { background: #d9363e; } .bar-average { background: #d9a404; } .bar-strong { background: #14855a; }\n" +
+"    .subscore-note { font-size: 11.5px; color: #6b7a99; line-height: 1.48; }\n" +
+"\n" +
+"    .gap-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }\n" +
+"    .gap-card { border: 1px solid #dde3f0; border-radius: 8px; padding: 16px 18px; background: #fafbff; display: flex; flex-direction: column; position: relative; page-break-inside: avoid; min-width: 0; overflow: hidden; }\n" +
+"    .gap-badge { display: inline-block; align-self: flex-start; margin-bottom: 10px; padding: 4px 8px; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; background: #fff1f2; color: #c2363f; border: 1px solid #f3c6cb; border-radius: 999px; }\n" +
+"    .gap-metric { font-family: Arial, Helvetica, sans-serif; font-size: 12px; font-weight: 700; color: #0d1b3e; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #e4eaff; word-break: break-word; }\n" +
+"    .gap-rows { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }\n" +
+"    .gap-row { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; min-width: 0; gap: 8px; }\n" +
+"    .gap-row-diff { padding-top: 6px; border-top: 1px dashed #e4eaff; margin-top: 2px; }\n" +
+"    .gap-label { color: #8a94b0; font-family: Arial, Helvetica, sans-serif; font-size: 11.5px; flex-shrink: 0; }\n" +
+"    .gap-val { font-weight: 600; color: #1a1f2e; text-align: right; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }\n" +
+"    .gap-diff { color: #d9363e; }\n" +
+"    .gap-diff-positive { color: #14855a; }\n" +
+"    .gap-note { font-size: 11.5px; color: #6b7a99; line-height: 1.48; white-space: normal; border-top: 1px solid #edf0f8; padding-top: 8px; margin-top: auto; }\n" +
+"\n" +
+"    .good-box { margin-top: 14px; border: 1px solid #c6d5f7; border-radius: 8px; padding: 16px 18px; background: #f5f8ff; page-break-inside: avoid; }\n" +
+"    .good-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #1d5cff; margin-bottom: 8px; }\n" +
+"    .good-text { font-size: 12.5px; color: #32405f; line-height: 1.55; }\n" +
+"    .good-list { margin: 10px 0; padding-left: 18px; }\n" +
+"    .good-list li { font-size: 12.5px; line-height: 1.5; margin-bottom: 4px; }\n" +
+"\n" +
+"    .inaction-banner { background: #1a1f2e; color: #ffffff; border-radius: 8px; padding: 22px 24px; margin-bottom: 14px; page-break-inside: avoid; }\n" +
+"    .inaction-banner h3 { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 8px; }\n" +
+"    .inaction-loss { font-size: 26px; font-weight: 700; color: #ff7a7a; margin-bottom: 8px; word-break: break-word; line-height: 1.18; }\n" +
+"    .inaction-urgency { font-size: 13.5px; color: #c8d4ee; white-space: pre-wrap; line-height: 1.55; }\n" +
+"    .inaction-explain { font-size: 13px; color: #4a5268; white-space: pre-wrap; margin-top: 4px; line-height: 1.58; }\n" +
+"\n" +
+"    .loss-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 12px 0; }\n" +
+"    .loss-card { background: #fff; border: 1px solid #d9e4fb; border-radius: 8px; padding: 12px 14px; page-break-inside: avoid; min-width: 0; }\n" +
+"    .loss-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.1px; color: #6b7a99; margin-bottom: 6px; }\n" +
+"    .loss-value { font-size: 18px; font-weight: 700; color: #0f2047; line-height: 1.2; word-break: break-word; }\n" +
+"    .loss-value.small { font-size: 13px; }\n" +
+"    .computed-note { font-size: 12.5px; color: #6b7a99; line-height: 1.58; font-style: italic; }\n" +
+"    .micro-callout { margin-top: 12px; padding: 11px 12px; background: #f8fafc; border-left: 4px solid #1d5cff; color: #334155; font-size: 12px; line-height: 1.58; page-break-inside: avoid; }\n" +
+"\n" +
+"    .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }\n" +
+"    .action-card { border-radius: 8px; padding: 18px; page-break-inside: avoid; min-width: 0; }\n" +
+"    .action-card.t7  { background: #eaf3ff; border: 1px solid #bcd6f8; }\n" +
+"    .action-card.t30 { background: #edfaf3; border: 1px solid #b3e8ce; }\n" +
+"    .action-card.t90 { background: #fef6e4; border: 1px solid #f5d98e; }\n" +
+"    .action-period { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; }\n" +
+"    .action-card.t7  .action-period { color: #1a5fff; }\n" +
+"    .action-card.t30 .action-period { color: #14855a; }\n" +
+"    .action-card.t90 .action-period { color: #b07d0a; }\n" +
+"    .action-card ul { padding-left: 16px; } .action-card li { font-size: 12.5px; line-height: 1.52; margin-bottom: 6px; white-space: pre-wrap; }\n" +
+"\n" +
+"    .offer-box, .outcome-box, .implementation-box { margin-top: 14px; padding: 14px 16px; background: #ffffff; border: 1px solid #d9e4fb; border-radius: 8px; page-break-inside: avoid; }\n" +
+"    .outcome-box { margin-top: 10px; border-color: #dfe7f7; }\n" +
+"    .implementation-box { background: #fafcff; border-color: #d8e2f8; }\n" +
+"    .offer-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #1d5cff; margin-bottom: 7px; }\n" +
+"    .offer-text { font-size: 12.8px; color: #243049; line-height: 1.6; white-space: pre-wrap; }\n" +
+"    .implementation-box p { font-size: 12.8px; color: #243049; line-height: 1.6; margin-bottom: 10px; }\n" +
+"    .implementation-box p:last-child { margin-bottom: 0; }\n" +
+"\n" +
+"    .impact-main { background: linear-gradient(135deg, #0f172a, #1e293b); color: #ffffff; border-radius: 12px; padding: 28px; border: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .impact-headline { font-family: Arial, Helvetica, sans-serif; font-size: 15px; color: rgba(255,255,255,0.88); margin-bottom: 20px; }\n" +
+"    .impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }\n" +
+"    .impact-card { background: rgba(255,255,255,0.07); border-radius: 10px; padding: 18px 14px; text-align: center; }\n" +
+"    .impact-card.highlight { background: #16a34a; }\n" +
+"    .impact-value { font-family: Arial, Helvetica, sans-serif; font-size: 28px; font-weight: 700; color: #ffffff; line-height: 1.15; }\n" +
+"    .impact-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 6px; line-height: 1.4; }\n" +
+"    .impact-details { font-size: 13px; color: rgba(255,255,255,0.82); line-height: 1.65; margin-top: 4px; }\n" +
+"    .impact-details strong { color: #ffffff; }\n" +
+"    .impact-model-note { margin-top: 10px; font-size: 11.5px; color: rgba(255,255,255,0.75); line-height: 1.55; }\n" +
+"    .impact-footnote { margin-top: 14px; font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.5; }\n" +
+"\n" +
+"    .footer { background: #0d1b3e; color: #5a78aa; font-family: Arial, Helvetica, sans-serif; font-size: 11px; padding: 16px 48px; display: flex; justify-content: space-between; align-items: center; letter-spacing: 0.3px; }\n" +
+"    @media print {\n" +
+"      .footer { display: none; }\n" +
+"      .section, .card, .subscore-card, .gap-card, .good-box, .inaction-banner,\n" +
+"      .loss-card, .action-card, .offer-box, .outcome-box, .implementation-box,\n" +
+"      .key-finding, .impact-main { page-break-inside: avoid; }\n" +
+"    }\n" +
+"    .cta-box { margin-top: 20px; background: #0d1b3e; color: #ffffff; border-radius: 10px; padding: 32px 36px; text-align: center; border: 1px solid #1a5fff; page-break-inside: avoid; }\n" +
+"    .cta-headline { font-size: 16px; line-height: 1.55; margin-bottom: 24px; color: #e2e8f0; font-weight: normal; }\n" +
+"    .cta-next-step { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 12px; }\n" +
+"    .cta-link { display: inline-block; color: #7eb3ff; font-weight: 700; font-size: 16px; text-decoration: none; border-bottom: 2px solid #1a5fff; padding-bottom: 4px; transition: all 0.2s; }\n" +
+"    .cta-urgency { margin-top: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; }\n" +
+"    .muted { color: #9aa3b8; font-style: italic; }\n" +
+"  </style>\n" +
+"</head>\n" +
+"<body>\n" +
+"<div class=\"page\">\n" +
+"\n" +
+"  <div class=\"header\">\n" +
+"    <div class=\"eyebrow\">AI Lead Economics Audit</div>\n" +
+"    <h1>Growth Diagnostic Report</h1>\n" +
+"    <p class=\"sub\">Generated " + _date + " &nbsp;&middot;&nbsp; " + _industry + "</p>\n" +
+"  </div>\n" +
+"\n" +
+"  <div class=\"score-strip\">\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Funnel Score</div><div class=\"score-value\">" + _score + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Audit Status</div><div class=\"score-value " + _healthClass + "\">" + _scoreStatus + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Highest Risk Area</div><div class=\"score-value small\">" + _bottleneck + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Data Confidence</div><div class=\"score-value small\">" + _confidence + "</div></div>\n" +
+"  </div>\n" +
+"\n" +
+"  <div class=\"key-finding\">\n" +
+"    <div class=\"kf-label\">Key Constraint Identified</div>\n" +
+"    <div class=\"kf-title\">" + _bottleneck + "</div>\n" +
+"    <div class=\"kf-text\">" + _keyFindingText + "</div>\n" +
+"  </div>\n" +
+"\n" +
+"  <div class=\"score-interpretation\">" + _scoreInterp + "</div>\n" +
+"  <div class=\"confidence-note\">" + _confNote + "</div>\n" +
+"\n" +
+"  <div class=\"body\">\n" +
+"\n" +
+"    <div class=\"section\" style=\"margin-top:22px;\">\n" +
+"      <div class=\"section-title\">Performance Breakdown</div>\n" +
+"      <div class=\"snapshot-grid\">" + subscoresHtml + "</div>\n" +
+"    </div>\n" +
+"\n" +
+"    " + customExecutiveSummaryHtml + "\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Audit Overview</div>\n" +
+"      <div class=\"grid-2\">\n" +
+"        <div class=\"card\">\n" +
+"          <h3>Business Context</h3><p>" + _bCtx + "</p>\n" +
+"          <h3>Audit Finding</h3><p>" + _bAssess + "</p>\n" +
+"        </div>\n" +
+"        <div class=\"card accent\">\n" +
+"          <h3>Primary Constraint</h3><p>" + _bPrimary + "</p>\n" +
+"          <h3>Why This Matters</h3><p>" + _bWhy + "</p>\n" +
+"        </div>\n" +
+"      </div>\n" +
+"    </div>\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Constraint Diagnosis</div>\n" +
+"      <div class=\"section-intro\">The evidence below explains why this constraint has the greatest effect on growth economics.</div>\n" +
+"      <div class=\"card\">\n" +
+"        <h3>" + _bnName + "</h3>\n" +
+"        <div class=\"grid-2\" style=\"margin-top:12px;\">\n" +
+"          <div><h3>Symptoms</h3>" + _symptoms + "<h3>Evidence</h3>" + _evidence + "</div>\n" +
+"          <div><h3>Business Impact</h3><p>" + _bnImpact + "</p><h3>Likely Root Causes</h3>" + _rootCauses + "</div>\n" +
+"        </div>\n" +
+"      </div>\n" +
+"    </div>\n" +
+"\n" +
+"    " + benchmarkAuthorityHtml + "\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Performance vs Benchmark</div>\n" +
+"      <div class=\"section-intro\">The gaps below show where current performance deviates most materially from efficient operator benchmarks.</div>\n" +
+"      <div class=\"card\"><p>" + _bmSummary + "</p></div>\n" +
+"      " + _gapCards + "\n" +
+"      " + whatGoodLooksLikeHtml + "\n" +
+"    </div>\n" +
+"\n" +
+"    " + revenueUnlockHtml + "\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Revenue at Risk</div>\n" +
+"      <div class=\"inaction-banner\">\n" +
+"        <h3>Estimated Monthly Loss</h3>\n" +
+"        <div class=\"inaction-loss\">" + _lossDisplay + "</div>\n" +
+"        <div class=\"inaction-urgency\">" + _urgency + "</div>\n" +
+"      </div>\n" +
+"      <div class=\"loss-grid\">\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Monthly Value at Risk</div><div class=\"loss-value\">" + _lossVal + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Ad Spend at Risk</div><div class=\"loss-value\">" + _adSpend + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Primary Loss Channel</div><div class=\"loss-value small\">" + _lossChannel + "</div></div>\n" +
+"      </div>\n" +
+"      <div class=\"card\">\n" +
+"        <h3>Explanation</h3>\n" +
+"        <p class=\"inaction-explain\">" + _explanation + "</p>\n" +
+"        " + computedReferenceHtml + "\n" +
+"        " + methodologyClarifierHtml + "\n" +
+"        " + (score >= 85 || String(data.primary_bottleneck || "") === "insufficient_data"
+  ? "<div class=\"micro-callout\">Maintaining data quality and expanding tracking infrastructure will ensure current performance advantages are sustained as ad spend and lead volume increase.</div>"
+  : "<div class=\"micro-callout\">Delaying correction increases wasted spend, keeps conversion efficiency suppressed, and makes future scaling more expensive.</div>") + "\n" +
+"      </div>\n" +
+"    </div>\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Recommended Next Move</div>\n" +
+"      <div class=\"section-intro\">The implementation path below prioritizes the highest-leverage correction before broader scaling.</div>\n" +
+"      <div class=\"action-grid\">\n" +
+"        <div class=\"action-card t7\"><div class=\"action-period\">Next 7 Days</div>" + _next7 + "</div>\n" +
+"        <div class=\"action-card t30\"><div class=\"action-period\">Next 30 Days</div>" + _next30 + "</div>\n" +
+"        <div class=\"action-card t90\"><div class=\"action-period\">Next 90 Days</div>" + _next90 + "</div>\n" +
+"      </div>\n" +
+"      <div class=\"card accent\" style=\"margin-top:14px;\">\n" +
+"        <h3>Implementation Priority</h3><p>" + _bestMove + "</p>\n" +
+"        <h3>Why This First</h3><p>" + _whyFirst + "</p>\n" +
+"        <h3>What Not To Do Yet</h3><p>" + _notYet + "</p>\n" +
+"        <div class=\"offer-box\"><div class=\"offer-label\">Recommended Engagement</div><div class=\"offer-text\">" + _engagement + "</div></div>\n" +
+"        <div class=\"outcome-box\"><div class=\"offer-label\">Expected Outcome</div><div class=\"offer-text\">" + _outcome + "</div></div>\n" +
+"      </div>\n" +
+"    </div>\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"cta-box\">\n" +
+"        <div class=\"cta-next-step\">Next Step</div>\n" +
+"        <div class=\"cta-headline\">\n" +
+"          This report identifies the problem, but not the full implementation strategy.<br>\n" +
+"          I’ll walk you through exactly how to fix this bottleneck <strong>using your current funnel</strong> (no full rebuild required).\n" +
+"        </div>\n" +
+"        <div style=\"margin-top:20px;\">\n" +
+"          <a href=\"#\" class=\"cta-link\">\u2192 Book a 15-min strategy call: [Calendar Link]</a>\n" +
+"        </div>\n" +
+"        <div class=\"cta-urgency\">\n" +
+"          I only take 3\u20135 businesses per week for this.\n" +
+"        </div>\n" +
+"      </div>\n" +
+"    </div>\n" +
+"\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Audit Method</div>\n" +
+"      <div class=\"card\"><p>" + _methodology + "</p></div>\n" +
+"    </div>\n" +
+"\n" +
+"  </div>\n" +
+"\n" +
+"  <div class=\"footer\">\n" +
+"    <span>AI Lead Economics Audit &nbsp;&middot;&nbsp; " + _industry + " &nbsp;&middot;&nbsp; " + _date + "</span>\n" +
+"    <span>Confidential</span>\n" +
+"  </div>\n" +
+"\n" +
+"</div>\n" +
+"</body>\n" +
+"</html>";
+
+return [{ json: { ...data, html: html } }];

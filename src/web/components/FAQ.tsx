@@ -22,7 +22,7 @@ const faqs = [
     a: 'The report is generated automatically and delivered instantly upon completion and payment. You\'ll have it in your inbox within minutes of finishing the 12 questions.',
   },
   {
-    q: 'Is the $9.99 a subscription?',
+    q: 'Is the $4.99 a subscription?',
     a: 'No. It\'s a one-time payment for your diagnostic report. There are no recurring charges, no upsell traps, and no subscription. You pay once, you get the report.',
   },
   {

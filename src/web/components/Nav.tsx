@@ -27,7 +27,7 @@ export function Nav() {
           style={{ background: '#f97316', color: '#fff' }}
           onMouseOver={e => (e.currentTarget.style.background = '#ea6c0a')}
           onMouseOut={e => (e.currentTarget.style.background = '#f97316')}>
-          Run Diagnostic — $9.99
+          Run Diagnostic — $4.99
         </a>
       </div>
     </nav>

@@ -17,7 +17,7 @@ export function CTA() {
 
             {/* Price block */}
             <div className="inline-flex flex-col items-center gap-2 mb-10">
-              <div className="text-5xl font-black" style={{ color: '#f97316' }}>$9.99</div>
+              <div className="text-5xl font-black" style={{ color: '#f97316' }}>$4.99</div>
               <div className="text-sm" style={{ color: '#666' }}>One-time payment · No subscription · PDF delivered instantly</div>
             </div>
 

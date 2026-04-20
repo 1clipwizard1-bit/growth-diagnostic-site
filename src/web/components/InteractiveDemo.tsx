@@ -156,7 +156,7 @@ export function InteractiveDemo() {
                       <a href="/diagnostic" className="block w-full text-center py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#fff' }}
                         onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
                         onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-                        Run My Full Diagnostic — $9.99
+                        Run My Full Diagnostic — $4.99
                       </a>
                     </div>
                   </div>

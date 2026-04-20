@@ -1,0 +1,1098 @@
+const data = $json;
+
+// -------------------------
+// Helpers
+// -------------------------
+function firstDefined(...vals) {
+  for (const v of vals) {
+    if (v !== undefined && v !== null && v !== "") return v;
+  }
+  return undefined;
+}
+
+function pick(...keys) {
+  for (const k of keys) {
+    if (Object.prototype.hasOwnProperty.call(data, k)) {
+      const v = data[k];
+      if (v !== undefined && v !== null && v !== "") return v;
+    }
+  }
+  return undefined;
+}
+
+function numOrNull(v) {
+  if (v === undefined || v === null || v === "") return null;
+  if (typeof v === "string") {
+    const cleaned = v.replace(/[$,%\s,]/g, "");
+    if (cleaned === "") return null;
+    const n = Number(cleaned);
+    return Number.isFinite(n) ? n : null;
+  }
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+function boolOrNull(v) {
+  if (v === undefined || v === null || v === "") return null;
+  if (typeof v === "boolean") return v;
+  if (typeof v === "number") return v !== 0;
+  if (typeof v === "string") {
+    const s = v.trim().toLowerCase();
+    if (["true", "yes", "1"].includes(s)) return true;
+    if (["false", "no", "0"].includes(s)) return false;
+  }
+  return null;
+}
+
+function safeDivOrNull(a, b) {
+  if (a === null || b === null) return null;
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b === 0) return null;
+  return a / b;
+}
+
+function roundOrNull(v, digits = 2) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return null;
+  const p = Math.pow(10, digits);
+  return Math.round((v + Number.EPSILON) * p) / p;
+}
+
+function pctGapOrNull(actual, benchmark) {
+  if (
+    actual === null || actual === undefined ||
+    benchmark === null || benchmark === undefined ||
+    !Number.isFinite(actual) || !Number.isFinite(benchmark) ||
+    benchmark === 0
+  ) return null;
+  return ((actual - benchmark) / benchmark) * 100;
+}
+
+function normalizeRate(v) {
+  const n = numOrNull(v);
+  if (n === null) return null;
+  if (n > 1) return n / 100;
+  if (n < 0) return null;
+  return n;
+}
+
+function multiplyOrNull(...vals) {
+  for (const v of vals) {
+    if (v === null || v === undefined || !Number.isFinite(v)) return null;
+  }
+  return vals.reduce((acc, v) => acc * v, 1);
+}
+
+function subtractOrNull(a, b) {
+  if (a === null || b === null || a === undefined || b === undefined) return null;
+  if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+  return a - b;
+}
+
+function addRisk(risks, key, condition) {
+  if (condition) risks.push(key);
+}
+
+function statusForValue(v) {
+  return v === null || v === undefined ? "insufficient_data" : "ok";
+}
+
+function buildStatusMap(obj) {
+  const out = {};
+  for (const [key, value] of Object.entries(obj)) {
+    out[key] = statusForValue(value);
+  }
+  return out;
+}
+
+function hasBenchmarkValue(v) {
+  return v !== null && v !== undefined && Number.isFinite(v);
+}
+
+function minMaxZero(v) {
+  if (v === null || v === undefined || !Number.isFinite(v)) return null;
+  return Math.max(0, v);
+}
+
+// -------------------------
+// Extract canonical fields
+// -------------------------
+const industryRaw = firstDefined(pick("industry")) || "unknown";
+const industry = String(industryRaw).toLowerCase().replace(/\s+/g, "_");
+const offerType = firstDefined(pick("offer_type", "offer type")) || "";
+const salesModel = firstDefined(pick("sales_model", "sales model")) || "";
+
+const avgDealSizeInput = numOrNull(firstDefined(pick("avg_deal_size", "avg deal size")));
+const grossMargin = normalizeRate(firstDefined(pick("gross_margin", "gross margin", "gross_margin_pct", "gross margin pct")));
+const salesCycleDays = numOrNull(firstDefined(pick("sales_cycle_days", "sales cycle days")));
+const businessNotes = firstDefined(pick("business_notes", "business notes", "buisnes notes ")) || "";
+const windowDays = numOrNull(firstDefined(pick("window_days", "window days"))) ?? 30;
+
+const adSpend = numOrNull(firstDefined(pick("ad_spend", "ad spend")));
+const leads = numOrNull(firstDefined(pick("leads")));
+const callsBooked = numOrNull(firstDefined(pick("calls_booked", "calls booked")));
+const callsCompleted = numOrNull(firstDefined(pick("calls_completed", "calls completed")));
+const closedDeals = numOrNull(firstDefined(pick("closed_deals", "closed deals")));
+const revenue = numOrNull(firstDefined(pick("revenue")));
+
+const cplInput = numOrNull(firstDefined(pick("cpl_input", "cpl input")));
+const cpc = numOrNull(firstDefined(pick("cpc")));
+
+const hasCRM = boolOrNull(firstDefined(pick("has_crm", "has crm")));
+const leadSourceTracked = boolOrNull(firstDefined(pick("lead_source_tracked", "lead source tracked")));
+const offlineConversionsTracked = boolOrNull(firstDefined(pick("offline_conversions_tracked", "offline conversions tracked")));
+const trackingNotes = firstDefined(pick("tracking_notes", "tracking notes")) || "";
+
+const responseTimeMinutes = numOrNull(firstDefined(pick("response_time_minutes", "response time minutes")));
+const hasEmailFollowups = boolOrNull(firstDefined(pick("has_email_followups", "has email followups")));
+const hasSmsWhatsApp = boolOrNull(firstDefined(pick("has_sms_whatsapp", "has sms whatsapp")));
+const retargetingRunning = boolOrNull(firstDefined(pick("retargeting_running", "retargeting running")));
+
+const repeatPurchaseRate = normalizeRate(firstDefined(pick("repeat_purchase_rate", "repeat purchase rate", "repeat_purchase_rate_pct", "repeat purchase rate pct")));
+const subscription = boolOrNull(firstDefined(pick("subscription")));
+const estimatedLtv = numOrNull(firstDefined(pick("estimated_ltv", "estimated ltv")));
+const retentionNotes = firstDefined(pick("retention_notes", "retention notes")) || "";
+
+const budgetConstraint = firstDefined(pick("budget_constraint", "budget constraint")) || "";
+const teamSize = firstDefined(pick("team_size", "team size")) || "";
+const priority = firstDefined(pick("priority")) || "";
+
+// -------------------------
+// Benchmark input from Benchmark Resolver ONLY
+// Canonical shape: data.benchmarks.{profile,meta,confidence}
+// Backward-compatible fallback kept only for transition
+// -------------------------
+const benchmarkProfile =
+  (data.benchmarks && data.benchmarks.profile && typeof data.benchmarks.profile === "object")
+    ? data.benchmarks.profile
+    : (data.benchmark_profile && typeof data.benchmark_profile === "object")
+      ? data.benchmark_profile
+      : {};
+
+const benchmarkMeta =
+  (data.benchmarks && data.benchmarks.meta && typeof data.benchmarks.meta === "object")
+    ? data.benchmarks.meta
+    : (data.benchmark_meta && typeof data.benchmark_meta === "object")
+      ? data.benchmark_meta
+      : null;
+
+const benchmarkConfidence =
+  firstDefined(
+    data.benchmarks?.confidence,
+    data.benchmark_confidence
+  ) || null;
+
+const bmLeadToBooked = numOrNull(benchmarkProfile.lead_to_booked_rate);
+const bmBookedToCompleted = numOrNull(benchmarkProfile.booked_to_completed_rate);
+const bmCompletedToClose = numOrNull(benchmarkProfile.completed_to_close_rate);
+const bmRoas = numOrNull(benchmarkProfile.roas);
+const bmCpl = numOrNull(benchmarkProfile.cpl);
+const bmResponseTime = numOrNull(benchmarkProfile.response_time_minutes);
+
+const bmLeadToCloseDirect = numOrNull(benchmarkProfile.lead_to_close_rate);
+
+const bmLeadToClose =
+  bmLeadToCloseDirect !== null
+    ? bmLeadToCloseDirect
+    : multiplyOrNull(
+        bmLeadToBooked,
+        bmBookedToCompleted,
+        bmCompletedToClose
+      );
+
+// -------------------------
+// Core metrics
+// -------------------------
+const leadToBookedRate = safeDivOrNull(callsBooked, leads);
+const bookedToCompletedRate = safeDivOrNull(callsCompleted, callsBooked);
+const completedToCloseRate = safeDivOrNull(closedDeals, callsCompleted);
+const leadToCloseRate = safeDivOrNull(closedDeals, leads);
+
+const computedCpl = safeDivOrNull(adSpend, leads);
+const cpl = cplInput !== null ? cplInput : computedCpl;
+
+const costPerBookedCall = safeDivOrNull(adSpend, callsBooked);
+const costPerCompletedCall = safeDivOrNull(adSpend, callsCompleted);
+const cac = safeDivOrNull(adSpend, closedDeals);
+
+const avgDealSizeComputed = safeDivOrNull(revenue, closedDeals);
+const finalAvgDealSize = avgDealSizeInput !== null ? avgDealSizeInput : avgDealSizeComputed;
+
+const grossProfit = multiplyOrNull(revenue, grossMargin);
+const netProfitAfterAds = subtractOrNull(grossProfit, adSpend);
+const roas = safeDivOrNull(revenue, adSpend);
+const grossProfitRoas = safeDivOrNull(grossProfit, adSpend);
+const leadValue = safeDivOrNull(revenue, leads);
+
+const inferredLtv = estimatedLtv !== null && estimatedLtv > 0
+  ? estimatedLtv
+  : (
+      finalAvgDealSize !== null && repeatPurchaseRate !== null
+        ? finalAvgDealSize * (1 + repeatPurchaseRate)
+        : null
+    );
+
+// -------------------------
+// Benchmark scenario
+// -------------------------
+const benchmarkBookedCalls = hasBenchmarkValue(bmLeadToBooked) && leads !== null
+  ? leads * bmLeadToBooked
+  : null;
+
+const benchmarkCompletedCalls = hasBenchmarkValue(bmBookedToCompleted)
+  ? multiplyOrNull(benchmarkBookedCalls, bmBookedToCompleted)
+  : null;
+
+const benchmarkClosedDeals = hasBenchmarkValue(bmCompletedToClose)
+  ? multiplyOrNull(benchmarkCompletedCalls, bmCompletedToClose)
+  : null;
+
+const benchmarkRevenue = benchmarkClosedDeals !== null && finalAvgDealSize !== null
+  ? benchmarkClosedDeals * finalAvgDealSize
+  : null;
+
+const benchmarkGrossProfit = benchmarkRevenue !== null && grossMargin !== null
+  ? benchmarkRevenue * grossMargin
+  : null;
+
+// -------------------------
+// Gaps
+// -------------------------
+const gaps = {
+  lead_to_booked_rate: {
+    actual: roundOrNull(leadToBookedRate, 4),
+    benchmark: roundOrNull(bmLeadToBooked, 4),
+    difference_pp: roundOrNull(
+      leadToBookedRate !== null && bmLeadToBooked !== null
+        ? (leadToBookedRate - bmLeadToBooked) * 100
+        : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(leadToBookedRate, bmLeadToBooked), 2)
+  },
+  booked_to_completed_rate: {
+    actual: roundOrNull(bookedToCompletedRate, 4),
+    benchmark: roundOrNull(bmBookedToCompleted, 4),
+    difference_pp: roundOrNull(
+      bookedToCompletedRate !== null && bmBookedToCompleted !== null
+        ? (bookedToCompletedRate - bmBookedToCompleted) * 100
+        : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(bookedToCompletedRate, bmBookedToCompleted), 2)
+  },
+  completed_to_close_rate: {
+    actual: roundOrNull(completedToCloseRate, 4),
+    benchmark: roundOrNull(bmCompletedToClose, 4),
+    difference_pp: roundOrNull(
+      completedToCloseRate !== null && bmCompletedToClose !== null
+        ? (completedToCloseRate - bmCompletedToClose) * 100
+        : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(completedToCloseRate, bmCompletedToClose), 2)
+  },
+  lead_to_close_rate: {
+    actual: roundOrNull(leadToCloseRate, 4),
+    benchmark: roundOrNull(bmLeadToClose, 4),
+    difference_pp: roundOrNull(
+      leadToCloseRate !== null && bmLeadToClose !== null
+        ? (leadToCloseRate - bmLeadToClose) * 100
+        : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(leadToCloseRate, bmLeadToClose), 2)
+  },
+  roas: {
+    actual: roundOrNull(roas, 2),
+    benchmark: roundOrNull(bmRoas, 2),
+    difference: roundOrNull(
+      roas !== null && bmRoas !== null ? roas - bmRoas : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(roas, bmRoas), 2)
+  },
+  cpl: {
+    actual: roundOrNull(cpl, 2),
+    benchmark: roundOrNull(bmCpl, 2),
+    difference: roundOrNull(
+      cpl !== null && bmCpl !== null ? cpl - bmCpl : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(cpl, bmCpl), 2)
+  },
+  response_time_minutes: {
+    actual: roundOrNull(responseTimeMinutes, 2),
+    benchmark: roundOrNull(bmResponseTime, 2),
+    difference: roundOrNull(
+      responseTimeMinutes !== null && bmResponseTime !== null
+        ? responseTimeMinutes - bmResponseTime
+        : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(responseTimeMinutes, bmResponseTime), 2)
+  }
+};
+
+// -------------------------
+// Cost of Inaction (Fixed Logic)
+// -------------------------
+
+let costOfInaction = {
+  estimated_missed_booked_calls_per_month: 0,
+  estimated_missed_completed_calls_per_month: 0,
+  estimated_missed_closed_deals_per_month: 0,
+  estimated_missed_revenue_per_month: 0,
+  estimated_missed_gross_profit_per_month: 0
+};
+
+// ----------
+// 1. Funnel Loss
+// ----------
+
+let funnelLossRevenue = 0;
+let funnelLossProfit = 0;
+let funnelMissedBooked = 0;
+let funnelMissedCompleted = 0;
+let funnelMissedClosed = 0;
+
+if (
+  leads !== null &&
+  bmLeadToBooked !== null &&
+  bookedToCompletedRate !== null &&
+  completedToCloseRate !== null &&
+  finalAvgDealSize !== null &&
+  grossMargin !== null &&
+  revenue !== null
+) {
+  const targetBooked = leads * bmLeadToBooked;
+  const targetCompleted = targetBooked * bookedToCompletedRate;
+  const targetClosed = targetCompleted * completedToCloseRate;
+
+  const targetRevenue = targetClosed * finalAvgDealSize;
+  const targetProfit = targetRevenue * grossMargin;
+
+  funnelMissedBooked = Math.max(0, targetBooked - (callsBooked ?? 0));
+  funnelMissedCompleted = Math.max(0, targetCompleted - (callsCompleted ?? 0));
+  funnelMissedClosed = Math.max(0, targetClosed - (closedDeals ?? 0));
+
+  funnelLossRevenue = Math.max(0, targetRevenue - revenue);
+  funnelLossProfit = Math.max(0, targetProfit - (revenue * grossMargin));
+}
+
+// ----------
+// 2. Economics Loss
+// ----------
+
+let economicsLossRevenue = 0;
+let economicsLossProfit = 0;
+
+if (
+  adSpend !== null &&
+  bmRoas !== null &&
+  grossMargin !== null &&
+  revenue !== null
+) {
+  const targetRevenue = adSpend * bmRoas;
+  const targetProfit = targetRevenue * grossMargin;
+
+  economicsLossRevenue = Math.max(0, targetRevenue - revenue);
+  economicsLossProfit = Math.max(0, targetProfit - (revenue * grossMargin));
+}
+
+// ----------
+// 3. Final selection
+// ----------
+
+const finalRevenueLoss = Math.max(funnelLossRevenue, economicsLossRevenue);
+const finalProfitLoss = Math.max(funnelLossProfit, economicsLossProfit);
+
+// ----------
+// 4. Fill internal object
+// ----------
+
+costOfInaction = {
+  estimated_missed_booked_calls_per_month: funnelMissedBooked,
+  estimated_missed_completed_calls_per_month: funnelMissedCompleted,
+  estimated_missed_closed_deals_per_month: funnelMissedClosed,
+  estimated_missed_revenue_per_month: finalRevenueLoss,
+  estimated_missed_gross_profit_per_month: finalProfitLoss
+};
+
+// ----------
+// 5. Output object
+// ----------
+
+const costOfInactionOutput = {
+  estimated_missed_booked_calls_per_month: roundOrNull(costOfInaction.estimated_missed_booked_calls_per_month, 2),
+  estimated_missed_completed_calls_per_month: roundOrNull(costOfInaction.estimated_missed_completed_calls_per_month, 2),
+  estimated_missed_closed_deals_per_month: roundOrNull(costOfInaction.estimated_missed_closed_deals_per_month, 2),
+  estimated_missed_revenue_per_month: roundOrNull(costOfInaction.estimated_missed_revenue_per_month, 2),
+  estimated_missed_gross_profit_per_month: roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, 2)
+};
+// -------------------------
+// Value at risk
+// -------------------------
+const monthlyValueAtRisk = costOfInaction.estimated_missed_gross_profit_per_month;
+const adSpendAtRisk =
+  roas !== null && bmRoas !== null && roas < bmRoas && adSpend !== null
+    ? adSpend
+    : null;
+
+// -------------------------
+// Simple score
+// Only uses available benchmark comparisons
+// -------------------------
+const scoreParts = [];
+
+if (leadToBookedRate !== null && bmLeadToBooked !== null && bmLeadToBooked > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (leadToBookedRate / bmLeadToBooked) * 100)));
+}
+
+if (bookedToCompletedRate !== null && bmBookedToCompleted !== null && bmBookedToCompleted > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (bookedToCompletedRate / bmBookedToCompleted) * 100)));
+}
+
+if (completedToCloseRate !== null && bmCompletedToClose !== null && bmCompletedToClose > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (completedToCloseRate / bmCompletedToClose) * 100)));
+}
+
+if (roas !== null && bmRoas !== null && bmRoas > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (roas / bmRoas) * 100)));
+}
+
+if (cpl !== null && bmCpl !== null && cpl > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (bmCpl / cpl) * 100)));
+}
+
+if (responseTimeMinutes !== null && bmResponseTime !== null && responseTimeMinutes > 0) {
+  scoreParts.push(Math.min(100, Math.max(0, (bmResponseTime / responseTimeMinutes) * 100)));
+}
+
+const score =
+  scoreParts.length > 0
+    ? roundOrNull(scoreParts.reduce((a, b) => a + b, 0) / scoreParts.length, 1)
+    : null;
+
+let healthLabel = "insufficient_data";
+if (score !== null) {
+  if (score >= 85) healthLabel = "strong";
+  else if (score >= 65) healthLabel = "average";
+  else healthLabel = "weak";
+}
+
+const keyStatuses = [
+  leadToBookedRate,
+  bookedToCompletedRate,
+  completedToCloseRate,
+  roas,
+  cpl,
+  grossMargin,
+  finalAvgDealSize
+].map(statusForValue);
+
+const okCount = keyStatuses.filter(s => s === "ok").length;
+const dataConfidence =
+  okCount >= 6 ? "high" :
+  okCount >= 4 ? "medium" :
+  "low";
+
+// -------------------------
+// Bottleneck logic - Variant C
+// Economics-first prioritization
+// -------------------------
+let primaryBottleneck = "insufficient_data";
+
+const hasBenchmarkCoverage =
+  bmLeadToBooked !== null ||
+  bmBookedToCompleted !== null ||
+  bmCompletedToClose !== null ||
+  bmRoas !== null ||
+  bmResponseTime !== null;
+
+if (hasBenchmarkCoverage) {
+  const economicsConstraint =
+    roas !== null &&
+    bmRoas !== null &&
+    bmRoas > 0 &&
+    roas < bmRoas * 0.8;
+
+  const leadBookingConstraint =
+    leadToBookedRate !== null &&
+    bmLeadToBooked !== null &&
+    bmLeadToBooked > 0 &&
+    leadToBookedRate < bmLeadToBooked * 0.8;
+
+  const showRateConstraint =
+    bookedToCompletedRate !== null &&
+    bmBookedToCompleted !== null &&
+    bmBookedToCompleted > 0 &&
+    bookedToCompletedRate < bmBookedToCompleted * 0.85;
+
+  const salesConstraint =
+    completedToCloseRate !== null &&
+    bmCompletedToClose !== null &&
+    bmCompletedToClose > 0 &&
+    completedToCloseRate < bmCompletedToClose * 0.85;
+
+  const speedConstraint =
+    responseTimeMinutes !== null &&
+    bmResponseTime !== null &&
+    bmResponseTime > 0 &&
+    responseTimeMinutes > bmResponseTime * 2;
+
+  // Priority order:
+  // 1) Economics first
+  // 2) Then funnel
+  // 3) Then speed
+  if (economicsConstraint) {
+    primaryBottleneck = "economics_efficiency";
+  } else if (leadBookingConstraint) {
+    primaryBottleneck = "lead_to_booking_conversion";
+  } else if (showRateConstraint) {
+    primaryBottleneck = "appointment_show_rate";
+  } else if (salesConstraint) {
+    primaryBottleneck = "sales_conversion";
+  } else if (speedConstraint) {
+    primaryBottleneck = "speed_to_lead";
+  }
+}
+
+// -------------------------
+// Secondary risks
+// -------------------------
+const secondaryRisks = [];
+addRisk(secondaryRisks, "no_crm", hasCRM === false);
+addRisk(secondaryRisks, "lead_source_not_tracked", leadSourceTracked === false);
+addRisk(secondaryRisks, "offline_conversions_not_tracked", offlineConversionsTracked === false);
+addRisk(secondaryRisks, "slow_response_time", responseTimeMinutes !== null && bmResponseTime !== null && responseTimeMinutes > bmResponseTime);
+addRisk(secondaryRisks, "no_email_followups", hasEmailFollowups === false);
+addRisk(secondaryRisks, "no_sms_whatsapp_followup", hasSmsWhatsApp === false);
+addRisk(secondaryRisks, "no_retargeting", retargetingRunning === false);
+addRisk(secondaryRisks, "low_repeat_purchase_rate", repeatPurchaseRate !== null && repeatPurchaseRate < 0.1);
+
+// -------------------------
+// Structured outputs
+// -------------------------
+const metricsOutput = {
+  lead_to_booked_rate: roundOrNull(leadToBookedRate, 4),
+  booked_to_completed_rate: roundOrNull(bookedToCompletedRate, 4),
+  completed_to_close_rate: roundOrNull(completedToCloseRate, 4),
+  lead_to_close_rate: roundOrNull(leadToCloseRate, 4),
+  cpl: roundOrNull(cpl, 2),
+  computed_cpl: roundOrNull(computedCpl, 2),
+  cost_per_booked_call: roundOrNull(costPerBookedCall, 2),
+  cost_per_completed_call: roundOrNull(costPerCompletedCall, 2),
+  cac: roundOrNull(cac, 2),
+  avg_deal_size: roundOrNull(finalAvgDealSize, 2),
+  gross_profit: roundOrNull(grossProfit, 2),
+  net_profit_after_ads: roundOrNull(netProfitAfterAds, 2),
+  roas: roundOrNull(roas, 2),
+  gross_profit_roas: roundOrNull(grossProfitRoas, 2),
+  lead_value: roundOrNull(leadValue, 2),
+  response_time_minutes: roundOrNull(responseTimeMinutes, 2),
+  inferred_ltv: roundOrNull(inferredLtv, 2)
+};
+
+const valueAtRiskOutput = {
+  monthly_value_at_risk: roundOrNull(monthlyValueAtRisk, 2),
+  ad_spend_at_risk: roundOrNull(adSpendAtRisk, 2)
+};
+
+const fieldStatus = {
+  ...buildStatusMap(metricsOutput),
+  ...buildStatusMap(costOfInactionOutput),
+  ...buildStatusMap(valueAtRiskOutput)
+};
+
+const benchmarkOutput = {
+  profile: {
+    lead_to_booked_rate: roundOrNull(bmLeadToBooked, 4),
+    booked_to_completed_rate: roundOrNull(bmBookedToCompleted, 4),
+    completed_to_close_rate: roundOrNull(bmCompletedToClose, 4),
+    lead_to_close_rate: roundOrNull(bmLeadToClose, 4),
+    roas: roundOrNull(bmRoas, 2),
+    cpl: roundOrNull(bmCpl, 2),
+    response_time_minutes: roundOrNull(bmResponseTime, 2)
+  },
+  meta: benchmarkMeta,
+  confidence: benchmarkConfidence
+};
+
+// -------------------------
+// Impact Simulation (Primary Bottleneck Only)
+// Production-safe multi-branch version
+// -------------------------
+
+let impactSimulation = {
+  status: "insufficient_data"
+};
+
+if (primaryBottleneck !== "insufficient_data" && benchmarkProfile) {
+  try {
+    // 1) Lead -> Booking
+    if (
+      primaryBottleneck === "lead_to_booking_conversion" &&
+      leadToBookedRate !== null &&
+      bmLeadToBooked !== null &&
+      leads !== null &&
+      bookedToCompletedRate !== null &&
+      completedToCloseRate !== null &&
+      finalAvgDealSize !== null &&
+      grossMargin !== null
+    
+    ) {
+      const currentBooked = callsBooked ?? (leads * leadToBookedRate);
+      const targetBooked = leads * bmLeadToBooked;
+
+      const additionalBooked = minMaxZero(targetBooked - currentBooked);
+      const additionalCompleted = additionalBooked * bookedToCompletedRate;
+      const additionalClosed = additionalCompleted * completedToCloseRate;
+      const additionalRevenue = additionalClosed * finalAvgDealSize;
+      const additionalGrossProfit = additionalRevenue * grossMargin;
+
+      impactSimulation = {
+        status: "ok",
+        primary_fix: {
+          metric: "lead_to_booked_rate",
+          current: roundOrNull(leadToBookedRate, 4),
+          target: roundOrNull(bmLeadToBooked, 4),
+          improvement: roundOrNull(bmLeadToBooked - leadToBookedRate, 4),
+
+          expected_additional_booked_calls: roundOrNull(additionalBooked, 2),
+          expected_additional_completed_calls: roundOrNull(additionalCompleted, 2),
+          expected_additional_closed_deals: roundOrNull(additionalClosed, 2),
+
+          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
+          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2)
+        }
+      };
+    }
+
+     // 2) Economics Efficiency
+    else if (
+      primaryBottleneck === "economics_efficiency" &&
+      roas !== null &&
+      bmRoas !== null &&
+      adSpend !== null &&
+      grossMargin !== null &&
+      revenue !== null
+    ) {
+      const targetRevenue = adSpend * bmRoas;
+      const targetGrossProfit = targetRevenue * grossMargin;
+
+      const additionalRevenue = minMaxZero(targetRevenue - revenue);
+      const additionalGrossProfit = minMaxZero(targetGrossProfit - (revenue * grossMargin));
+
+      const additionalClosedDeals =
+        finalAvgDealSize !== null && finalAvgDealSize > 0
+          ? additionalRevenue / finalAvgDealSize
+          : null;
+
+      impactSimulation = {
+        status: "ok",
+        primary_fix: {
+          metric: "roas",
+          current: roundOrNull(roas, 4),
+          target: roundOrNull(bmRoas, 4),
+          improvement: roundOrNull(bmRoas - roas, 4),
+          expected_additional_booked_calls: null,
+          expected_additional_completed_calls: null,
+          expected_additional_closed_deals: roundOrNull(additionalClosedDeals, 2),
+          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
+          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2),
+          modeling_note: "Revenue uplift required to reach benchmark ROAS at current ad spend. Additional closed deals are estimated using current average deal size; booked and completed call counts are not inferred for economics-led simulations."
+        }
+      };
+    }
+    // 3) Booking -> Show
+    else if (
+      primaryBottleneck === "appointment_show_rate" &&
+      bookedToCompletedRate !== null &&
+      bmBookedToCompleted !== null &&
+      callsBooked !== null &&
+      completedToCloseRate !== null &&
+      finalAvgDealSize !== null &&
+      grossMargin !== null
+    ) {
+      const currentCompleted = callsCompleted ?? (callsBooked * bookedToCompletedRate);
+      const targetCompleted = callsBooked * bmBookedToCompleted;
+
+      const additionalCompleted = minMaxZero(targetCompleted - currentCompleted);
+      const additionalClosed = additionalCompleted * completedToCloseRate;
+      const additionalRevenue = additionalClosed * finalAvgDealSize;
+      const additionalGrossProfit = additionalRevenue * grossMargin;
+
+      impactSimulation = {
+        status: "ok",
+        primary_fix: {
+          metric: "booked_to_completed_rate",
+          current: roundOrNull(bookedToCompletedRate, 4),
+          target: roundOrNull(bmBookedToCompleted, 4),
+          improvement: roundOrNull(bmBookedToCompleted - bookedToCompletedRate, 4),
+
+          expected_additional_booked_calls: 0,
+          expected_additional_completed_calls: roundOrNull(additionalCompleted, 2),
+          expected_additional_closed_deals: roundOrNull(additionalClosed, 2),
+
+          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
+          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2)
+        }
+      };
+    }
+
+    // 4) Show -> Close
+    else if (
+      primaryBottleneck === "sales_conversion" &&
+      completedToCloseRate !== null &&
+      bmCompletedToClose !== null &&
+      callsCompleted !== null &&
+      finalAvgDealSize !== null &&
+      grossMargin !== null
+    ) {
+      const currentClosed = closedDeals ?? (callsCompleted * completedToCloseRate);
+      const targetClosed = callsCompleted * bmCompletedToClose;
+
+      const additionalClosed = minMaxZero(targetClosed - currentClosed);
+      const additionalRevenue = additionalClosed * finalAvgDealSize;
+      const additionalGrossProfit = additionalRevenue * grossMargin;
+
+      impactSimulation = {
+        status: "ok",
+        primary_fix: {
+          metric: "completed_to_close_rate",
+          current: roundOrNull(completedToCloseRate, 4),
+          target: roundOrNull(bmCompletedToClose, 4),
+          improvement: roundOrNull(bmCompletedToClose - completedToCloseRate, 4),
+
+          expected_additional_booked_calls: 0,
+          expected_additional_completed_calls: 0,
+          expected_additional_closed_deals: roundOrNull(additionalClosed, 2),
+
+          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
+          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2)
+        }
+      };
+    }
+
+    // 5) Economics efficiency (ROAS gap at current spend)
+    else if (
+      primaryBottleneck === "economics_efficiency" &&
+      roas !== null &&
+      bmRoas !== null &&
+      adSpend !== null &&
+      revenue !== null &&
+      grossMargin !== null
+    ) {
+      const targetRevenue = adSpend * bmRoas;
+      const additionalRevenue = minMaxZero(targetRevenue - revenue);
+      const additionalGrossProfit = additionalRevenue * grossMargin;
+
+      impactSimulation = {
+        status: "ok",
+        primary_fix: {
+          metric: "roas",
+          current: roundOrNull(roas, 4),
+          target: roundOrNull(bmRoas, 4),
+          improvement: roundOrNull(bmRoas - roas, 4),
+
+          expected_additional_booked_calls: null,
+          expected_additional_completed_calls: null,
+          expected_additional_closed_deals: null,
+
+          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
+          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2),
+
+          modeling_note: "Revenue uplift required to reach benchmark ROAS at current ad spend."
+        }
+      };
+    }
+
+    // 6) Speed to lead
+    else if (primaryBottleneck === "speed_to_lead") {
+      impactSimulation = {
+        status: "not_modeled",
+        primary_fix: {
+          metric: "response_time_minutes",
+          current: roundOrNull(responseTimeMinutes, 2),
+          target: roundOrNull(bmResponseTime, 2),
+          improvement: roundOrNull(
+            responseTimeMinutes !== null && bmResponseTime !== null
+              ? responseTimeMinutes - bmResponseTime
+              : null,
+            2
+          )
+        }
+      };
+    }
+  } catch (e) {
+    impactSimulation = {
+      status: "error",
+      error: String(e.message || e)
+    };
+  }
+}
+
+// =========================
+// Diagnostic Scorecard
+// Production-safe version
+// =========================
+
+function isNum(v) {
+  return typeof v === 'number' && Number.isFinite(v);
+}
+
+function clamp(v, min = 0, max = 100) {
+  if (!isNum(v)) return null;
+  return Math.max(min, Math.min(max, v));
+}
+
+function avg(values) {
+  const valid = values.filter(isNum);
+  if (!valid.length) return null;
+  return valid.reduce((sum, v) => sum + v, 0) / valid.length;
+}
+
+function scoreAgainstBenchmark(actual, benchmark, mode = 'higher_better') {
+  if (!isNum(actual) || !isNum(benchmark)) return null;
+  if (benchmark <= 0) return null;
+  if (actual < 0) return null;
+
+  let raw = null;
+
+  if (mode === 'higher_better') {
+    raw = (actual / benchmark) * 100;
+  } else if (mode === 'lower_better') {
+    if (actual <= 0) return null;
+    raw = (benchmark / actual) * 100;
+  } else {
+    return null;
+  }
+
+  return Math.round(clamp(raw, 0, 100)); // Using clamp to ensure 0-100 range
+}
+
+function metricValueIfOk(metricValue, fieldStatusLocal) {
+  if (fieldStatusLocal !== undefined && fieldStatusLocal !== 'ok') return null;
+  return isNum(metricValue) ? metricValue : null;
+}
+
+// ----------------------------------
+// Sources
+// ----------------------------------
+const metrics = metricsOutput; // Connecting directly to internally computed outputs
+const fieldStatusMap = fieldStatus;
+const currentBenchmarkProfile = benchmarkOutput.profile;
+
+// ----------------------------------
+// TRAFFIC
+// Safe only on metrics that actually exist
+// in compute + benchmark profile
+// ----------------------------------
+const trafficMetricScores = [
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.cpl, fieldStatusMap.cpl),
+    currentBenchmarkProfile?.cpl ?? null,
+    'lower_better'
+  ),
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.roas, fieldStatusMap.roas),
+    currentBenchmarkProfile?.roas ?? null,
+    'higher_better'
+  ),
+];
+
+// ----------------------------------
+// FUNNEL
+// ----------------------------------
+const funnelMetricScores = [
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.lead_to_booked_rate, fieldStatusMap.lead_to_booked_rate),
+    currentBenchmarkProfile?.lead_to_booked_rate ?? null,
+    'higher_better'
+  ),
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.booked_to_completed_rate, fieldStatusMap.booked_to_completed_rate),
+    currentBenchmarkProfile?.booked_to_completed_rate ?? null,
+    'higher_better'
+  ),
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.completed_to_close_rate, fieldStatusMap.completed_to_close_rate),
+    currentBenchmarkProfile?.completed_to_close_rate ?? null,
+    'higher_better'
+  ),
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.lead_to_close_rate, fieldStatusMap.lead_to_close_rate),
+    currentBenchmarkProfile?.lead_to_close_rate ?? null,
+    'higher_better'
+  ),
+];
+
+// ----------------------------------
+// SPEED
+// ----------------------------------
+const speedMetricScores = [
+  scoreAgainstBenchmark(
+    metricValueIfOk(metrics.response_time_minutes, fieldStatusMap.response_time_minutes),
+    currentBenchmarkProfile?.response_time_minutes ?? null,
+    'lower_better'
+  ),
+];
+
+// ----------------------------------
+// TRACKING
+// Not computed canonically yet
+// Keep null until benchmarked computed fields exist
+// ----------------------------------
+const trackingMetricScores = [];
+
+// ----------------------------------
+// RETENTION
+// Not benchmarked canonically yet
+// Keep null until benchmarked computed fields exist
+// ----------------------------------
+const retentionMetricScores = [];
+
+// ----------------------------------
+// Family aggregation
+// ----------------------------------
+const traffic_score = (() => {
+  const v = avg(trafficMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+const funnel_score = (() => {
+  const v = avg(funnelMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+const speed_score = (() => {
+  const v = avg(speedMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+const tracking_score = (() => {
+  const v = avg(trackingMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+const retention_score = (() => {
+  const v = avg(retentionMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+const overall_score = (() => {
+  const v = avg([
+    traffic_score,
+    funnel_score,
+    speed_score,
+    tracking_score,
+    retention_score
+  ]);
+  return isNum(v) ? Math.round(v) : null;
+})();
+
+// Attach to local scorecard object
+const scorecard = {
+  traffic_score,
+  funnel_score,
+  speed_score,
+  tracking_score,
+  retention_score,
+  overall_score
+};
+
+// -------------------------
+// Output
+// -------------------------
+return [
+  {
+    json: {
+      input: {
+        industry,
+        offer_type: offerType,
+        sales_model: salesModel,
+        avg_deal_size: roundOrNull(avgDealSizeInput, 2),
+        gross_margin: roundOrNull(grossMargin, 4),
+        sales_cycle_days: roundOrNull(salesCycleDays, 2),
+        business_notes: businessNotes,
+        window_days: windowDays,
+        ad_spend: roundOrNull(adSpend, 2),
+        leads: roundOrNull(leads, 2),
+        calls_booked: roundOrNull(callsBooked, 2),
+        calls_completed: roundOrNull(callsCompleted, 2),
+        closed_deals: roundOrNull(closedDeals, 2),
+        revenue: roundOrNull(revenue, 2),
+        cpl_input: roundOrNull(cplInput, 2),
+        cpc: roundOrNull(cpc, 2),
+        has_crm: hasCRM,
+        lead_source_tracked: leadSourceTracked,
+        offline_conversions_tracked: offlineConversionsTracked,
+        tracking_notes: trackingNotes,
+        response_time_minutes: roundOrNull(responseTimeMinutes, 2),
+        has_email_followups: hasEmailFollowups,
+        has_sms_whatsapp: hasSmsWhatsApp,
+        retargeting_running: retargetingRunning,
+        repeat_purchase_rate: roundOrNull(repeatPurchaseRate, 4),
+        subscription,
+        estimated_ltv: roundOrNull(estimatedLtv, 2),
+        retention_notes: retentionNotes,
+        budget_constraint: budgetConstraint,
+        team_size: teamSize,
+        priority
+      },
+      metrics: metricsOutput,
+      benchmarks: benchmarkOutput,
+      gaps,
+      diagnostics: {
+        score: overall_score,
+        health_label: healthLabel,
+        data_confidence: dataConfidence,
+        primary_bottleneck: primaryBottleneck,
+        primary_bottleneck_status: primaryBottleneck === "insufficient_data" ? "insufficient_data" : "ok",
+        secondary_risks: secondaryRisks.slice(0, 3)
+      },
+      cost_of_inaction: costOfInactionOutput,
+      value_at_risk: valueAtRiskOutput,
+      field_status: fieldStatus,
+      impact_simulation: impactSimulation,
+      scorecard: scorecard,
+      scenarios: {
+        current: {
+          booked_calls: roundOrNull(callsBooked, 2),
+          completed_calls: roundOrNull(callsCompleted, 2),
+          closed_deals: roundOrNull(closedDeals, 2),
+          revenue: roundOrNull(revenue, 2),
+          gross_profit: roundOrNull(grossProfit, 2)
+        },
+        benchmark_case: {
+          booked_calls: roundOrNull(benchmarkBookedCalls, 2),
+          completed_calls: roundOrNull(benchmarkCompletedCalls, 2),
+          closed_deals: roundOrNull(benchmarkClosedDeals, 2),
+          revenue: roundOrNull(benchmarkRevenue, 2),
+          gross_profit: roundOrNull(benchmarkGrossProfit, 2)
+        },
+        upside_vs_benchmark: {
+          additional_revenue_per_month: roundOrNull(
+            benchmarkRevenue !== null && revenue !== null ? benchmarkRevenue - revenue : null,
+            2
+          ),
+          additional_gross_profit_per_month: roundOrNull(
+            benchmarkGrossProfit !== null && grossProfit !== null ? benchmarkGrossProfit - grossProfit : null,
+            2
+          )
+        }
+      },
+      meta: {
+        industry,
+        offer_type: offerType,
+        sales_model: salesModel,
+        sales_cycle_days: roundOrNull(salesCycleDays, 2),
+        business_notes: businessNotes,
+        tracking_notes: trackingNotes,
+        retention_notes: retentionNotes,
+        budget_constraint: budgetConstraint,
+        team_size: teamSize,
+        priority
+      }
+    }
+  }
+];

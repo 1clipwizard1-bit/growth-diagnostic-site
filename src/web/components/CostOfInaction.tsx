@@ -17,7 +17,7 @@ export function CostOfInaction() {
             <a href="/diagnostic" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#fff' }}
               onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
               onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-              Run My Diagnostic — $9.99
+              Run My Diagnostic — $4.99
             </a>
           </div>
 
@@ -50,7 +50,7 @@ export function CostOfInaction() {
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 9L8 12L13 6" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
               <div>
-                <div className="font-bold text-sm mb-1" style={{ color: '#f5f5f5' }}>The diagnostic costs $9.99.</div>
+                <div className="font-bold text-sm mb-1" style={{ color: '#f5f5f5' }}>The diagnostic costs $4.99.</div>
                 <div className="text-xs" style={{ color: '#a3a3a3' }}>If you're spending more than $3,000/month on ads, the ROI of knowing your biggest bottleneck is immediate. The cost of not knowing is compounding daily.</div>
               </div>
             </div>

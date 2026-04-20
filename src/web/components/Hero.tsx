@@ -17,13 +17,13 @@ export function Hero() {
 
           {/* Headline */}
           <h1 className="font-black tracking-tight leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: '#f5f5f5' }}>
-            Your traffic isn't the problem.{' '}
-            <span style={{ color: '#f97316' }}>Your funnel is.</span>
+            Find the Bottleneck<br />
+            <span style={{ color: '#f97316' }}>Limiting Your Growth</span>
           </h1>
 
-          <p className="text-lg leading-relaxed mb-10 max-w-2xl" style={{ color: '#a3a3a3' }}>
-            Most businesses spending on paid ads are losing revenue to a single fixable bottleneck — and don't know which one.
-            The Business Growth Diagnostic analyzes your funnel, unit economics, and conversion process to pinpoint exactly where you're leaking money.
+          <p className="text-lg leading-relaxed mb-10 max-w-3xl" style={{ color: '#a3a3a3' }}>
+            Stop guessing why your marketing isn't scaling. Most businesses don’t have a traffic problem — they have a hidden constraint somewhere in their funnel or unit economics.
+            This diagnostic identifies the single biggest factor holding your growth back — and shows its financial impact.
           </p>
 
           {/* CTA block */}

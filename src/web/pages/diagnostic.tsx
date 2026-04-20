@@ -300,7 +300,14 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
 // ─── Step 2 ───────────────────────────────────────────────────────────────────
 function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
-  const fields: { key: keyof FormData; label: string; helper: string; placeholder: string }[] = [
+  const isOther = data.businessType === 'other';
+
+  const fields: { key: keyof FormData; label: string; helper: string; placeholder: string }[] = isOther ? [
+    { key: 'monthlyLeads', label: 'Monthly Leads / Visitors', helper: 'Total traffic or leads generated in the last 30 days', placeholder: 'e.g. 5000' },
+    { key: 'callsBooked', label: 'Add to Carts / Checkout Initiated', helper: 'How many users reached the first step of checkout?', placeholder: 'e.g. 450' },
+    { key: 'callsCompleted', label: 'Reached Payment Info', helper: 'How many reached the final payment confirmation page?', placeholder: 'e.g. 210' },
+    { key: 'customersClosed', label: 'Total Sales / Purchases', helper: 'How many successful transactions were completed?', placeholder: 'e.g. 95' },
+  ] : [
     { key: 'monthlyLeads', label: 'Monthly Leads', helper: 'Total inbound leads generated in the last 30 days', placeholder: 'e.g. 120' },
     { key: 'callsBooked', label: 'Calls / Appointments Booked', helper: 'How many leads booked a call or appointment?', placeholder: 'e.g. 55' },
     { key: 'callsCompleted', label: 'Calls / Appointments Completed', helper: 'How many actually showed up?', placeholder: 'e.g. 38' },
@@ -329,10 +336,10 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR FUNNEL PREVIEW</div>
           <div className="space-y-2">
             {[
-              { label: 'Leads', value: parseInt(data.monthlyLeads) || 0, base: parseInt(data.monthlyLeads) || 1 },
-              { label: 'Booked', value: parseInt(data.callsBooked) || 0, base: parseInt(data.monthlyLeads) || 1 },
-              { label: 'Completed', value: parseInt(data.callsCompleted) || 0, base: parseInt(data.monthlyLeads) || 1 },
-              { label: 'Closed', value: parseInt(data.customersClosed) || 0, base: parseInt(data.monthlyLeads) || 1 },
+              { label: isOther ? 'Leads' : 'Leads', value: parseInt(data.monthlyLeads) || 0, base: parseInt(data.monthlyLeads) || 1 },
+              { label: isOther ? 'Carts' : 'Booked', value: parseInt(data.callsBooked) || 0, base: parseInt(data.monthlyLeads) || 1 },
+              { label: isOther ? 'Payment' : 'Completed', value: parseInt(data.callsCompleted) || 0, base: parseInt(data.monthlyLeads) || 1 },
+              { label: isOther ? 'Sales' : 'Closed', value: parseInt(data.customersClosed) || 0, base: parseInt(data.monthlyLeads) || 1 },
             ].map(row => {
               const pct = Math.min(100, Math.round((row.value / row.base) * 100));
               return (

@@ -478,8 +478,16 @@ function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 }
 
 // ─── Analyzing Screen ─────────────────────────────────────────────────────────
-function AnalyzingScreen() {
-  const steps = [
+function AnalyzingScreen({ businessType }: { businessType: string }) {
+  const isOther = businessType === 'other';
+  const steps = isOther ? [
+    'Mapping bespoke funnel topology...',
+    'Analyzing model-specific constraints...',
+    'Evaluating unit economics metrics...',
+    'Assigning to senior analyst queue...',
+    'Preparing strategic review brief...',
+    'Initiating custom model audit...',
+  ] : [
     'Calculating funnel conversion rates...',
     'Benchmarking against industry averages...',
     'Identifying unit economics gaps...',
@@ -552,21 +560,21 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
 
       {isOther ? (
         <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Request received!</h2>
+          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Bespoke Audit Initiated!</h2>
           <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
-            This diagnostic is optimized for service-based businesses.
+            We've detected a custom business model (E-commerce / SaaS / Product).
           </p>
           <p className="text-sm mb-8" style={{ color: '#666' }}>
-            Your business model is a bit different — <span style={{ color: '#f5f5f5' }}>but we can still help.</span>
+            Because your model is non-standard, your data has been flagged for a <span style={{ color: '#f5f5f5' }}>Senior Strategic Review.</span>
           </p>
           <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
-            <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT HAPPENS NEXT</div>
+            <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT'S INCLUDED IN YOUR CUSTOM AUDIT</div>
             <div className="space-y-3">
               {[
-                { icon: '🔍', text: 'We review your data manually' },
-                { icon: '📊', text: 'Identify constraints specific to your model' },
-                { icon: '📩', text: `Custom analysis sent to ${email}` },
-                { icon: '⏱', text: 'Typically within 24–48 hours' },
+                { icon: '🗺️', text: 'Manual funnel topology mapping' },
+                { icon: '📈', text: 'Custom unit economics analysis' },
+                { icon: '🚀', text: 'Bespoke 90-day growth roadmap' },
+                { icon: '⏱️', text: 'Personalized delivery in 24–48 hours' },
               ].map(item => (
                 <div key={item.text} className="flex items-center gap-3 text-sm">
                   <span style={{ fontSize: '14px' }}>{item.icon}</span>
@@ -575,8 +583,23 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
               ))}
             </div>
           </div>
+
+          <div className="w-full max-w-sm bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 mb-8 text-left">
+            <div className="text-xs font-bold text-[#f5f5f5] mb-2 uppercase tracking-wider">Recommended Next Step</div>
+            <p className="text-sm text-[#a3a3a3] mb-5">
+              Since your model is unique, a quick 15-min chat ensures our custom audit is 100% accurate to your specific operations.
+            </p>
+            <a href="#" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-bold text-sm transition-all"
+              style={{ background: '#f97316', color: '#fff' }}
+              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
+              onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
+              Book 15-min Calibration Call
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </a>
+          </div>
+
           <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#555', border: '1px solid #2a2a2a' }}>
-            ✓ No charge — custom analysis is free
+            ✓ No charge — custom senior analysis is free
           </div>
         </>
       ) : (
@@ -833,7 +856,7 @@ export default function DiagnosticForm() {
           </>
         )}
 
-        {status === 'analyzing' && <AnalyzingScreen />}
+        {status === 'analyzing' && <AnalyzingScreen businessType={data.businessType} />}
         {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center py-16 text-center">

@@ -545,9 +545,11 @@ const computedReferenceHtml =
   esc(displayMoney(missedGrossProfitRaw, fieldStatus.estimated_missed_gross_profit_per_month)) +
   "</strong> &nbsp;&middot;&nbsp; Missed revenue: <strong>" +
   esc(displayMoney(missedRevenueRaw, fieldStatus.estimated_missed_revenue_per_month)) +
-  "</strong></p>" +
-  "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\"><li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li><li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li><li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li><li>Response Time: under 15 minutes</li><li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li></ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>" +
-  "</div>" +
+  "</strong></p></div>";
+
+const whatGoodLooksLikeHtml =
+  "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\"><li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li><li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li><li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li><li>Response Time: under 15 minutes</li><li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li></ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>";
+
   "<!-- NEW: Unit Economics & Scalability -->" +
   "<div class=\"section\">" +
   "<div class=\"section-title\">Unit Economics & Scalability</div>" +

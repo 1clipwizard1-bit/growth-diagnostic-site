@@ -328,6 +328,23 @@ const impactSimulation = (data.impact_simulation && typeof data.impact_simulatio
   : { status: "insufficient_data" };
 
 // -------------------------
+// Unit Economics Extraction
+// -------------------------
+const cacRaw           = metrics.cac;
+const ltvRaw           = metrics.inferred_ltv;
+const ltvCacRatioRaw   = metrics.ltv_cac_ratio;
+const ltvCacBenchmark  = benchmarkProfile.ltv_cac_ratio || 3.0;
+
+const _cac             = (cacRaw !== null && cacRaw !== undefined) ? esc(num(cacRaw, 0, "$")) : "N/A";
+const _ltv             = (ltvRaw !== null && ltvRaw !== undefined) ? esc(num(ltvRaw, 0, "$")) : "N/A";
+const _ltvCac          = (ltvCacRatioRaw !== null && ltvCacRatioRaw !== undefined) ? esc(num(ltvCacRatioRaw, 1)) : "N/A";
+const _ltvCacTarget    = esc(num(ltvCacBenchmark, 1));
+
+const ltvCacStatus     = (ltvCacRatioRaw === null) ? "insufficient_data" : (ltvCacRatioRaw >= ltvCacBenchmark ? "strong" : (ltvCacRatioRaw >= ltvCacBenchmark * 0.6 ? "average" : "weak"));
+const ltvCacClass      = healthClass(ltvCacStatus);
+const ltvCacBar        = (ltvCacRatioRaw !== null) ? Math.min(100, (ltvCacRatioRaw / ltvCacBenchmark) * 100) : 0;
+
+// -------------------------
 // Key Finding text — динамічний залежно від bottleneck
 // -------------------------
 const keyFindingText = String(data.primary_bottleneck || "") === "insufficient_data"
@@ -480,20 +497,29 @@ const computedReferenceHtml =
   esc(displayMoney(missedGrossProfitRaw, fieldStatus.estimated_missed_gross_profit_per_month)) +
   "</strong> &nbsp;&middot;&nbsp; Missed revenue: <strong>" +
   esc(displayMoney(missedRevenueRaw, fieldStatus.estimated_missed_revenue_per_month)) +
-  "</strong></p>";
-
-const whatGoodLooksLikeHtml =
-  "<div class=\"good-box\">" +
-  "<div class=\"good-label\">Performance Standards</div>" +
-  "<p class=\"good-text\">Typical high-performing " + esc(industryDisplay) + " funnels are expected to meet or exceed the following benchmarks:</p>" +
-  "<ul class=\"good-list\">" +
-  "<li>Lead-to-Booked Rate: 35\u201345%</li>" +
-  "<li>Booked-to-Completed Rate: 70\u201385%</li>" +
-  "<li>Completed-to-Close Rate: 25\u201335%</li>" +
-  "<li>Response Time: under 15 minutes</li>" +
-  "<li>ROAS: 3\u20135\u00d7</li>" +
-  "</ul>" +
-  "<p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p>" +
+  "</strong></p>" +
+  "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\"><li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li><li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li><li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li><li>Response Time: under 15 minutes</li><li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li></ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>" +
+  "</div>" +
+  "<!-- NEW: Unit Economics & Scalability -->" +
+  "<div class=\"section\">" +
+  "<div class=\"section-title\">Unit Economics & Scalability</div>" +
+  "<div class=\"section-intro\">Analysis of your customer acquisition cost versus lifetime value to determine scaling readiness.</div>" +
+  "<div class=\"snapshot-grid\">" +
+  "<div class=\"subscore-card\" style=\"grid-column: span 2;\">" +
+  "<div class=\"subscore-head\">" +
+  "<div class=\"subscore-label\">LTV : CAC Ratio (Scalability Index)</div>" +
+  "<div class=\"subscore-value " + ltvCacClass + "\">" + _ltvCac + "<span>: 1</span></div>" +
+  "</div>" +
+  "<div class=\"bar-track\"><div class=\"bar-fill " + (ltvCacStatus === "strong" ? "bar-strong" : ltvCacStatus === "average" ? "bar-average" : "bar-weak") + "\" style=\"width:" + ltvCacBar + "%\"></div></div>" +
+  "<p class=\"subscore-note\">" + (ltvCacStatus === "strong" ? "Your unit economics are highly efficient. You have a significant margin to increase ad spend and scale volume with confidence." : (ltvCacStatus === "average" ? "Your economics are stable but reaching the limits of efficient scaling. Focus on increasing average deal size or lowering acquisition costs before a major spend ramp." : "Your unit economics are currently compressed. Scaling ad spend in this state will likely result in diminishing returns or operational losses.")) + "</p>" +
+  "</div>" +
+  "</div>" +
+  "<div class=\"loss-grid\">" +
+  "<div class=\"loss-card\"><div class=\"loss-label\">Cost Per Acquisition (CAC)</div><div class=\"loss-value\">" + _cac + "</div></div>" +
+  "<div class=\"loss-card\"><div class=\"loss-label\">Customer Lifetime Value (LTV)</div><div class=\"loss-value\">" + _ltv + "</div></div>" +
+  "<div class=\"loss-card\"><div class=\"loss-label\">Target Scalability Ratio</div><div class=\"loss-value\">" + _ltvCacTarget + " : 1</div></div>" +
+  "</div>" +
+  (ltvCacRatioRaw && ltvCacRatioRaw < 1.5 ? "<div class=\"micro-callout\" style=\"border-color: #ef4444; background: #fff5f5; color: #991b1b;\"><strong>Warning:</strong> Current unit economics indicate that you may be acquiring customers at a cost close to or exceeding their front-end value. Priority must be shifted to conversion efficiency before increasing budget.</div>" : "") +
   "</div>";
 
 const benchmarkAuthorityHtml =

@@ -186,6 +186,7 @@ const bmCompletedToClose = numOrNull(benchmarkProfile.completed_to_close_rate);
 const bmRoas = numOrNull(benchmarkProfile.roas);
 const bmCpl = numOrNull(benchmarkProfile.cpl);
 const bmResponseTime = numOrNull(benchmarkProfile.response_time_minutes);
+const bmLtvCacRatio = numOrNull(benchmarkProfile.ltv_cac_ratio);
 
 const bmLeadToCloseDirect = numOrNull(benchmarkProfile.lead_to_close_rate);
 
@@ -225,10 +226,12 @@ const leadValue = safeDivOrNull(revenue, leads);
 const inferredLtv = estimatedLtv !== null && estimatedLtv > 0
   ? estimatedLtv
   : (
-      finalAvgDealSize !== null && repeatPurchaseRate !== null
-        ? finalAvgDealSize * (1 + repeatPurchaseRate)
+      finalAvgDealSize !== null 
+        ? finalAvgDealSize * (1 + (repeatPurchaseRate || 0))
         : null
     );
+
+const ltvCacRatio = safeDivOrNull(inferredLtv, cac);
 
 // -------------------------
 // Benchmark scenario
@@ -329,6 +332,15 @@ const gaps = {
       2
     ),
     relative_gap_pct: roundOrNull(pctGapOrNull(responseTimeMinutes, bmResponseTime), 2)
+  },
+  ltv_cac_ratio: {
+    actual: roundOrNull(ltvCacRatio, 2),
+    benchmark: roundOrNull(bmLtvCacRatio, 2),
+    difference: roundOrNull(
+      ltvCacRatio !== null && bmLtvCacRatio !== null ? ltvCacRatio - bmLtvCacRatio : null,
+      2
+    ),
+    relative_gap_pct: roundOrNull(pctGapOrNull(ltvCacRatio, bmLtvCacRatio), 2)
   }
 };
 
@@ -589,7 +601,8 @@ const metricsOutput = {
   gross_profit_roas: roundOrNull(grossProfitRoas, 2),
   lead_value: roundOrNull(leadValue, 2),
   response_time_minutes: roundOrNull(responseTimeMinutes, 2),
-  inferred_ltv: roundOrNull(inferredLtv, 2)
+  inferred_ltv: roundOrNull(inferredLtv, 2),
+  ltv_cac_ratio: roundOrNull(ltvCacRatio, 2)
 };
 
 const valueAtRiskOutput = {
@@ -611,7 +624,8 @@ const benchmarkOutput = {
     lead_to_close_rate: roundOrNull(bmLeadToClose, 4),
     roas: roundOrNull(bmRoas, 2),
     cpl: roundOrNull(bmCpl, 2),
-    response_time_minutes: roundOrNull(bmResponseTime, 2)
+    response_time_minutes: roundOrNull(bmResponseTime, 2),
+    ltv_cac_ratio: roundOrNull(bmLtvCacRatio, 2)
   },
   meta: benchmarkMeta,
   confidence: benchmarkConfidence

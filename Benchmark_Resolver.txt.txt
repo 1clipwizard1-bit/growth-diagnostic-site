@@ -140,7 +140,8 @@ const BENCHMARKS = {
     lead_to_close_rate:        0.066, // 0.35 * 0.75 * 0.25
     roas:                      3.2,   // median 3.0-3.3x (uproas.io 2025)
     cpl:                       85,    // median $75-100 (WordStream 2025)
-    response_time_minutes:     10     // top-performer standard; avg is 40+ min
+    response_time_minutes:     10,    // top-performer standard; avg is 40+ min
+    ltv_cac_ratio:            3.0
   },
   // Source: HubSpot, Databox B2B benchmarks 2025
   agency_services: {
@@ -150,7 +151,8 @@ const BENCHMARKS = {
     lead_to_close_rate:        0.048, // 0.30 * 0.80 * 0.20
     roas:                      2.5,   // conservative for B2B longer sales cycles
     cpl:                       130,   // B2B leads cost more; $100-160 range
-    response_time_minutes:     30     // less urgency than local services
+    response_time_minutes:     30,    // less urgency than local services
+    ltv_cac_ratio:            3.0
   },
   // Source: causalfunnel.com, chilipiper.com high-ticket benchmarks 2025
   coaching_consulting: {
@@ -160,7 +162,8 @@ const BENCHMARKS = {
     lead_to_close_rate:        0.042, // 0.30 * 0.70 * 0.20
     roas:                      2.2,   // reasonable for high-ticket coaching
     cpl:                       180,   // paid search avg $70-350+; $180 is mid
-    response_time_minutes:     60     // acceptable delay for consultative model
+    response_time_minutes:     60,    // acceptable delay for consultative model
+    ltv_cac_ratio:            3.0
   },
   // Source: elevatedds.com, pennock.co, influxmd.com clinic benchmarks 2025
   clinic: {
@@ -170,7 +173,8 @@ const BENCHMARKS = {
     lead_to_close_rate:        0.108, // 0.45 * 0.80 * 0.30
     roas:                      3.5,   // 3.0-5.0x range; 3.5 is conservative mid
     cpl:                       75,    // dental $50-85, medspa $40-120; avg ~$75
-    response_time_minutes:     8      // speed is critical; sub-10 min is gold standard
+    response_time_minutes:     8,     // speed is critical; sub-10 min is gold standard
+    ltv_cac_ratio:             3.0
   },
   generic: {
     lead_to_booked_rate:       null,
@@ -179,7 +183,8 @@ const BENCHMARKS = {
     lead_to_close_rate:        null,
     roas:                      null,
     cpl:                       null,
-    response_time_minutes:     null
+    response_time_minutes:     null,
+    ltv_cac_ratio:             3.0
   }
 };
 
@@ -197,7 +202,8 @@ return items.map((item) => {
     lead_to_close_rate:       profile.lead_to_close_rate,
     roas:                     profile.roas,
     cpl:                      profile.cpl,
-    response_time_minutes:    profile.response_time_minutes
+    response_time_minutes:    profile.response_time_minutes,
+    ltv_cac_ratio:            profile.ltv_cac_ratio
   };
 
   item.json.benchmark_meta = {

@@ -468,6 +468,54 @@ const implementationOpportunityText3 = "If helpful, these findings can be transl
 const methodologyNote            = "This audit is based on the data provided, benchmark comparisons, and modeled estimates of performance loss across the funnel. It is intended as a strategic diagnostic to identify the highest-leverage constraint limiting growth.";
 
 // -------------------------
+// Pre-build all dynamic strings
+// -------------------------
+const _industry       = esc(industryDisplay);
+const _date           = esc(formatDate(createdAt));
+const _score          = esc(String(score));
+const _scoreStatus    = esc(scoreStatus(score));
+const _healthClass    = healthClass(_scoreStatus);
+const _bottleneck     = esc(primaryBottleneck);
+const _confidence     = esc(dataConfidence);
+const _scoreInterp    = esc(scoreInterpretation);
+const _confNote       = esc(confidenceNote);
+const _keyFindingText = esc(keyFindingText);
+const _bCtx           = esc(polishNarrativeText(executiveSummary.business_context || ""));
+const _bAssess        = esc(polishNarrativeText(executiveSummary.overall_assessment || ""));
+const _bPrimary = (function() {
+  const raw = executiveSummary.primary_bottleneck || "";
+  // if it's a snake_case key (contains underscore) → format via label helper
+  // if it's an AI-generated sentence → preserve as plain text
+  return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(polishNarrativeText(raw));
+})();
+const _bWhy           = esc(polishNarrativeText(executiveSummary.why_it_matters || ""));
+const _bnName         = esc(toPremiumBottleneckLabel(bottleneckAnalysis.bottleneck_name || data.primary_bottleneck || "Primary Conversion Constraint"));
+const _bnImpact       = esc(polishNarrativeText(bottleneckAnalysis.business_impact || ""));
+const _symptoms       = renderList(bottleneckAnalysis.symptoms);
+const _evidence       = renderList(bottleneckAnalysis.evidence);
+const _rootCauses     = renderList(bottleneckAnalysis.likely_root_causes);
+const _bmSummary      = esc(polishNarrativeText(benchmarkAnalysis.summary || ""));
+const _gapCards       = renderGapCardsFromStructured(gaps);
+const _lossDisplay    = esc(monthlyLossDisplay);
+const _urgency        = esc(costOfInactionAI.urgency_statement || "");
+const _lossVal        = esc(monthlyValueAtRiskDisplay);
+const _adSpend        = esc(adSpendAtRiskDisplay);
+const _lossChannel    = esc(primaryLossChannel);
+const _explanation    = esc(polishNarrativeText(costOfInactionAI.explanation || ""));
+const _next7          = renderList(actionPlan.next_7_days);
+const _next30         = renderList(actionPlan.next_30_days);
+const _next90         = renderList(actionPlan.next_90_days);
+const _bestMove       = esc(polishNarrativeText(strategicRecommendation.best_next_move || ""));
+const _whyFirst       = esc(polishNarrativeText(strategicRecommendation.why_this_first || ""));
+const _notYet         = esc(polishNarrativeText(strategicRecommendation.what_not_to_do_yet || ""));
+const _engagement     = esc(recommendedEngagementText);
+const _outcome        = esc(expectedOutcomeText);
+const _implText1      = esc(implementationOpportunityText1);
+const _implText2      = esc(implementationOpportunityText2);
+const _implText3      = esc(implementationOpportunityText3);
+const _methodology    = esc(methodologyNote);
+
+// -------------------------
 // Score / subscore logic
 // -------------------------
 const scorecard = computed.scorecard || {};
@@ -540,54 +588,6 @@ const benchmarkAuthorityHtml =
 
 const methodologyClarifierHtml =
   "<div class=\"micro-callout\">Revenue Unlock Opportunity estimates the upside from fixing the single primary bottleneck only. Revenue at Risk reflects the broader gap versus the full benchmark scenario across the funnel.</div>";
-
-// -------------------------
-// Pre-build all dynamic strings
-// -------------------------
-const _industry       = esc(industryDisplay);
-const _date           = esc(formatDate(createdAt));
-const _score          = esc(String(score));
-const _scoreStatus    = esc(scoreStatus(score));
-const _healthClass    = healthClass(_scoreStatus);
-const _bottleneck     = esc(primaryBottleneck);
-const _confidence     = esc(dataConfidence);
-const _scoreInterp    = esc(scoreInterpretation);
-const _confNote       = esc(confidenceNote);
-const _keyFindingText = esc(keyFindingText);
-const _bCtx           = esc(polishNarrativeText(executiveSummary.business_context || ""));
-const _bAssess        = esc(polishNarrativeText(executiveSummary.overall_assessment || ""));
-const _bPrimary = (function() {
-  const raw = executiveSummary.primary_bottleneck || "";
-  // if it's a snake_case key (contains underscore) → format via label helper
-  // if it's an AI-generated sentence → preserve as plain text
-  return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(polishNarrativeText(raw));
-})();
-const _bWhy           = esc(polishNarrativeText(executiveSummary.why_it_matters || ""));
-const _bnName         = esc(toPremiumBottleneckLabel(bottleneckAnalysis.bottleneck_name || data.primary_bottleneck || "Primary Conversion Constraint"));
-const _bnImpact       = esc(polishNarrativeText(bottleneckAnalysis.business_impact || ""));
-const _symptoms       = renderList(bottleneckAnalysis.symptoms);
-const _evidence       = renderList(bottleneckAnalysis.evidence);
-const _rootCauses     = renderList(bottleneckAnalysis.likely_root_causes);
-const _bmSummary      = esc(polishNarrativeText(benchmarkAnalysis.summary || ""));
-const _gapCards       = renderGapCardsFromStructured(gaps);
-const _lossDisplay    = esc(monthlyLossDisplay);
-const _urgency        = esc(costOfInactionAI.urgency_statement || "");
-const _lossVal        = esc(monthlyValueAtRiskDisplay);
-const _adSpend        = esc(adSpendAtRiskDisplay);
-const _lossChannel    = esc(primaryLossChannel);
-const _explanation    = esc(polishNarrativeText(costOfInactionAI.explanation || ""));
-const _next7          = renderList(actionPlan.next_7_days);
-const _next30         = renderList(actionPlan.next_30_days);
-const _next90         = renderList(actionPlan.next_90_days);
-const _bestMove       = esc(polishNarrativeText(strategicRecommendation.best_next_move || ""));
-const _whyFirst       = esc(polishNarrativeText(strategicRecommendation.why_this_first || ""));
-const _notYet         = esc(polishNarrativeText(strategicRecommendation.what_not_to_do_yet || ""));
-const _engagement     = esc(recommendedEngagementText);
-const _outcome        = esc(expectedOutcomeText);
-const _implText1      = esc(implementationOpportunityText1);
-const _implText2      = esc(implementationOpportunityText2);
-const _implText3      = esc(implementationOpportunityText3);
-const _methodology    = esc(methodologyNote);
 
 // -------------------------
 // HTML

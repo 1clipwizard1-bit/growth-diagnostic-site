@@ -9,6 +9,7 @@ interface FormData {
   businessType: string;
   leadSource: string;
   adSpend: string;
+  exactAdSpend: string;
   // Step 2
   monthlyLeads: string;
   callsBooked: string;
@@ -27,7 +28,7 @@ interface FormData {
 }
 
 const initial: FormData = {
-  businessType: '', leadSource: '', adSpend: '',
+  businessType: '', leadSource: '', adSpend: '', exactAdSpend: '',
   monthlyLeads: '', callsBooked: '', callsCompleted: '', customersClosed: '',
   dealSize: '', profitMargin: '', salesCycle: '', totalRevenue: '',
   responseTime: '', trackingQuality: '', followUpSystem: '', email: '',
@@ -65,21 +66,24 @@ function Label({ children, required, helper }: { children: React.ReactNode; requ
   );
 }
 
-function Select({ value, onChange, options, placeholder, error }: {
+function Select({ value, onChange, options, placeholder, error, disabled }: {
   value: string; onChange: (v: string) => void;
   options: { value: string; label: string }[];
-  placeholder: string; error?: string;
+  placeholder: string; error?: string; disabled?: boolean;
 }) {
   return (
     <div>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
+        disabled={disabled}
         className="w-full px-4 py-3 rounded-xl border text-sm appearance-none outline-none transition-all"
         style={{
           background: '#161616', color: value ? '#f5f5f5' : '#555',
           borderColor: error ? '#ef4444' : value ? '#f97316' : '#2a2a2a',
           boxShadow: error ? '0 0 0 1px rgba(239,68,68,0.2)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          opacity: disabled ? 0.4 : 1,
+          cursor: disabled ? 'not-allowed' : 'pointer',
         }}
       >
         <option value="" disabled style={{ color: '#555' }}>{placeholder}</option>
@@ -284,7 +288,14 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
       <div>
         <Label required helper="Include all ad platforms combined">Monthly Ad Spend</Label>
-        <Select value={data.adSpend} onChange={v => onChange('adSpend', v)} placeholder="Select spend range" error={errors.adSpend}
+
+        {/* Spend range dropdown */}
+        <Select
+          value={data.adSpend}
+          onChange={v => { onChange('adSpend', v); if (v) onChange('exactAdSpend', ''); }}
+          placeholder="Select spend range"
+          error={errors.adSpend}
+          disabled={!!data.exactAdSpend}
           options={[
             { value: 'under-2k', label: 'Under $2,000' },
             { value: '2k-5k', label: '$2,000 – $5,000' },
@@ -293,6 +304,50 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
             { value: '25k+', label: '$25,000+' },
           ]}
         />
+
+        {/* OR divider */}
+        <div className="flex items-center gap-3 my-3">
+          <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
+          <span className="text-xs font-semibold" style={{ color: '#444' }}>OR enter exact amount</span>
+          <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
+        </div>
+
+        {/* Exact spend input */}
+        <div className="relative">
+          <div
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold pointer-events-none"
+            style={{ color: data.exactAdSpend ? '#f97316' : '#555' }}
+          >$</div>
+          <input
+            type="number"
+            value={data.exactAdSpend}
+            onChange={e => { onChange('exactAdSpend', e.target.value); if (e.target.value) onChange('adSpend', ''); }}
+            placeholder="Enter exact 30-day spend"
+            min="0"
+            disabled={!!data.adSpend}
+            className="w-full pl-8 pr-4 py-3 rounded-xl border text-sm outline-none transition-all"
+            style={{
+              background: '#161616',
+              color: '#f5f5f5',
+              borderColor: data.exactAdSpend ? '#f97316' : '#2a2a2a',
+              boxShadow: data.exactAdSpend ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+              opacity: data.adSpend ? 0.4 : 1,
+              cursor: data.adSpend ? 'not-allowed' : 'text',
+            }}
+          />
+        </div>
+
+        {/* Disclaimer */}
+        <div
+          className="flex items-start gap-2 mt-3 px-3 py-2.5 rounded-lg"
+          style={{ background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.12)' }}
+        >
+          <span style={{ fontSize: '11px', lineHeight: 1.6, marginTop: '1px', flexShrink: 0 }}>📊</span>
+          <p className="text-xs leading-relaxed" style={{ color: '#666' }}>
+            Spend precision = calculation precision. An estimate works —{' '}
+            <span style={{ color: '#a3a3a3' }}>exact 30-day spend gives you a surgical-grade result.</span>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -660,7 +715,7 @@ export default function DiagnosticForm() {
     if (step === 1) {
       if (!data.businessType) errs.businessType = 'Please select a business type';
       if (!data.leadSource) errs.leadSource = 'Please select a lead source';
-      if (!data.adSpend) errs.adSpend = 'Please select your ad spend range';
+      if (!data.adSpend && !data.exactAdSpend) errs.adSpend = 'Please select a range or enter an exact amount';
     }
 
     if (step === 2) {
@@ -715,7 +770,8 @@ export default function DiagnosticForm() {
       // Step 1
       businessType: data.businessType,
       leadSource: data.leadSource,
-      adSpend: data.adSpend,
+      adSpend: data.adSpend || null,
+      exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
       // Step 2
       monthlyLeads: parseInt(data.monthlyLeads) || 0,
       callsBooked: parseInt(data.callsBooked) || 0,

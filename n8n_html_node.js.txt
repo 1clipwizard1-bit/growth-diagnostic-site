@@ -58,6 +58,15 @@ function polishNarrativeText(value) {
     .replace(/speed_to_lead/gi, "speed-to-lead");
 }
 
+function safeHighlight(value, phrases) {
+  let escaped = esc(polishNarrativeText(String(value || "")));
+  (phrases || []).forEach(function(phrase) {
+    const re = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
+    escaped = escaped.replace(re, '<strong style="color:#d9363e;font-weight:700">$&</strong>');
+  });
+  return escaped;
+}
+
 function formatDate(value) {
   if (!value) return "";
   try {
@@ -187,23 +196,37 @@ function renderGapCardsFromStructured(gaps) {
                   : numberOrNull(g.difference)        != null ? Number(g.difference) : null;
     // null rawDiff = no benchmark available → neutral styling
     const isPositive = rawDiff !== null ? (cfg.lowerIsBetter ? rawDiff <= 0 : rawDiff >= 0) : null;
+    
+    // NEW: Color coding logic
+    let zoneClass = "";
+    if (rawDiff !== null) {
+      const mag = Math.abs(rawDiff);
+      if (!isPositive) {
+        if (mag >= 30) zoneClass = "danger-zone";
+        else if (mag >= 10) zoneClass = "warning-zone";
+      } else {
+        zoneClass = "profit-zone";
+      }
+    }
+
     return {
       label: cfg.label, actual: actualFmt, benchmark: benchmarkFmt, diff: diffText, note: cfg.note,
       magnitude: rawDiff !== null ? Math.abs(rawDiff) : 0,
-      isPositive: isPositive
+      isPositive: isPositive,
+      zoneClass: zoneClass
     };
   }).filter(Boolean).sort(function(a, b) { return b.magnitude - a.magnitude; }).slice(0, 4);
   if (!items.length) return '<p class="muted">No benchmark gaps available.</p>';
   const largestMagnitude = items[0].magnitude;
   const cards = items.map(function(item) {
     return (
-      '<div class="gap-card">' +
-      (item.magnitude === largestMagnitude ? '<div class="gap-badge">Largest Measured Gap</div>' : "") +
+      '<div class="gap-card ' + (item.zoneClass || "") + '">' +
+      (item.magnitude === largestMagnitude ? '<div class="gap-badge">Largest Leak Detected</div>' : "") +
       '<div class="gap-metric">' + esc(item.label) + "</div>" +
       '<div class="gap-rows">' +
-        '<div class="gap-row"><span class="gap-label">Current</span><span class="gap-val">' + esc(item.actual) + "</span></div>" +
-        '<div class="gap-row"><span class="gap-label">Benchmark</span><span class="gap-val">' + esc(item.benchmark) + "</span></div>" +
-        '<div class="gap-row gap-row-diff"><span class="gap-label">Gap</span><span class="gap-val ' + (item.isPositive === null ? '' : item.isPositive ? 'gap-diff-positive' : 'gap-diff') + '">' + esc(item.diff) + "</span></div>" +
+        '<div class="gap-row"><span class="gap-label">Current</span><span class="gap-val" style="font-weight:800;font-size:14px;color:#0d1b3e;">' + esc(item.actual) + "</span></div>" +
+        '<div class="gap-row"><span class="gap-label">Benchmark</span><span class="gap-val" style="font-weight:400;color:#6b7a99;">' + esc(item.benchmark) + "</span></div>" +
+        '<div class="gap-row gap-row-diff"><span class="gap-label">Gap</span><span class="gap-val ' + (item.isPositive === null ? '' : item.isPositive ? 'gap-diff-positive' : 'gap-diff') + '">' + (item.isPositive === null ? '' : item.isPositive ? '<span class="gap-arrow-up">▲ </span>' : '<span class="gap-arrow-down">▼ </span>') + esc(item.diff) + "</span></div>" +
       "</div>" +
       '<div class="gap-note">' + esc(item.note) + "</div>" +
       "</div>"
@@ -255,9 +278,9 @@ function renderRevenueUnlockSection(impactSimulation) {
 
   return (
     "<div class=\"section\">" +
-    "<div class=\"section-title\">Revenue Unlock Opportunity</div>" +
+    "<div class=\"section-title\">The Money You're Leaving On The Table</div>" +
     "<div class=\"card impact-main\">" +
-    "<div class=\"impact-headline\">Fixing this constraint can generate:</div>" +
+    "<div class=\"impact-headline\">Fixing this bottleneck immediately unlocks:</div>" +
     "<div class=\"impact-grid\">" +
     "<div class=\"impact-card\"><div class=\"impact-value\">" + (hasDeals   ? "+" + additionalDeals   : additionalDeals)   + "</div><div class=\"impact-label\">Additional Deals / Month</div></div>" +
     "<div class=\"impact-card\"><div class=\"impact-value\">" + (hasRevenue ? "+$" + additionalRevenue : additionalRevenue) + "</div><div class=\"impact-label\">Additional Revenue</div></div>" +
@@ -328,8 +351,14 @@ const impactSimulation = (data.impact_simulation && typeof data.impact_simulatio
   : { status: "insufficient_data" };
 
 // -------------------------
-// Unit Economics Extraction
+// Unit Economics Extraction & Labeling
 // -------------------------
+const isLocal = ["local", "local_service", "local_services", "home_services"].includes(String(industry).toLowerCase().trim());
+const ctaUrgencyReason = String(data.primary_bottleneck || "");
+
+const ltvLabel = isLocal ? "Value per Customer" : "Customer Lifetime Value (LTV)";
+const cacLabel = isLocal ? "Cost to Acquire"  : "Customer Acquisition Cost (CAC)";
+
 const cacRaw           = metrics.cac;
 const ltvRaw           = metrics.inferred_ltv;
 const ltvCacRatioRaw   = metrics.ltv_cac_ratio;
@@ -344,16 +373,26 @@ const ltvCacStatus     = (ltvCacRatioRaw === null) ? "insufficient_data" : (ltvC
 const ltvCacClass      = healthClass(ltvCacStatus);
 const ltvCacBar        = (ltvCacRatioRaw !== null) ? Math.min(100, (ltvCacRatioRaw / ltvCacBenchmark) * 100) : 0;
 
+// NEW: Stop Loss Warning Logic
+const needsStopLoss = (metrics.roas !== null && metrics.roas < 1.0) || (ltvCacRatioRaw !== null && ltvCacRatioRaw < 1.3);
+const stopLossHtml = needsStopLoss 
+  ? "<div class=\"micro-callout stop-loss\">" +
+    "<strong>!!! WARNING: FINANCIAL BLEEDING DETECTED !!!</strong><br/>" +
+    "Your current unit economics are unsustainable. Every dollar spent on ads is returning less than its acquisition cost. " +
+    "<strong>Do not increase your advertising budget</strong> until the conversion bottlenecks identified below are corrected." +
+    "</div>"
+  : "";
+
 // -------------------------
 // Key Finding text — динамічний залежно від bottleneck
 // -------------------------
 const keyFindingText = String(data.primary_bottleneck || "") === "insufficient_data"
   ? (hasValidScore && score >= 85
-      ? "Current data suggests strong overall funnel performance. Improving tracking visibility will enable more precise optimization as the business scales."
-      : "No industry benchmark is available for this business type. Establishing basic tracking and data capture is the essential first step toward meaningful performance analysis.")
+      ? "Current data suggests strong overall performance. Further growth requires scaling of tracking infrastructure to maintain visibility as volume increases."
+      : "Establishing reliable data tracking is the critical first step. Without correct attribution, marketing spend cannot be optimized for profit.")
   : String(data.primary_bottleneck || "") === "economics_efficiency"
-    ? "This constraint currently limits the ability of the business to convert marketing spend into efficient revenue and profit."
-    : "This constraint currently limits the ability of the funnel to convert demand into booked opportunities and revenue.";
+    ? "The Money Leak: Your current sales process is killing your ad profit. Correcting this is the fastest way to immediate revenue without increasing budget."
+    : "Conversion Bottleneck: This constraint is directly blocking your ability to turn demand into booked revenue and profit.";
 
 // -------------------------
 // Custom Executive Summary — динамічний залежно від bottleneck
@@ -381,13 +420,12 @@ const execBenchmarkLeadToBooked = Number.isFinite(Number(execBenchmarkLeadToBook
 const customExecutiveSummaryHtml = String(data.primary_bottleneck || "") === "economics_efficiency"
   ? (
     "<div class=\"section\">" +
-    "<div class=\"section-title\">Executive Summary</div>" +
+    "<div class=\"section-title\">Executive Summary: The Profit Leak</div>" +
     "<div class=\"card accent\">" +
-    "<p>Your current growth is constrained less by lead volume and more by how efficiently advertising spend turns into profitable revenue.</p>" +
-    "<p style=\"margin-top:12px;\">Right now, your ROAS is <strong>" + esc(num(metrics.roas, 2)) + "x</strong>, which is below the industry benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
-    "<p style=\"margin-top:12px;\">This means demand is being generated, but the current funnel economics are not converting that spend into healthy returns.</p>" +
-    "<p style=\"margin-top:12px;\">If this constraint is corrected, the upside is immediate and measurable &mdash; improving revenue and profit without requiring additional ad spend.</p>" +
-    "<p style=\"margin-top:12px;\">The fastest path to growth is not more traffic &mdash; it is improving monetization efficiency and conversion economics first.</p>" +
+    "<p>Your current growth is not limited by a traffic problem. It is limited by a <strong>monetization problem</strong>. Your sales process is currently leaking profit that should be staying in the business.</p>" +
+    "<p style=\"margin-top:12px;\">Right now, your ROAS is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(num(metrics.roas, 2)) + "x</strong>. This is materially below the industry benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">This means you are generating demand, but your current funnel economics are failing to convert that spend into healthy returns. In simple terms: <strong>Your ad spend is being wasted on a leaky funnel.</strong></p>" +
+    "<p style=\"margin-top:12px;\">Correcting this profit leak is the fastest path to growth. You don't need more traffic; you need to stop losing the profit you already have.</p>" +
     "</div>" +
     "</div>"
   )
@@ -397,27 +435,23 @@ const customExecutiveSummaryHtml = String(data.primary_bottleneck || "") === "ec
     "<div class=\"section-title\">Executive Summary</div>" +
     "<div class=\"card accent\">" +
     (hasValidScore && score >= 85 && hasBenchmarks
-      ? "<p>Your funnel is currently outperforming industry benchmarks across all measured metrics &mdash; lead conversion, sales effectiveness, and return on ad spend are all materially above average.</p>" +
-        "<p style=\"margin-top:12px;\">Your lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark of <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>, and your ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> significantly exceeds the benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
-        "<p style=\"margin-top:12px;\">At this stage, the primary opportunity is not fixing a funnel problem &mdash; it is gaining full visibility into your conversion data so that future optimization efforts are based on accurate, complete information.</p>" +
-        "<p style=\"margin-top:12px;\">Enabling offline conversion tracking and adding SMS/WhatsApp follow-up will complete your data foundation and unlock the next level of scalable growth.</p>"
+      ? "<p>Your funnel is outperforming industry benchmarks across all measured metrics. Your unit economics are currently in the 'strong' zone.</p>" +
+        "<p style=\"margin-top:12px;\">Your lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark, and your ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> is highly efficient.</p>" +
+        "<p style=\"margin-top:12px;\">The primary opportunity now is not 'fixing' a problem, but <strong>protecting your scale</strong> by establishing bulletproof tracking and follow-up infrastructure.</p>"
       : "<p>A complete performance assessment could not be conducted because no industry benchmark data is available for this business type.</p>" +
-        "<p style=\"margin-top:12px;\">Your current funnel shows a lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and a ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> &mdash; however, without a benchmark reference, it is not possible to determine whether these figures represent strong or weak performance relative to peers.</p>" +
-        "<p style=\"margin-top:12px;\">The highest-leverage action at this stage is building tracking infrastructure &mdash; CRM, lead source attribution, and offline conversion data &mdash; so that a meaningful diagnostic can be completed and growth can be optimized with confidence.</p>" +
-        "<p style=\"margin-top:12px;\">Until that data foundation is in place, any changes to the funnel or ad spend risk being misdirected.</p>") +
+        "<p style=\"margin-top:12px;\">Your current funnel shows a lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and a ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> &mdash; however, without a benchmark reference, actual performance vs peers remains unverified.</p>" +
+        "<p style=\"margin-top:12px;\">The highest-leverage action is building <strong>data infrastructure</strong> (CRM, attribution, offline tracking) so you can optimize with confidence and stop guessing where profit is lost.</p>") +
     "</div>" +
     "</div>"
   )
   : (
     "<div class=\"section\">" +
-    "<div class=\"section-title\">Executive Summary</div>" +
+    "<div class=\"section-title\">Executive Summary: The Conversion Leak</div>" +
     "<div class=\"card accent\">" +
-    "<p>Your current growth is not limited by lead volume &mdash; it is constrained by how many of those leads turn into booked calls.</p>" +
-    "<p style=\"margin-top:12px;\">Right now, your lead-to-booked conversion rate is <strong>" + esc(execCurrentLeadToBooked) + "%</strong>," +
-    " which is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark of <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>.</p>" +
-    "<p style=\"margin-top:12px;\">This means a significant portion of your paid leads never enter the sales process, limiting revenue and increasing acquisition costs.</p>" +
-    "<p style=\"margin-top:12px;\">If this constraint is corrected, the impact is immediate and measurable &mdash; unlocking additional deals, revenue, and profit without increasing ad spend.</p>" +
-    "<p style=\"margin-top:12px;\">The fastest path to growth is not more traffic &mdash; it is improving how efficiently your current leads convert into booked calls.</p>" +
+    "<p>Your current growth is not limited by lead volume &mdash; it is being killed by <strong>conversion failure</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">Your lead-to-booked conversion rate is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(execCurrentLeadToBooked) + "%</strong>. The industry benchmark for a business like yours is <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">This gap means a majority of your leads disappear before they even reach a sales conversation. This is not just a 'low score' &mdash; it is a <strong>direct loss of revenue</strong> every single day.</p>" +
+    "<p style=\"margin-top:12px;\">Correcting this constraint is the single fastest way to unlock more deals and revenue without spending a single dollar more on advertising.</p>" +
     "</div>" +
     "</div>"
   );
@@ -488,7 +522,7 @@ const _bPrimary = (function() {
   // if it's an AI-generated sentence → preserve as plain text
   return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(polishNarrativeText(raw));
 })();
-const _bWhy           = esc(polishNarrativeText(executiveSummary.why_it_matters || ""));
+const _bWhy           = safeHighlight(executiveSummary.why_it_matters || "", ["negative net profit", "financial bleeding", "losing profit"]);
 const _bnName         = esc(toPremiumBottleneckLabel(bottleneckAnalysis.bottleneck_name || data.primary_bottleneck || "Primary Conversion Constraint"));
 const _bnImpact       = esc(polishNarrativeText(bottleneckAnalysis.business_impact || ""));
 const _symptoms       = renderList(bottleneckAnalysis.symptoms);
@@ -514,6 +548,49 @@ const _implText1      = esc(implementationOpportunityText1);
 const _implText2      = esc(implementationOpportunityText2);
 const _implText3      = esc(implementationOpportunityText3);
 const _methodology    = esc(methodologyNote);
+const _lossValueShort = displayMoney(monthlyLossNumber, "ok");
+
+// -------------------------
+// Conditional: three states — active loss (> 0), growth ceiling (=== 0), insufficient data (null)
+// -------------------------
+const hasActiveLoss      = monthlyLossNumber !== null && monthlyLossNumber > 0;
+const hasZeroLoss        = monthlyLossNumber !== null && monthlyLossNumber === 0;
+const hasInsufficientData = monthlyLossNumber === null;
+
+const _sectionTitleFinancial = hasActiveLoss
+  ? "Financial Bleeding: The Cost of Inaction"
+  : hasZeroLoss
+    ? "Growth Ceiling Detected: The Cost of Underperformance"
+    : "Revenue Impact: Insufficient Data to Quantify";
+
+const _inactionBannerHeading = hasActiveLoss
+  ? "ESTIMATED MONTHLY PROFIT LOSS"
+  : hasZeroLoss
+    ? "ESTIMATED GROWTH CEILING IMPACT"
+    : "REVENUE IMPACT — DATA INCOMPLETE";
+
+const _headerStatusLabel = hasActiveLoss
+  ? "&#9888; LOSS DETECTED"
+  : hasZeroLoss
+    ? "&#9650; GROWTH CEILING DETECTED"
+    : "&#8212; AWAITING DATA";
+
+const _headerStatusColor = hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+
+const _ctaConfirmedLabel = hasActiveLoss
+  ? "&#9888; Revenue Bleeding Confirmed"
+  : hasZeroLoss
+    ? "&#9650; Growth Ceiling Confirmed"
+    : "&#8505; Diagnostic Complete";
+
+const _ctaBorderColor = hasActiveLoss ? "#ef4444" : hasZeroLoss ? "#f59e0b" : "#1a5fff";
+const _ctaLossColor   = hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+
+const _ctaLossSublabel = hasActiveLoss
+  ? "Estimated monthly profit loss while the bottleneck remains unfixed"
+  : hasZeroLoss
+    ? "Estimated monthly growth opportunity being left on the table"
+    : "Complete funnel data required for full financial impact modelling";
 
 // -------------------------
 // Score / subscore logic
@@ -549,32 +626,6 @@ const computedReferenceHtml =
 
 const whatGoodLooksLikeHtml =
   "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\"><li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li><li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li><li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li><li>Response Time: under 15 minutes</li><li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li></ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>";
-
-  "<!-- NEW: Unit Economics & Scalability -->" +
-  "<div class=\"section\">" +
-  "<div class=\"section-title\">Unit Economics & Scalability</div>" +
-  "<div class=\"section-intro\">Analysis of your customer acquisition cost versus lifetime value to determine scaling readiness.</div>" +
-  "<div class=\"snapshot-grid\">" +
-  "<div class=\"subscore-card\" style=\"grid-column: span 2;\">" +
-  "<div class=\"subscore-head\">" +
-  "<div class=\"subscore-label\">LTV : CAC Ratio (Scalability Index)</div>" +
-  "<div class=\"subscore-value " + ltvCacClass + "\">" + _ltvCac + "<span>: 1</span></div>" +
-  "</div>" +
-  "<div class=\"bar-track\"><div class=\"bar-fill " + (ltvCacStatus === "strong" ? "bar-strong" : ltvCacStatus === "average" ? "bar-average" : "bar-weak") + "\" style=\"width:" + ltvCacBar + "%\"></div></div>" +
-  "<p class=\"subscore-note\">" + (ltvCacStatus === "strong" ? "Your unit economics are highly efficient. You have a significant margin to increase ad spend and scale volume with confidence." : (ltvCacStatus === "average" ? "Your economics are stable but reaching the limits of efficient scaling. Focus on increasing average deal size or lowering acquisition costs before a major spend ramp." : "Your unit economics are currently compressed. Scaling ad spend in this state will likely result in diminishing returns or operational losses.")) + "</p>" +
-  "</div>" +
-  "</div>" +
-  "<div class=\"loss-grid\">" +
-  "<div class=\"loss-card\"><div class=\"loss-label\">Cost Per Acquisition (CAC)</div><div class=\"loss-value\">" + _cac + "</div></div>" +
-  "<div class=\"loss-card\"><div class=\"loss-label\">Customer Lifetime Value (LTV)</div><div class=\"loss-value\">" + _ltv + "</div></div>" +
-  "<div class=\"loss-card\"><div class=\"loss-label\">Target Scalability Ratio</div><div class=\"loss-value\">" + _ltvCacTarget + " : 1</div></div>" +
-  "</div>" +
-  "<div class=\"micro-callout\" style=\"margin-top:10px; font-style:italic; font-size: 11px;\">" +
-  "Note: Customer Lifetime Value (LTV) is estimated based on your average deal size and industry-specific backend multipliers. " +
-  "If your actual retention or repeat purchase rate is higher, your real scalability index may exceed these estimates." +
-  "</div>" +
-  (ltvCacRatioRaw && ltvCacRatioRaw < 1.5 ? "<div class=\"micro-callout\" style=\"border-color: #ef4444; background: #fff5f5; color: #991b1b;\"><strong>Warning:</strong> Current unit economics indicate that you may be acquiring customers at a cost close to or exceeding their front-end value. Priority must be shifted to conversion efficiency before increasing budget.</div>" : "") +
-  "</div>";
 
 const benchmarkAuthorityHtml =
   "<div class=\"section\">" +
@@ -622,7 +673,8 @@ const html = "<!doctype html>\n" +
 "    .header .sub { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #a8b8d8; }\n" +
 "\n" +
 "    .score-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: #162248; border-top: 1px solid #263a6e; width: 100%; }\n" +
-"    .score-cell { min-width: 0; padding: 18px 15px; border-right: 1px solid #263a6e; }\n" +
+"    .score-cell { min-width: 0; padding: 22px 20px 20px; border-right: 1px solid #263a6e; position: relative; }\n" +
+"    .score-cell::after { content: ''; display: block; height: 3px; border-radius: 2px; margin-top: 14px; background: rgba(126,179,255,0.18); }\n" +
 "    .score-cell:last-child { border-right: none; }\n" +
 "    .score-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
 "    .score-value { font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.2; white-space: nowrap; }\n" +
@@ -690,8 +742,10 @@ const html = "<!doctype html>\n" +
 "    .loss-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; text-transform: uppercase; letter-spacing: 1.1px; color: #6b7a99; margin-bottom: 6px; }\n" +
 "    .loss-value { font-size: 18px; font-weight: 700; color: #0f2047; line-height: 1.2; word-break: break-word; }\n" +
 "    .loss-value.small { font-size: 13px; }\n" +
+"    .loss-value.hero { font-size: 28px; color: #d9363e; }\n" +
 "    .computed-note { font-size: 12.5px; color: #6b7a99; line-height: 1.58; font-style: italic; }\n" +
 "    .micro-callout { margin-top: 12px; padding: 11px 12px; background: #f8fafc; border-left: 4px solid #1d5cff; color: #334155; font-size: 12px; line-height: 1.58; page-break-inside: avoid; }\n" +
+"    .micro-callout.stop-loss { background: #fef2f2; border-left-color: #ef4444; border-right: 1px solid #fee2e2; border-top: 1px solid #fee2e2; border-bottom: 1px solid #fee2e2; color: #991b1b; padding: 16px; font-weight: 600; font-size: 13.5px; }\n" +
 "\n" +
 "    .action-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }\n" +
 "    .action-card { border-radius: 8px; padding: 18px; page-break-inside: avoid; min-width: 0; }\n" +
@@ -732,46 +786,76 @@ const html = "<!doctype html>\n" +
 "      .key-finding, .impact-main { page-break-inside: avoid; }\n" +
 "    }\n" +
 "    .cta-box { margin-top: 20px; background: #0d1b3e; color: #ffffff; border-radius: 10px; padding: 32px 36px; text-align: center; border: 1px solid #1a5fff; page-break-inside: avoid; }\n" +
-"    .cta-headline { font-size: 16px; line-height: 1.55; margin-bottom: 24px; color: #e2e8f0; font-weight: normal; }\n" +
+"    .cta-headline { font-size: 18px; line-height: 1.55; margin-bottom: 24px; color: #ffffff; font-weight: 700; }\n" +
 "    .cta-next-step { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 12px; }\n" +
-"    .cta-link { display: inline-block; color: #7eb3ff; font-weight: 700; font-size: 16px; text-decoration: none; border-bottom: 2px solid #1a5fff; padding-bottom: 4px; transition: all 0.2s; }\n" +
-"    .cta-urgency { margin-top: 24px; font-size: 12.5px; color: #94a3b8; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 18px; }\n" +
+"    .button-cta { display: inline-block; background: #1a5fff; color: #ffffff; font-weight: 700; font-size: 16px; text-decoration: none; padding: 16px 32px; border-radius: 8px; transition: all 0.2s; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .cta-link { display: none; }\n" +
+"    .cta-urgency { margin-top: 24px; font-size: 13px; color: #fbbf24; font-weight: 700; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 18px; }\n" +
 "    .muted { color: #9aa3b8; font-style: italic; }\n" +
+"    .gap-arrow-down { color: #d9363e; font-weight: 900; font-size: 13px; }\n" +
+"    .gap-arrow-up   { color: #14855a; font-weight: 900; font-size: 13px; }\n" +
+"    .danger-zone  { background: #fff5f5; border-color: #fca5a5; }\n" +
+"    .warning-zone { background: #fffbeb; border-color: #fcd34d; }\n" +
+"    .profit-zone  { background: #f0fdf4; border-color: #86efac; }\n" +
+"    .stop-action-box { background: #1a0000; border: 2px solid #ef4444; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .stop-action-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; color: #ef4444; margin-bottom: 6px; }\n" +
+"    .stop-action-text { font-size: 14px; font-weight: 700; color: #ffffff; line-height: 1.45; }\n" +
+"    .subscore-card.score-critical { border-color: #fca5a5; background: #fff5f5; }\n" +
+"    .subscore-card.score-critical .subscore-value { color: #d9363e; }\n" +
+"    .cta-box-v2 { margin-top: 20px; background: linear-gradient(135deg, #0d1b3e 0%, #1a1f2e 100%); color: #ffffff; border-radius: 12px; padding: 40px 36px; text-align: center; border: 2px solid #ef4444; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .cta-bleeding-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 16px; }\n" +
+"    .cta-loss-amount { font-size: 42px; font-weight: 900; color: #ff7a7a; line-height: 1.1; margin-bottom: 10px; font-family: Arial, Helvetica, sans-serif; }\n" +
+"    .cta-loss-sublabel { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 24px; }\n" +
+"    .cta-headline-v2 { font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.45; margin-bottom: 28px; }\n" +
+"    .button-cta-v2 { display: inline-block; background: #ef4444; color: #ffffff; font-weight: 900; font-family: Arial, Helvetica, sans-serif; font-size: 17px; text-decoration: none; padding: 20px 40px; border-radius: 10px; border: 3px solid #ffffff; letter-spacing: 0.5px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .cta-scarcity { margin-top: 22px; font-size: 13px; color: #fbbf24; font-weight: 700; font-family: Arial, Helvetica, sans-serif; letter-spacing: 0.3px; }\n" +
+"    .cta-subtext { margin-top: 8px; font-size: 11.5px; color: rgba(255,255,255,0.55); }\n" +
 "  </style>\n" +
 "</head>\n" +
 "<body>\n" +
 "<div class=\"page\">\n" +
 "\n" +
 "  <div class=\"header\">\n" +
-"    <div class=\"eyebrow\">AI Lead Economics Audit</div>\n" +
-"    <h1>Growth Diagnostic Report</h1>\n" +
-"    <p class=\"sub\">Generated " + _date + " &nbsp;&middot;&nbsp; " + _industry + "</p>\n" +
+"    <div class=\"eyebrow\">Growth Bottleneck & Revenue Leakage Audit</div>\n" +
+"    <h1>Financial Impact Report</h1>\n" +
+"    <p class=\"sub\">Current Status as of " + _date + ": <span style=\"color:" + _headerStatusColor + ";font-weight:700;letter-spacing:0.5px;\">" + _headerStatusLabel + "</span> &nbsp;&middot;&nbsp; Industry: " + _industry + "</p>\n" +
 "  </div>\n" +
 "\n" +
 "  <div class=\"score-strip\">\n" +
-"    <div class=\"score-cell\"><div class=\"score-label\">Funnel Score</div><div class=\"score-value\">" + _score + "</div></div>\n" +
-"    <div class=\"score-cell\"><div class=\"score-label\">Audit Status</div><div class=\"score-value " + _healthClass + "\">" + _scoreStatus + "</div></div>\n" +
-"    <div class=\"score-cell\"><div class=\"score-label\">Highest Risk Area</div><div class=\"score-value small\">" + _bottleneck + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Revenue Leakage</div><div class=\"score-value health-weak\">" + _lossValueShort + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Scaling Readiness</div><div class=\"score-value " + _healthClass + "\">" + _scoreStatus + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Primary Constraint</div><div class=\"score-value small\">" + _bottleneck + "</div></div>\n" +
 "    <div class=\"score-cell\"><div class=\"score-label\">Data Confidence</div><div class=\"score-value small\">" + _confidence + "</div></div>\n" +
 "  </div>\n" +
 "\n" +
-"  <div class=\"key-finding\">\n" +
-"    <div class=\"kf-label\">Key Constraint Identified</div>\n" +
-"    <div class=\"kf-title\">" + _bottleneck + "</div>\n" +
-"    <div class=\"kf-text\">" + _keyFindingText + "</div>\n" +
-"  </div>\n" +
-"\n" +
-"  <div class=\"score-interpretation\">" + _scoreInterp + "</div>\n" +
-"  <div class=\"confidence-note\">" + _confNote + "</div>\n" +
-"\n" +
 "  <div class=\"body\">\n" +
 "\n" +
-"    <div class=\"section\" style=\"margin-top:22px;\">\n" +
-"      <div class=\"section-title\">Performance Breakdown</div>\n" +
-"      <div class=\"snapshot-grid\">" + subscoresHtml + "</div>\n" +
+"    <!-- FINANCIAL BLEEDING AT THE TOP -->\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">" + _sectionTitleFinancial + "</div>\n" +
+"      <div class=\"inaction-banner\">\n" +
+"        <h3>" + _inactionBannerHeading + "</h3>\n" +
+"        <div class=\"inaction-loss\">" + _lossDisplay + "</div>\n" +
+"        <div class=\"inaction-urgency\">" + _urgency + "</div>\n" +
+"      </div>\n" +
+"      " + stopLossHtml + "\n" +
+"      <div class=\"loss-grid\">\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Monthly Revenue at Risk</div><div class=\"loss-value hero\">" + _lossVal + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Ad Spend at Risk</div><div class=\"loss-value\">" + _adSpend + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">Primary Leak Point</div><div class=\"loss-value small\">" + _lossChannel + "</div></div>\n" +
+"      </div>\n" +
 "    </div>\n" +
 "\n" +
 "    " + customExecutiveSummaryHtml + "\n" +
+"\n" +
+"    <div class=\"key-finding\">\n" +
+"      <div class=\"kf-label\">Key Constraint Identified</div>\n" +
+"      <div class=\"kf-title\">" + _bottleneck + "</div>\n" +
+"      <div class=\"kf-text\">" + _keyFindingText + "</div>\n" +
+"    </div>\n" +
+"\n" +
+"    <div class=\"score-interpretation\">" + _scoreInterp + "</div>\n" +
+"    <div class=\"confidence-note\">" + _confNote + "</div>\n" +
 "\n" +
 "    <div class=\"section\">\n" +
 "      <div class=\"section-title\">Audit Overview</div>\n" +
@@ -809,28 +893,26 @@ const html = "<!doctype html>\n" +
 "      " + whatGoodLooksLikeHtml + "\n" +
 "    </div>\n" +
 "\n" +
+"    <div class=\"section\">\n" +
+"      <div class=\"section-title\">Performance Breakdown</div>\n" +
+"      <div class=\"snapshot-grid\">" + subscoresHtml + "</div>\n" +
+"    </div>\n" +
+"\n" +
 "    " + revenueUnlockHtml + "\n" +
 "\n" +
 "    <div class=\"section\">\n" +
-"      <div class=\"section-title\">Revenue at Risk</div>\n" +
-"      <div class=\"inaction-banner\">\n" +
-"        <h3>Estimated Monthly Loss</h3>\n" +
-"        <div class=\"inaction-loss\">" + _lossDisplay + "</div>\n" +
-"        <div class=\"inaction-urgency\">" + _urgency + "</div>\n" +
-"      </div>\n" +
-"      <div class=\"loss-grid\">\n" +
-"        <div class=\"loss-card\"><div class=\"loss-label\">Monthly Value at Risk</div><div class=\"loss-value\">" + _lossVal + "</div></div>\n" +
-"        <div class=\"loss-card\"><div class=\"loss-label\">Ad Spend at Risk</div><div class=\"loss-value\">" + _adSpend + "</div></div>\n" +
-"        <div class=\"loss-card\"><div class=\"loss-label\">Primary Loss Channel</div><div class=\"loss-value small\">" + _lossChannel + "</div></div>\n" +
-"      </div>\n" +
+"      <div class=\"section-title\">Technical Benchmark Breakdown</div>\n" +
+"      <div class=\"section-intro\">Data-driven comparison versus high-performing " + _industry + " operators.</div>\n" +
 "      <div class=\"card\">\n" +
-"        <h3>Explanation</h3>\n" +
+"        <h3>Audit Explanation</h3>\n" +
 "        <p class=\"inaction-explain\">" + _explanation + "</p>\n" +
 "        " + computedReferenceHtml + "\n" +
-"        " + methodologyClarifierHtml + "\n" +
 "        " + (score >= 85 || String(data.primary_bottleneck || "") === "insufficient_data"
   ? "<div class=\"micro-callout\">Maintaining data quality and expanding tracking infrastructure will ensure current performance advantages are sustained as ad spend and lead volume increase.</div>"
+  : hasZeroLoss
+    ? "<div class=\"micro-callout\">No active profit loss is detected — but your funnel is operating below its scaling potential. The constraints identified above are not costing you money today; they are preventing you from safely increasing volume and revenue tomorrow.</div>"
   : "<div class=\"micro-callout\">Delaying correction increases wasted spend, keeps conversion efficiency suppressed, and makes future scaling more expensive.</div>") + "\n" +
+"        " + methodologyClarifierHtml + "\n" +
 "      </div>\n" +
 "    </div>\n" +
 "\n" +
@@ -845,25 +927,33 @@ const html = "<!doctype html>\n" +
 "      <div class=\"card accent\" style=\"margin-top:14px;\">\n" +
 "        <h3>Implementation Priority</h3><p>" + _bestMove + "</p>\n" +
 "        <h3>Why This First</h3><p>" + _whyFirst + "</p>\n" +
-"        <h3>What Not To Do Yet</h3><p>" + _notYet + "</p>\n" +
+"        <h3>What Not To Do Yet</h3>\n" +
+"        <div class=\"stop-action-box\">\n" +
+"          <div class=\"stop-action-label\">&#9940; Critical Warning</div>\n" +
+"          <div class=\"stop-action-text\">DO NOT GIVE GOOGLE / META MORE MONEY until the funnel leaks identified in this report are fixed. Scaling ad spend into a broken funnel accelerates losses &mdash; it does not solve them.</div>\n" +
+"        </div>\n" +
+"        <p>" + _notYet + "</p>\n" +
 "        <div class=\"offer-box\"><div class=\"offer-label\">Recommended Engagement</div><div class=\"offer-text\">" + _engagement + "</div></div>\n" +
 "        <div class=\"outcome-box\"><div class=\"offer-label\">Expected Outcome</div><div class=\"offer-text\">" + _outcome + "</div></div>\n" +
 "      </div>\n" +
 "    </div>\n" +
 "\n" +
 "    <div class=\"section\">\n" +
-"      <div class=\"cta-box\">\n" +
-"        <div class=\"cta-next-step\">Next Step</div>\n" +
-"        <div class=\"cta-headline\">\n" +
-"          This report identifies the problem, but not the full implementation strategy.<br>\n" +
-"          I’ll walk you through exactly how to fix this bottleneck <strong>using your current funnel</strong> (no full rebuild required).\n" +
+"      <div class=\"cta-box-v2\">\n" +
+"        <div class=\"cta-bleeding-label\">" + _ctaConfirmedLabel + "</div>\n" +
+"        <div class=\"cta-loss-amount\" style=\"color:" + _ctaLossColor + "\">" + _lossValueShort + " / mo</div>\n" +
+"        <div class=\"cta-loss-sublabel\">" + _ctaLossSublabel + "</div>\n" +
+"        <div class=\"cta-headline-v2\">\n" +
+"          This report shows you <em>where</em> the money is going.<br>\n" +
+"          I’ll walk you through exactly <strong>how to stop it</strong> &mdash; using your current assets, no complex rebuilds.\n" +
 "        </div>\n" +
-"        <div style=\"margin-top:20px;\">\n" +
-"          <a href=\"#\" class=\"cta-link\">\u2192 Book a 15-min strategy call: [Calendar Link]</a>\n" +
+"        <div>\n" +
+"          <a href=\"[Calendar Link]\" class=\"button-cta-v2\">&#128680;&nbsp; STOP THE BLEEDING &mdash; Book a 15-Min Strategy Call</a>\n" +
 "        </div>\n" +
-"        <div class=\"cta-urgency\">\n" +
-"          I only take 3\u20135 businesses per week for this.\n" +
+"        <div class=\"cta-scarcity\">\n" +
+"          &#9889; I only run 5 of these strategy audits per week. My next available slot for a 1-on-1 walkthrough is [Date].\n" +
 "        </div>\n" +
+"        <div class=\"cta-subtext\">No pitch. No fluff. Just a clear plan to fix the leak identified above.</div>\n" +
 "      </div>\n" +
 "    </div>\n" +
 "\n" +

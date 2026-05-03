@@ -289,21 +289,38 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
       <div>
         <Label required helper="Include all ad platforms combined">Monthly Ad Spend</Label>
 
-        {/* Spend range dropdown */}
-        <Select
-          value={data.adSpend}
-          onChange={v => { onChange('adSpend', v); if (v) onChange('exactAdSpend', ''); }}
-          placeholder="Select spend range"
-          error={errors.adSpend}
-          disabled={!!data.exactAdSpend}
-          options={[
-            { value: 'under-2k', label: 'Under $2,000' },
-            { value: '2k-5k', label: '$2,000 – $5,000' },
-            { value: '5k-10k', label: '$5,000 – $10,000' },
-            { value: '10k-25k', label: '$10,000 – $25,000' },
-            { value: '25k+', label: '$25,000+' },
-          ]}
-        />
+        {/* Spend range dropdown with clear button */}
+        <div className="relative">
+          <Select
+            value={data.adSpend}
+            onChange={v => { onChange('adSpend', v); if (v) onChange('exactAdSpend', ''); }}
+            placeholder="Select spend range"
+            error={errors.adSpend}
+            disabled={!!data.exactAdSpend}
+            options={[
+              { value: 'under-2k', label: 'Under $2,000' },
+              { value: '2k-5k', label: '$2,000 – $5,000' },
+              { value: '5k-10k', label: '$5,000 – $10,000' },
+              { value: '10k-25k', label: '$10,000 – $25,000' },
+              { value: '25k+', label: '$25,000+' },
+            ]}
+          />
+          {data.adSpend && !data.exactAdSpend && (
+            <button
+              type="button"
+              onClick={() => onChange('adSpend', '')}
+              className="absolute right-9 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
+              style={{ background: '#2a2a2a', color: '#666' }}
+              onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
+              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}
+              title="Clear selection"
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
+        </div>
 
         {/* OR divider */}
         <div className="flex items-center gap-3 my-3">
@@ -312,7 +329,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
         </div>
 
-        {/* Exact spend input */}
+        {/* Exact spend input with clear button */}
         <div className="relative">
           <div
             className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold pointer-events-none"
@@ -325,7 +342,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
             placeholder="Enter exact 30-day spend"
             min="0"
             disabled={!!data.adSpend}
-            className="w-full pl-8 pr-4 py-3 rounded-xl border text-sm outline-none transition-all"
+            className="w-full pl-8 pr-10 py-3 rounded-xl border text-sm outline-none transition-all"
             style={{
               background: '#161616',
               color: '#f5f5f5',
@@ -335,6 +352,21 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               cursor: data.adSpend ? 'not-allowed' : 'text',
             }}
           />
+          {data.exactAdSpend && !data.adSpend && (
+            <button
+              type="button"
+              onClick={() => onChange('exactAdSpend', '')}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
+              style={{ background: '#2a2a2a', color: '#666' }}
+              onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
+              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}
+              title="Clear"
+            >
+              <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+              </svg>
+            </button>
+          )}
         </div>
 
         {/* Disclaimer */}

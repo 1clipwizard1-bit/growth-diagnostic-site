@@ -1,0 +1,113 @@
+const j = $json;
+
+const errors = [];
+const warnings = [];
+
+function isNumOrNull(v) {
+  return v === null || (typeof v === "number" && Number.isFinite(v));
+}
+
+function isBoolOrNull(v) {
+  return v === null || typeof v === "boolean";
+}
+
+function isString(v) {
+  return typeof v === "string";
+}
+
+const requiredNumericOrNull = [
+  "avg_deal_size",
+  "gross_margin",
+  "sales_cycle_days",
+  "window_days",
+  "ad_spend",
+  "leads",
+  "calls_booked",
+  "calls_completed",
+  "closed_deals",
+  "revenue",
+  "cpl_input",
+  "cpc",
+  "response_time_minutes",
+  "repeat_purchase_rate",
+  "estimated_ltv"
+];
+
+const requiredBoolOrNull = [
+  "has_crm",
+  "lead_source_tracked",
+  "offline_conversions_tracked",
+  "has_email_followups",
+  "has_sms_whatsapp",
+  "retargeting_running",
+  "subscription"
+];
+
+const requiredStrings = [
+  "industry",
+  "offer_type",
+  "sales_model",
+  "business_notes",
+  "tracking_notes",
+  "retention_notes",
+  "budget_constraint",
+  "team_size",
+  "priority"
+];
+
+for (const key of requiredNumericOrNull) {
+  if (!Object.prototype.hasOwnProperty.call(j, key)) {
+    errors.push(`Missing field: ${key}`);
+  } else if (!isNumOrNull(j[key])) {
+    errors.push(`Invalid numeric/null field: ${key}`);
+  }
+}
+
+for (const key of requiredBoolOrNull) {
+  if (!Object.prototype.hasOwnProperty.call(j, key)) {
+    errors.push(`Missing field: ${key}`);
+  } else if (!isBoolOrNull(j[key])) {
+    errors.push(`Invalid boolean/null field: ${key}`);
+  }
+}
+
+for (const key of requiredStrings) {
+  if (!Object.prototype.hasOwnProperty.call(j, key)) {
+    errors.push(`Missing field: ${key}`);
+  } else if (!isString(j[key])) {
+    errors.push(`Invalid string field: ${key}`);
+  }
+}
+
+// Semantic guards
+if (typeof j.gross_margin === "number" && j.gross_margin > 1) {
+  warnings.push("gross_margin > 1; expected decimal like 0.37");
+}
+
+if (typeof j.repeat_purchase_rate === "number" && j.repeat_purchase_rate > 1) {
+  warnings.push("repeat_purchase_rate > 1; expected decimal like 0.17");
+}
+
+// Old aliases should not survive past Canonical Fields
+const forbiddenAliases = [
+  "gross_margin_pct",
+  "repeat_purchase_rate_pct",
+  "avg_order_or_deal_size"
+];
+
+for (const key of forbiddenAliases) {
+  if (Object.prototype.hasOwnProperty.call(j, key)) {
+    warnings.push(`Forbidden alias still present after Canonical Fields: ${key}`);
+  }
+}
+
+return [{
+  json: {
+    ...j,
+    schema_validation: {
+      valid: errors.length === 0,
+      errors,
+      warnings
+    }
+  }
+}];

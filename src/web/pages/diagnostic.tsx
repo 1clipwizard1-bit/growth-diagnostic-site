@@ -450,6 +450,11 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
 // ─── Step 3 ───────────────────────────────────────────────────────────────────
 function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+  const impliedRevenue = (parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0);
+  const enteredRevenue = parseInt(data.totalRevenue) || 0;
+  const showMismatch = data.totalRevenue && data.dealSize && data.customersClosed &&
+    impliedRevenue > 0 && enteredRevenue < impliedRevenue * 0.5;
+
   return (
     <div className="space-y-6">
       <div>
@@ -485,7 +490,23 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
       <div>
         <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: '#555' }}>(optional)</span></Label>
-        <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" />
+        <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue} />
+
+        {showMismatch && (
+          <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.06)' }}>
+            <div className="flex items-start gap-3">
+              <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
+              <div>
+                <div className="text-sm font-semibold mb-1" style={{ color: '#ef4444' }}>Revenue mismatch detected</div>
+                <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                  You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
+                  <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
+                  Please verify your revenue figure — this affects the accuracy of your entire audit.
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Revenue estimate preview */}
@@ -770,6 +791,14 @@ export default function DiagnosticForm() {
       if (!data.dealSize) errs.dealSize = 'Required';
       if (!data.profitMargin) errs.profitMargin = 'Required';
       if (!data.salesCycle) errs.salesCycle = 'Required';
+
+      if (data.totalRevenue && data.dealSize && data.customersClosed) {
+        const implied = (parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0);
+        const entered = parseInt(data.totalRevenue) || 0;
+        if (implied > 0 && entered < implied * 0.5) {
+          errs.totalRevenue = `Looks low — ${data.customersClosed} deals × $${(parseInt(data.dealSize) || 0).toLocaleString()} = $${implied.toLocaleString()}. Please verify.`;
+        }
+      }
     }
 
     if (step === 4) {

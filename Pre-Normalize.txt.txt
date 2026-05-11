@@ -1,0 +1,317 @@
+// n8n Function Node: Pre-Normalize
+// Supports:
+// 1) old flat payload
+// 2) old nested payload
+// 3) new frontend short-form payload in body
+//
+// Output shape stays EXACTLY the same as before
+
+function parseBool(v, def = null) {
+  if (v === null || v === undefined || v === "") return def;
+  if (typeof v === 'boolean') return v;
+  if (typeof v === 'number') return v !== 0;
+
+  const s = String(v).trim().toLowerCase();
+  if (['true', 'yes', 'y', '1', 'on', 'fully', 'accurately'].includes(s)) return true;
+  if (['false', 'no', 'n', '0', 'off'].includes(s)) return false;
+  return def;
+}
+
+function parseNum(v, def = null) {
+  if (v === null || v === undefined || v === "") return def;
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+
+  let s = String(v).trim().toLowerCase();
+  if (!s) return def;
+
+  s = s.replace(/[\s$€£₴]/g, '');
+  const isPct = s.endsWith('%');
+  if (isPct) s = s.slice(0, -1);
+  s = s.replace(/,/g, '');
+
+  let mult = 1;
+  if (s.endsWith('k')) { mult = 1000; s = s.slice(0, -1); }
+  if (s.endsWith('m')) { mult = 1000000; s = s.slice(0, -1); }
+
+  const n = Number(s);
+  if (!Number.isFinite(n)) return def;
+  return n * mult;
+}
+
+function parseText(v, def = "") {
+  if (v === null || v === undefined) return def;
+  return String(v);
+}
+
+function pick(...vals) {
+  for (const v of vals) {
+    if (v !== undefined && v !== null && v !== "") return v;
+  }
+  return undefined;
+}
+
+function mapBusinessType(v) {
+  const s = String(v || '').trim().toLowerCase();
+  const map = {
+    'local':                    'home_services',
+    'local_service':            'home_services',
+    'local service':            'home_services',
+    'local service business':   'home_services',
+    'home_services':            'home_services',
+    'agency':                   'agency',
+    'agency_consulting':        'agency',
+    'agency / consulting':      'agency',
+    'coaching':                 'coaching',
+    'coaching_education':       'coaching',
+    'coaching / education':     'coaching',
+    'clinic':                   'clinic',
+    'clinic_medical':           'clinic',
+    'clinic / medical':         'clinic',
+    'medical':                  'clinic',
+    'ecommerce':                'ecommerce',
+    'e-commerce':               'ecommerce',
+    'other':                    'other',
+  };
+  return map[s] || (s ? s : "");
+}
+
+function mapAdSpend(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return null;
+
+  // ── Form values (new frontend) ──
+  if (['under-2k', 'under $2,000'].includes(s))                              return 1000;
+  if (['2k-5k', '$2,000–$5,000', '$2,000-$5,000'].includes(s))              return 3500;
+  if (['5k-10k', '$5,000–$10,000', '$5,000-$10,000'].includes(s))           return 7500;
+  if (['10k-25k', '$10,000–$25,000', '$10,000-$25,000'].includes(s))        return 17500;
+  if (['25k+', '$25,000+'].includes(s))                                       return 25000;
+
+  // ── Legacy values ──
+  if (['0-1k', '$0-1,000', '$0–$1,000', '$0-$1,000'].includes(s))           return 500;
+  if (['1k-5k', '$1,000–$5,000', '$1,000-$5,000'].includes(s))              return 3000;
+  if (['5k-15k', '$5,000–$15,000', '$5,000-$15,000'].includes(s))           return 10000;
+  if (['15k-50k', '$15,000–$50,000', '$15,000-$50,000'].includes(s))        return 32500;
+  if (['50k+', '$50,000+'].includes(s))                                       return 50000;
+
+  return parseNum(v, null);
+}
+
+function mapProfitMargin(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return null;
+
+  if (['under-20', 'under 20', '<20'].includes(s))  return 0.15;
+  if (['20-40', '20–40'].includes(s))               return 0.30;
+  if (['40-60', '40–60'].includes(s))               return 0.50;
+  if (['60+', '60plus'].includes(s))                return 0.65;
+  if (['not-sure', 'not sure'].includes(s))         return null;
+
+  const n = parseNum(v, null);
+  if (n === null) return null;
+  return n > 1 ? n / 100 : n;
+}
+
+function mapSalesCycleDays(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return null;
+
+  if (['same-day', 'same day'].includes(s))                         return 0;
+  if (['1-3-days', '1-3 days'].includes(s))                         return 2;
+  if (['4-7-days', '4-7 days'].includes(s))                         return 5.5;
+  if (['1-7-days', '1-7 days'].includes(s))                         return 4;
+  if (['1-2-weeks', '1-2 weeks'].includes(s))                       return 10.5;
+  // ── FIX: added '2plus-weeks' (new frontend value) ──
+  if (['2plus-weeks', '2+-weeks', '2+ weeks', '14+ days'].includes(s)) return 14;
+
+  return parseNum(v, null);
+}
+
+function mapResponseMinutes(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (!s) return null;
+
+  if (['instant', 'instantly', 'under-5min'].includes(s))               return 5;
+  if (['within_15_minutes', 'within 15 minutes', '5-15min'].includes(s)) return 15;
+  if (['15-30min'].includes(s))                                           return 22.5;
+  if (['within_1_hour', 'within 1 hour', '30-60min'].includes(s))        return 45;
+  // ── FIX: added '1h+' (new frontend value) ──
+  if (['1h+', '1+hour'].includes(s))                                      return 60;
+  if (['1-24-hours', '1-24 hours'].includes(s))                           return 720;
+  if (['next-day-or-later', 'next day or later', 'next day'].includes(s)) return 1440;
+  if (['not-sure', 'not sure'].includes(s))                               return null;
+
+  return parseNum(v, null);
+}
+
+function mapTrackingFlags(v) {
+  const s = String(v || '').trim().toLowerCase();
+
+  if (['yes', 'fully', 'accurately', 'yes (accurately)', 'fully-tracked'].includes(s)) {
+    return { has_crm: true, lead_source_tracked: true, offline_conversions_tracked: true };
+  }
+  if (['partial', 'partially', 'partially-tracked', 'partially tracked'].includes(s)) {
+    return { has_crm: true, lead_source_tracked: true, offline_conversions_tracked: false };
+  }
+  if (['no', 'not-tracked', 'not tracked', 'none'].includes(s)) {
+    return { has_crm: false, lead_source_tracked: false, offline_conversions_tracked: false };
+  }
+  return { has_crm: null, lead_source_tracked: null, offline_conversions_tracked: null };
+}
+
+function mapFollowUpFlags(v) {
+  const s = String(v || '').trim().toLowerCase();
+
+  if (['yes', 'yes (structured system)', 'structured'].includes(s)) {
+    return { has_email_followups: true, has_sms_whatsapp: true };
+  }
+  if (['sometimes'].includes(s)) {
+    return { has_email_followups: true, has_sms_whatsapp: false };
+  }
+  if (['rarely', 'rarely or never', 'no', 'none'].includes(s)) {
+    return { has_email_followups: false, has_sms_whatsapp: false };
+  }
+  return { has_email_followups: null, has_sms_whatsapp: null };
+}
+
+// ─── Main ────────────────────────────────────────────────────────────────────
+
+const root = items[0].json;
+const j = (root && root.body && typeof root.body === 'object' && Object.keys(root.body).length)
+  ? root.body
+  : root;
+
+// old nested aliases
+const bp  = j?.business_profile || {};
+const tm  = j?.traffic_marketing || {};
+const fur = j?.follow_up_retention || {};
+const c   = j?.constraints || {};
+const ct  = tm?.conversion_tracking || {};
+
+// pre-compute all normalized helpers
+const trackingFlags       = mapTrackingFlags(j.trackingQuality);
+const followUpFlags       = mapFollowUpFlags(j.followUpSystem);
+const normalizedIndustry  = mapBusinessType(pick(j.businessType, bp.industry, j.industry));
+const normalizedAdSpend   = (j.exactAdSpend != null && Number.isFinite(Number(j.exactAdSpend)))
+  ? Number(j.exactAdSpend)
+  : mapAdSpend(pick(j.adSpend, tm.ad_spend, j.ad_spend));
+const normalizedMargin    = mapProfitMargin(pick(j.profitMargin, bp.gross_margin_pct, bp.gross_margin, j.gross_margin_pct, j.gross_margin));
+const normalizedSalesCycle = mapSalesCycleDays(pick(j.salesCycle, bp.sales_cycle_days, j.sales_cycle_days));
+const normalizedResponseTime = mapResponseMinutes(pick(j.responseTime, fur.response_time_minutes, j.response_time_minutes));
+
+const parsed = {
+  business_profile: {
+    industry: parseText(
+      pick(normalizedIndustry, bp.industry, j.industry), ""
+    ),
+    offer_type: parseText(
+      pick(bp.offer_type, j.offer_type), "service"
+    ),
+    sales_model: parseText(
+      pick(bp.sales_model, j.sales_model), "calls"
+    ),
+    avg_order_or_deal_size: parseNum(
+      pick(bp.avg_order_or_deal_size, bp.avg_deal_size, j.avg_order_or_deal_size, j.avg_deal_size, j.dealSize, j.averageRevenuePerCustomer), null
+    ),
+    gross_margin_pct: parseNum(
+      pick(normalizedMargin, bp.gross_margin_pct, bp.gross_margin, j.gross_margin_pct, j.gross_margin), null
+    ),
+    sales_cycle_days: parseNum(
+      pick(normalizedSalesCycle, bp.sales_cycle_days, j.sales_cycle_days), null
+    ),
+    notes: parseText(
+      pick(bp.notes, bp.business_notes, j.notes, j.business_notes, j.businessTypeOther), ""
+    ),
+  },
+
+  period: {
+    window_days: parseNum(
+      pick(j?.period?.window_days, j.window_days), 30
+    ),
+  },
+
+  traffic_marketing: {
+    ad_spend: parseNum(
+      pick(normalizedAdSpend, tm.ad_spend, j.ad_spend), null
+    ),
+    leads: parseNum(
+      pick(tm.leads, j.leads, j.monthlyLeads), null
+    ),
+    calls_booked: parseNum(
+      pick(tm.calls_booked, j.calls_booked, j.callsBooked), null
+    ),
+    calls_completed: parseNum(
+      pick(tm.calls_completed, j.calls_completed, j.callsCompleted), null
+    ),
+    closed_deals: parseNum(
+      pick(tm.closed_deals, j.closed_deals, j.customersClosed), null
+    ),
+    revenue: parseNum(
+      pick(tm.revenue, j.revenue, j.totalRevenue), null
+    ),
+    cpl: parseNum(
+      pick(tm.cpl, tm.cpl_input, j.cpl, j.cpl_input), null
+    ),
+    cpc: parseNum(
+      pick(tm.cpc, j.cpc), null
+    ),
+    conversion_tracking: {
+      has_crm: parseBool(
+        pick(ct.has_crm, j.has_crm, trackingFlags.has_crm), null
+      ),
+      lead_source_tracked: parseBool(
+        pick(ct.lead_source_tracked, j.lead_source_tracked, trackingFlags.lead_source_tracked), null
+      ),
+      offline_conversions_tracked: parseBool(
+        pick(ct.offline_conversions_tracked, j.offline_conversions_tracked, trackingFlags.offline_conversions_tracked), null
+      ),
+      notes: parseText(
+        pick(ct.notes, j.tracking_notes, j.leadSource), ""
+      ),
+    },
+  },
+
+  follow_up_retention: {
+    response_time_minutes: parseNum(
+      pick(normalizedResponseTime, fur.response_time_minutes, j.response_time_minutes), null
+    ),
+    has_email_followups: parseBool(
+      pick(fur.has_email_followups, j.has_email_followups, followUpFlags.has_email_followups), null
+    ),
+    has_sms_whatsapp: parseBool(
+      pick(fur.has_sms_whatsapp, j.has_sms_whatsapp, followUpFlags.has_sms_whatsapp), null
+    ),
+    retargeting_running: parseBool(
+      pick(fur.retargeting_running, j.retargeting_running), false
+    ),
+    repeat_purchase_rate: parseNum(
+      pick(fur.repeat_purchase_rate_pct, fur.repeat_purchase_rate, j.repeat_purchase_rate_pct, j.repeat_purchase_rate), null
+    ),
+    subscription: parseBool(
+      pick(fur.subscription, j.subscription), false
+    ),
+    estimated_ltv: parseNum(
+      pick(fur.estimated_ltv, j.estimated_ltv), null
+    ),
+    notes: parseText(
+      pick(fur.notes, j.retention_notes), ""
+    ),
+  },
+
+  constraints: {
+    budget_constraint: parseText(
+      pick(c.budget_constraint, j.budget_constraint), ""
+    ),
+    team_size: parseText(
+      pick(c.team_size, j.team_size), ""
+    ),
+    priority: parseText(
+      pick(c.priority, j.priority), ""
+    ),
+  },
+};
+
+if (j.isCustomRequest === true) {
+  parsed.constraints.is_custom_request = true;
+}
+
+return [{ json: parsed }];

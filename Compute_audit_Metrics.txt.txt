@@ -448,11 +448,13 @@ costOfInaction = {
 // ----------
 
 const costOfInactionOutput = {
-  estimated_missed_booked_calls_per_month: roundOrNull(costOfInaction.estimated_missed_booked_calls_per_month, 2),
+  estimated_missed_booked_calls_per_month:    roundOrNull(costOfInaction.estimated_missed_booked_calls_per_month, 2),
   estimated_missed_completed_calls_per_month: roundOrNull(costOfInaction.estimated_missed_completed_calls_per_month, 2),
-  estimated_missed_closed_deals_per_month: roundOrNull(costOfInaction.estimated_missed_closed_deals_per_month, 2),
-  estimated_missed_revenue_per_month: roundOrNull(costOfInaction.estimated_missed_revenue_per_month, 2),
-  estimated_missed_gross_profit_per_month: roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, 2)
+  estimated_missed_closed_deals_per_month:    roundOrNull(costOfInaction.estimated_missed_closed_deals_per_month, 2),
+  // Revenue and profit rounded to nearest $1,000 for executive readability
+  // and to eliminate the ~$2 gap between CoI (actual revenue) and Impact Simulation (implied revenue)
+  estimated_missed_revenue_per_month:         roundOrNull(costOfInaction.estimated_missed_revenue_per_month, -3),
+  estimated_missed_gross_profit_per_month:    roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, -3)
 };
 // -------------------------
 // Value at risk

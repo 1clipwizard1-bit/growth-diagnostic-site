@@ -451,15 +451,16 @@ const costOfInactionOutput = {
   estimated_missed_booked_calls_per_month:    roundOrNull(costOfInaction.estimated_missed_booked_calls_per_month, 2),
   estimated_missed_completed_calls_per_month: roundOrNull(costOfInaction.estimated_missed_completed_calls_per_month, 2),
   estimated_missed_closed_deals_per_month:    roundOrNull(costOfInaction.estimated_missed_closed_deals_per_month, 2),
-  // Revenue and profit rounded to nearest $1,000 for executive readability
-  // and to eliminate the ~$2 gap between CoI (actual revenue) and Impact Simulation (implied revenue)
-  estimated_missed_revenue_per_month:         roundOrNull(costOfInaction.estimated_missed_revenue_per_month, -3),
-  estimated_missed_gross_profit_per_month:    roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, -3)
+  // Revenue and profit rounded to nearest $100 — eliminates ~$2 CoI vs Simulation gap,
+  // matches Impact Simulation output, and reads cleanly in executive reports
+  estimated_missed_revenue_per_month:         roundOrNull(costOfInaction.estimated_missed_revenue_per_month, -2),
+  estimated_missed_gross_profit_per_month:    roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, -2)
 };
 // -------------------------
 // Value at risk
 // -------------------------
-const monthlyValueAtRisk = costOfInaction.estimated_missed_gross_profit_per_month;
+// Use rounded output so score-strip, CoI JSON, and value_at_risk all show the same number
+const monthlyValueAtRisk = costOfInactionOutput.estimated_missed_gross_profit_per_month;
 
 // -------------------------
 // Simple score

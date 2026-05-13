@@ -4,14 +4,14 @@ const data = $json;
 // Helpers
 // -------------------------
 function displayMoney(value, status) {
-  if (status !== "ok" || value === null || value === undefined) return "Insufficient data";
+  if (status !== "ok" || value === null || value === undefined) return "Not available";
   const n = Number(value);
-  if (!Number.isFinite(n)) return "Insufficient data";
+  if (!Number.isFinite(n)) return "Not available";
   return "$" + n.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function displayText(value, status) {
-  if (status !== "ok" || value === null || value === undefined || value === "") return "Insufficient data";
+  if (status !== "ok" || value === null || value === undefined || value === "") return "Not available";
   return String(value);
 }
 
@@ -186,9 +186,9 @@ function renderGapCardsFromStructured(gaps) {
     const g = gaps[cfg.key];
     if (!g) return null;
     let diffText = "\u2014";
-    if (g.difference_pp != null) diffText = num(g.difference_pp, 2) + " pp";
-    else if (g.relative_gap_pct != null) diffText = num(g.relative_gap_pct, 2) + "%";
-    else if (g.difference != null) diffText = num(g.difference, 2);
+    if (g.difference_pp != null) diffText = num(Math.abs(g.difference_pp), 2) + " pp";
+    else if (g.relative_gap_pct != null) diffText = num(Math.abs(g.relative_gap_pct), 2) + "%";
+    else if (g.difference != null) diffText = num(Math.abs(g.difference), 2);
     const actualFmt = cfg.key.includes("rate") ? pctDecimal(g.actual, 1) : cfg.key === "response_time_minutes" ? num(g.actual, 0) : cfg.key === "cpl" ? money(g.actual) : cfg.key === "roas" ? num(g.actual, 2) : num(g.actual, 2);
     const benchmarkFmt = cfg.key.includes("rate") ? pctDecimal(g.benchmark, 1) : cfg.key === "response_time_minutes" ? num(g.benchmark, 0) : cfg.key === "cpl" ? money(g.benchmark) : cfg.key === "roas" ? num(g.benchmark, 2) : num(g.benchmark, 2);
     const rawDiff = numberOrNull(g.relative_gap_pct) != null ? Number(g.relative_gap_pct)
@@ -215,13 +215,21 @@ function renderGapCardsFromStructured(gaps) {
       isPositive: isPositive,
       zoneClass: zoneClass
     };
-  }).filter(Boolean).sort(function(a, b) { return b.magnitude - a.magnitude; }).slice(0, 4);
+  }).filter(Boolean).sort(function(a, b) {
+    // Negative cards (actual problems) come first, sorted by magnitude descending.
+    // Positive cards come after, also sorted by magnitude descending.
+    if (a.isPositive === false && b.isPositive !== false) return -1;
+    if (b.isPositive === false && a.isPositive !== false) return 1;
+    return b.magnitude - a.magnitude;
+  }).slice(0, 4);
   if (!items.length) return '<p class="muted">No benchmark gaps available.</p>';
-  const largestMagnitude = items[0].magnitude;
+  // Badge only on the card that is actually a problem (isPositive === false) with the largest magnitude.
+  const worstNegative = items.find(function(i) { return i.isPositive === false; });
+  const badgeMagnitude = worstNegative ? worstNegative.magnitude : null;
   const cards = items.map(function(item) {
     return (
       '<div class="gap-card ' + (item.zoneClass || "") + '">' +
-      (item.magnitude === largestMagnitude ? '<div class="gap-badge">Largest Leak Detected</div>' : "") +
+      (badgeMagnitude !== null && item.isPositive === false && item.magnitude === badgeMagnitude ? '<div class="gap-badge">Largest Leak Detected</div>' : "") +
       '<div class="gap-metric">' + esc(item.label) + "</div>" +
       '<div class="gap-rows">' +
         '<div class="gap-row"><span class="gap-label">Current</span><span class="gap-val" style="font-weight:800;font-size:14px;color:#0d1b3e;">' + esc(item.actual) + "</span></div>" +
@@ -487,7 +495,7 @@ const monthlyLossDisplay = displayMoney(
 );
 
 const monthlyValueAtRiskDisplay = displayMoney(valueAtRisk.monthly_value_at_risk, fieldStatus.monthly_value_at_risk);
-const adSpendAtRiskDisplay      = displayMoney(adSpendAtRiskRaw, fieldStatus.ad_spend_at_risk);
+const adSpendAtRiskDisplay = displayMoney(adSpendAtRiskRaw, fieldStatus.ad_spend_at_risk);
 
 const recommendedEngagementText = String(data.primary_bottleneck || "") === "insufficient_data"
   ? "A focused implementation sprint to complete conversion tracking infrastructure, expand lead follow-up channels, and establish full funnel visibility — enabling data-driven optimization at scale."

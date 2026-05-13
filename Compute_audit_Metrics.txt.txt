@@ -383,25 +383,30 @@ let funnelMissedClosed = 0;
 if (
   leads !== null &&
   bmLeadToBooked !== null &&
-  bookedToCompletedRate !== null &&
-  completedToCloseRate !== null &&
   finalAvgDealSize !== null &&
   grossMargin !== null &&
   revenue !== null
 ) {
-  const targetBooked = leads * bmLeadToBooked;
-  const targetCompleted = targetBooked * bookedToCompletedRate;
-  const targetClosed = targetCompleted * completedToCloseRate;
+  // Use benchmark rates for ALL stages where available.
+  // CoI = "what revenue would we have if every funnel stage ran at benchmark?"
+  // Falls back to actual rate only when benchmark is unavailable for that stage.
+  const effBookedRate    = bmLeadToBooked      ?? leadToBookedRate      ?? 0;
+  const effCompletedRate = bmBookedToCompleted ?? bookedToCompletedRate ?? 0;
+  const effCloseRate     = bmCompletedToClose  ?? completedToCloseRate  ?? 0;
+
+  const targetBooked    = leads * effBookedRate;
+  const targetCompleted = targetBooked * effCompletedRate;
+  const targetClosed    = targetCompleted * effCloseRate;
 
   const targetRevenue = targetClosed * finalAvgDealSize;
-  const targetProfit = targetRevenue * grossMargin;
+  const targetProfit  = targetRevenue * grossMargin;
 
-  funnelMissedBooked = Math.max(0, targetBooked - (callsBooked ?? 0));
+  funnelMissedBooked    = Math.max(0, targetBooked    - (callsBooked    ?? 0));
   funnelMissedCompleted = Math.max(0, targetCompleted - (callsCompleted ?? 0));
-  funnelMissedClosed = Math.max(0, targetClosed - (closedDeals ?? 0));
+  funnelMissedClosed    = Math.max(0, targetClosed    - (closedDeals    ?? 0));
 
   funnelLossRevenue = Math.max(0, targetRevenue - revenue);
-  funnelLossProfit = Math.max(0, targetProfit - (revenue * grossMargin));
+  funnelLossProfit  = Math.max(0, targetProfit  - (revenue * grossMargin));
 }
 
 // ----------

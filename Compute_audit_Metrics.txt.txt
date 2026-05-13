@@ -818,40 +818,7 @@ if (primaryBottleneck !== "insufficient_data" && benchmarkProfile) {
       };
     }
 
-    // 5) Economics efficiency (ROAS gap at current spend)
-    else if (
-      primaryBottleneck === "economics_efficiency" &&
-      roas !== null &&
-      bmRoas !== null &&
-      adSpend !== null &&
-      revenue !== null &&
-      grossMargin !== null
-    ) {
-      const targetRevenue = adSpend * bmRoas;
-      const additionalRevenue = minMaxZero(targetRevenue - revenue);
-      const additionalGrossProfit = additionalRevenue * grossMargin;
-
-      impactSimulation = {
-        status: "ok",
-        primary_fix: {
-          metric: "roas",
-          current: roundOrNull(roas, 4),
-          target: roundOrNull(bmRoas, 4),
-          improvement: roundOrNull(bmRoas - roas, 4),
-
-          expected_additional_booked_calls: null,
-          expected_additional_completed_calls: null,
-          expected_additional_closed_deals: null,
-
-          expected_additional_revenue: roundOrNull(additionalRevenue, 2),
-          expected_additional_gross_profit: roundOrNull(additionalGrossProfit, 2),
-
-          modeling_note: "Revenue uplift required to reach benchmark ROAS at current ad spend."
-        }
-      };
-    }
-
-    // 6) Speed to lead
+    // 5) Speed to lead
     else if (primaryBottleneck === "speed_to_lead") {
       impactSimulation = {
         status: "not_modeled",

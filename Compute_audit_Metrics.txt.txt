@@ -458,22 +458,6 @@ const costOfInactionOutput = {
 // Value at risk
 // -------------------------
 const monthlyValueAtRisk = costOfInaction.estimated_missed_gross_profit_per_month;
-// Ad spend is fully at risk for any bottleneck where ad budget feeds a broken funnel
-// or produces sub-benchmark economics — i.e. money is being spent but not converting.
-const AD_SPEND_AT_RISK_BOTTLENECKS = [
-  "lead_to_booking_conversion",
-  "appointment_show_rate",
-  "sales_conversion",
-  "lead_capture_and_speed_to_lead",
-  "speed_to_lead",
-  "economics_efficiency",
-  "ad_spend_efficiency"
-];
-
-const adSpendAtRisk =
-  adSpend !== null && AD_SPEND_AT_RISK_BOTTLENECKS.includes(primaryBottleneck)
-    ? adSpend
-    : null;
 
 // -------------------------
 // Simple score
@@ -593,6 +577,24 @@ if (hasBenchmarkCoverage) {
     primaryBottleneck = "speed_to_lead";
   }
 }
+
+// -------------------------
+// Ad Spend at Risk
+// Placed here — after primaryBottleneck is fully determined
+// -------------------------
+const AD_SPEND_AT_RISK_BOTTLENECKS = [
+  "lead_to_booking_conversion",
+  "appointment_show_rate",
+  "sales_conversion",
+  "lead_capture_and_speed_to_lead",
+  "speed_to_lead",
+  "economics_efficiency",
+  "ad_spend_efficiency"
+];
+const adSpendAtRisk =
+  adSpend !== null && AD_SPEND_AT_RISK_BOTTLENECKS.includes(primaryBottleneck)
+    ? adSpend
+    : null;
 
 // -------------------------
 // Secondary risks

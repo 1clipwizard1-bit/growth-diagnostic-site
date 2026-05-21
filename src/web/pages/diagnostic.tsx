@@ -449,10 +449,22 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 }
 
 // ─── Step 3 ───────────────────────────────────────────────────────────────────
-function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+function Step3({
+  data, onChange, errors, revenueConfirmed, onRevenueConfirm
+}: {
+  data: FormData;
+  onChange: (k: keyof FormData, v: string) => void;
+  errors: Partial<Record<keyof FormData, string>>;
+  revenueConfirmed: boolean;
+  onRevenueConfirm: (v: boolean) => void;
+}) {
   const impliedRevenue = (parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0);
   const enteredRevenue = parseInt(data.totalRevenue) || 0;
-  const showMismatch = data.totalRevenue && data.dealSize && data.customersClosed &&
+
+  const isExtremeMismatch = data.totalRevenue && data.dealSize && data.customersClosed &&
+    impliedRevenue > 0 && enteredRevenue < impliedRevenue * 0.1;
+
+  const isSoftMismatch = !isExtremeMismatch && data.totalRevenue && data.dealSize && data.customersClosed &&
     impliedRevenue > 0 && enteredRevenue < impliedRevenue * 0.5;
 
   return (
@@ -490,9 +502,54 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
       <div>
         <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: '#555' }}>(optional)</span></Label>
-        <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue} />
+        <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue === 'confirm_required' ? undefined : errors.totalRevenue} />
 
-        {showMismatch && (
+        {/* EXTREME mismatch: <10% of implied — require explicit confirmation */}
+        {isExtremeMismatch && (
+          <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.6)', background: 'rgba(239,68,68,0.08)' }}>
+            <div className="flex items-start gap-3 mb-3">
+              <span style={{ fontSize: '18px', flexShrink: 0 }}>🛑</span>
+              <div>
+                <div className="text-sm font-bold mb-1" style={{ color: '#ef4444' }}>Unusual revenue figure</div>
+                <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                  You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong>, but{' '}
+                  <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong>{' '}
+                  implies <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong> — that's a <strong style={{ color: '#ef4444' }}>{Math.round((1 - enteredRevenue / impliedRevenue) * 100)}% gap</strong>.
+                  This may be a typo (e.g. missing zeros). A wrong figure here will skew your entire audit.
+                </div>
+              </div>
+            </div>
+            <label className="flex items-center gap-3 cursor-pointer group">
+              <div
+                onClick={() => onRevenueConfirm(!revenueConfirmed)}
+                className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all"
+                style={{
+                  background: revenueConfirmed ? '#f97316' : 'transparent',
+                  border: `2px solid ${revenueConfirmed ? '#f97316' : errors.totalRevenue === 'confirm_required' ? '#ef4444' : '#444'}`,
+                }}
+              >
+                {revenueConfirmed && (
+                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5L4.5 7.5L8.5 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
+              </div>
+              <span
+                onClick={() => onRevenueConfirm(!revenueConfirmed)}
+                className="text-xs select-none"
+                style={{ color: '#a3a3a3' }}
+              >
+                Yes, I confirm — <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> is my actual revenue for the last 30 days
+              </span>
+            </label>
+            {errors.totalRevenue === 'confirm_required' && !revenueConfirmed && (
+              <div className="text-xs mt-2" style={{ color: '#ef4444' }}>Please confirm this figure to continue</div>
+            )}
+          </div>
+        )}
+
+        {/* SOFT mismatch: 10%–50% of implied — informational only */}
+        {isSoftMismatch && (
           <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.06)' }}>
             <div className="flex items-start gap-3">
               <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
@@ -756,10 +813,13 @@ export default function DiagnosticForm() {
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [status, setStatus] = useState<'form' | 'analyzing' | 'success' | 'error'>('form');
   const [submitError, setSubmitError] = useState('');
+  const [revenueConfirmed, setRevenueConfirmed] = useState(false);
 
   const onChange = (key: keyof FormData, value: string) => {
     setData(d => ({ ...d, [key]: value }));
     setErrors(e => ({ ...e, [key]: '' }));
+    // Reset revenue confirmation if user edits the revenue field
+    if (key === 'totalRevenue') setRevenueConfirmed(false);
   };
 
   const validate = (): boolean => {
@@ -792,11 +852,12 @@ export default function DiagnosticForm() {
       if (!data.profitMargin) errs.profitMargin = 'Required';
       if (!data.salesCycle) errs.salesCycle = 'Required';
 
+      // Extreme mismatch: entered < 10% of implied — require explicit confirmation
       if (data.totalRevenue && data.dealSize && data.customersClosed) {
         const implied = (parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0);
         const entered = parseInt(data.totalRevenue) || 0;
-        if (implied > 0 && entered < implied * 0.5) {
-          errs.totalRevenue = `Looks low — ${data.customersClosed} deals × $${(parseInt(data.dealSize) || 0).toLocaleString()} = $${implied.toLocaleString()}. Please verify.`;
+        if (implied > 0 && entered < implied * 0.1 && !revenueConfirmed) {
+          errs.totalRevenue = 'confirm_required';
         }
       }
     }

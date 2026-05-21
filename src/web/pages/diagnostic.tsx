@@ -135,7 +135,7 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
                 border: `2px solid ${i + 1 <= step ? '#f97316' : '#2a2a2a'}`,
               }}>
               {i + 1 < step
-                ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 : i + 1}
             </div>
             <span className="text-xs text-center hidden sm:block" style={{ color: i + 1 === step ? '#f97316' : '#555' }}>{label}</span>
@@ -235,7 +235,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
                 </div>
                 {data.businessType === opt.value && (
                   <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
-                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                 )}
               </div>
@@ -316,7 +316,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               title="Clear selection"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
           )}
@@ -363,7 +363,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               title="Clear"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
-                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M1.5 1.5L6.5 6.5M6.5 1.5L1.5 6.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
           )}
@@ -505,7 +505,40 @@ function Step3({
         <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue === 'confirm_required' ? undefined : errors.totalRevenue} />
 
         {/* EXTREME mismatch: <10% of implied — require explicit confirmation */}
-        {isExtremeMismatch && (
+        {/* EXTREME mismatch: <10% of implied — require explicit confirmation */}
+
+        <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.6)', background: 'rgba(239,68,68,0.08)' }}>
+          <div className="flex items-start gap-3 mb-3">
+            <span style={{ fontSize: '18px', flexShrink: 0 }}>🛑</span>
+            <div>
+              <div className="text-sm font-bold mb-1" style={{ color: '#ef4444' }}>Unusual revenue figure</div>
+              <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong>, but{' '}
+                <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong>
+                implies <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong> — that's a <strong style={{ color: '#ef4444' }}>{Math.round((1 - enteredRevenue / impliedRevenue) * 100)}% gap</strong>. This may be a typo (e.g. missing zeros). A wrong figure here will skew your entire audit.
+              </div>
+            </div>
+          </div>
+          <input type="checkbox" id="revenue-confirm" checked={revenueConfirmed} onChange={() => onRevenueConfirm(!revenueConfirmed)} className="hidden" />
+          <label htmlFor="revenue-confirm" className="flex items-center gap-3 cursor-pointer">
+            <div
+              className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all"
+              style={{
+                background: revenueConfirmed ? '#f97316' : 'transparent',
+                border: `2px solid ${revenueConfirmed ? '#f97316' : errors.totalRevenue === 'confirm_required' ? '#ef4444' : '#444'}`,
+              }}
+            >
+              {revenueConfirmed && (
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                  <path d="M2 5L4.5 7.5L8.5 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              )}
+            </div>
+            <span className="text-xs select-none" style={{ color: '#a3a3a3' }}>
+              Yes, I confirm — <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> is my actual revenue for the last 30 days
+            </span>
+          </label>
+
           <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.6)', background: 'rgba(239,68,68,0.08)' }}>
             <div className="flex items-start gap-3 mb-3">
               <span style={{ fontSize: '18px', flexShrink: 0 }}>🛑</span>
@@ -513,15 +546,14 @@ function Step3({
                 <div className="text-sm font-bold mb-1" style={{ color: '#ef4444' }}>Unusual revenue figure</div>
                 <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
                   You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong>, but{' '}
-                  <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong>{' '}
-                  implies <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong> — that's a <strong style={{ color: '#ef4444' }}>{Math.round((1 - enteredRevenue / impliedRevenue) * 100)}% gap</strong>.
-                  This may be a typo (e.g. missing zeros). A wrong figure here will skew your entire audit.
+                  <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong>
+                  implies <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong> — that's a <strong style={{ color: '#ef4444' }}>{Math.round((1 - enteredRevenue / impliedRevenue) * 100)}% gap</strong>. This may be a typo (e.g. missing zeros). A wrong figure here will skew your entire audit.
                 </div>
               </div>
             </div>
-            <label className="flex items-center gap-3 cursor-pointer group">
+            <input type="checkbox" id="revenue-confirm" checked={revenueConfirmed} onChange={() => onRevenueConfirm(!revenueConfirmed)} className="hidden" />
+            <label htmlFor="revenue-confirm" className="flex items-center gap-3 cursor-pointer">
               <div
-                onClick={() => onRevenueConfirm(!revenueConfirmed)}
                 className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all"
                 style={{
                   background: revenueConfirmed ? '#f97316' : 'transparent',
@@ -530,7 +562,7 @@ function Step3({
               >
                 {revenueConfirmed && (
                   <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
-                    <path d="M2 5L4.5 7.5L8.5 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M2 5L4.5 7.5L8.5 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 )}
               </div>
@@ -548,523 +580,523 @@ function Step3({
           </div>
         )}
 
-        {/* SOFT mismatch: 10%–50% of implied — informational only */}
-        {isSoftMismatch && (
-          <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.06)' }}>
-            <div className="flex items-start gap-3">
-              <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
-              <div>
-                <div className="text-sm font-semibold mb-1" style={{ color: '#ef4444' }}>Revenue mismatch detected</div>
-                <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
-                  You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
-                  <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
-                  Please verify your revenue figure — this affects the accuracy of your entire audit.
+          {/* SOFT mismatch: 10%–50% of implied — informational only */}
+          {isSoftMismatch && (
+            <div className="rounded-xl border p-4 mt-2" style={{ borderColor: 'rgba(239,68,68,0.4)', background: 'rgba(239,68,68,0.06)' }}>
+              <div className="flex items-start gap-3">
+                <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
+                <div>
+                  <div className="text-sm font-semibold mb-1" style={{ color: '#ef4444' }}>Revenue mismatch detected</div>
+                  <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                    You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
+                    <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
+                    Please verify your revenue figure — this affects the accuracy of your entire audit.
+                  </div>
                 </div>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Revenue estimate preview */}
+        {data.dealSize && data.customersClosed && (
+          <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+            <div className="text-xs font-semibold mb-2" style={{ color: '#a3a3a3' }}>ESTIMATED MONTHLY REVENUE</div>
+            <div className="text-2xl font-black" style={{ color: '#f97316' }}>
+              ${((parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0)).toLocaleString()}
+            </div>
+            <div className="text-xs mt-1" style={{ color: '#555' }}>
+              Based on {data.customersClosed} closes × ${parseInt(data.dealSize).toLocaleString()} avg. deal
             </div>
           </div>
         )}
       </div>
-
-      {/* Revenue estimate preview */}
-      {data.dealSize && data.customersClosed && (
-        <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-          <div className="text-xs font-semibold mb-2" style={{ color: '#a3a3a3' }}>ESTIMATED MONTHLY REVENUE</div>
-          <div className="text-2xl font-black" style={{ color: '#f97316' }}>
-            ${((parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0)).toLocaleString()}
-          </div>
-          <div className="text-xs mt-1" style={{ color: '#555' }}>
-            Based on {data.customersClosed} closes × ${parseInt(data.dealSize).toLocaleString()} avg. deal
-          </div>
-        </div>
-      )}
-    </div>
-  );
+      );
 }
 
-// ─── Step 4 ───────────────────────────────────────────────────────────────────
-function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+      // ─── Step 4 ───────────────────────────────────────────────────────────────────
+      function Step4({data, onChange, errors}: {data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
-    <div className="space-y-6">
-      <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-        <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>ALMOST DONE</div>
-        <div className="text-xs" style={{ color: '#a3a3a3' }}>
-          These last fields have a disproportionate impact on your diagnostic result. Lead response time alone accounts for 40%+ of revenue leaks in local service businesses.
+        <div className="space-y-6">
+          <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+            <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>ALMOST DONE</div>
+            <div className="text-xs" style={{ color: '#a3a3a3' }}>
+              These last fields have a disproportionate impact on your diagnostic result. Lead response time alone accounts for 40%+ of revenue leaks in local service businesses.
+            </div>
+          </div>
+
+          <div>
+            <Label required helper="After a lead submits a form or calls in, how quickly does your team respond?">Lead Response Time</Label>
+            <Select value={data.responseTime} onChange={v => onChange('responseTime', v)} placeholder="Select response time" error={errors.responseTime}
+              options={[
+                { value: 'under-5min', label: 'Under 5 minutes ✓' },
+                { value: '5-15min', label: '5–15 minutes' },
+                { value: '15-30min', label: '15–30 minutes' },
+                { value: '30-60min', label: '30–60 minutes ⚠' },
+                { value: '1h+', label: '1 hour+ ✗' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Label required helper="Can you accurately attribute which ads are generating closed customers?">Conversion Tracking Quality</Label>
+            <Select value={data.trackingQuality} onChange={v => onChange('trackingQuality', v)} placeholder="Select tracking status" error={errors.trackingQuality}
+              options={[
+                { value: 'fully', label: 'Fully tracked — I know my CPL and CPC' },
+                { value: 'partial', label: 'Partially tracked — some gaps' },
+                { value: 'none', label: 'Not tracked — guessing' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Label required helper="Do you have a structured follow-up process (email, SMS, calls) for leads who don't convert immediately?">Follow-up System</Label>
+            <Select value={data.followUpSystem} onChange={v => onChange('followUpSystem', v)} placeholder="Select option" error={errors.followUpSystem}
+              options={[
+                { value: 'yes', label: 'Yes — automated and consistent' },
+                { value: 'sometimes', label: 'Sometimes — manual and inconsistent' },
+                { value: 'no', label: 'No follow-up system' },
+              ]}
+            />
+          </div>
+
+          <div>
+            <Label required helper="Your diagnostic report will be sent here">Email Address</Label>
+            <input
+              type="email"
+              value={data.email}
+              onChange={e => onChange('email', e.target.value)}
+              placeholder="you@company.com"
+              className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+              style={{
+                background: '#161616', color: '#f5f5f5',
+                borderColor: errors.email ? '#ef4444' : data.email ? '#f97316' : '#2a2a2a',
+                boxShadow: errors.email ? '0 0 0 1px rgba(239,68,68,0.2)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+              }}
+            />
+            {errors.email && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.email}</div>}
+            <div className="text-xs mt-1" style={{ color: '#555' }}>🔒 Confidential. Used only to deliver your report.</div>
+          </div>
         </div>
-      </div>
-
-      <div>
-        <Label required helper="After a lead submits a form or calls in, how quickly does your team respond?">Lead Response Time</Label>
-        <Select value={data.responseTime} onChange={v => onChange('responseTime', v)} placeholder="Select response time" error={errors.responseTime}
-          options={[
-            { value: 'under-5min', label: 'Under 5 minutes ✓' },
-            { value: '5-15min', label: '5–15 minutes' },
-            { value: '15-30min', label: '15–30 minutes' },
-            { value: '30-60min', label: '30–60 minutes ⚠' },
-            { value: '1h+', label: '1 hour+ ✗' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <Label required helper="Can you accurately attribute which ads are generating closed customers?">Conversion Tracking Quality</Label>
-        <Select value={data.trackingQuality} onChange={v => onChange('trackingQuality', v)} placeholder="Select tracking status" error={errors.trackingQuality}
-          options={[
-            { value: 'fully', label: 'Fully tracked — I know my CPL and CPC' },
-            { value: 'partial', label: 'Partially tracked — some gaps' },
-            { value: 'none', label: 'Not tracked — guessing' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <Label required helper="Do you have a structured follow-up process (email, SMS, calls) for leads who don't convert immediately?">Follow-up System</Label>
-        <Select value={data.followUpSystem} onChange={v => onChange('followUpSystem', v)} placeholder="Select option" error={errors.followUpSystem}
-          options={[
-            { value: 'yes', label: 'Yes — automated and consistent' },
-            { value: 'sometimes', label: 'Sometimes — manual and inconsistent' },
-            { value: 'no', label: 'No follow-up system' },
-          ]}
-        />
-      </div>
-
-      <div>
-        <Label required helper="Your diagnostic report will be sent here">Email Address</Label>
-        <input
-          type="email"
-          value={data.email}
-          onChange={e => onChange('email', e.target.value)}
-          placeholder="you@company.com"
-          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
-          style={{
-            background: '#161616', color: '#f5f5f5',
-            borderColor: errors.email ? '#ef4444' : data.email ? '#f97316' : '#2a2a2a',
-            boxShadow: errors.email ? '0 0 0 1px rgba(239,68,68,0.2)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
-          }}
-        />
-        {errors.email && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.email}</div>}
-        <div className="text-xs mt-1" style={{ color: '#555' }}>🔒 Confidential. Used only to deliver your report.</div>
-      </div>
-    </div>
-  );
+        );
 }
 
-// ─── Analyzing Screen ─────────────────────────────────────────────────────────
-function AnalyzingScreen({ businessType }: { businessType: string }) {
+        // ─── Analyzing Screen ─────────────────────────────────────────────────────────
+        function AnalyzingScreen({businessType}: {businessType: string }) {
   const isOther = businessType === 'other';
-  const steps = isOther ? [
-    'Mapping bespoke funnel topology...',
-    'Analyzing model-specific constraints...',
-    'Evaluating unit economics metrics...',
-    'Assigning to senior analyst queue...',
-    'Preparing strategic review brief...',
-    'Initiating custom model audit...',
-  ] : [
-    'Calculating funnel conversion rates...',
-    'Benchmarking against industry averages...',
-    'Identifying unit economics gaps...',
-    'Isolating primary bottleneck...',
-    'Estimating revenue opportunity...',
-    'Generating your report...',
-  ];
-  const [current, setCurrent] = useState(0);
+        const steps = isOther ? [
+        'Mapping bespoke funnel topology...',
+        'Analyzing model-specific constraints...',
+        'Evaluating unit economics metrics...',
+        'Assigning to senior analyst queue...',
+        'Preparing strategic review brief...',
+        'Initiating custom model audit...',
+        ] : [
+        'Calculating funnel conversion rates...',
+        'Benchmarking against industry averages...',
+        'Identifying unit economics gaps...',
+        'Isolating primary bottleneck...',
+        'Estimating revenue opportunity...',
+        'Generating your report...',
+        ];
+        const [current, setCurrent] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrent(c => (c < steps.length - 1 ? c + 1 : c));
+          setCurrent(c => (c < steps.length - 1 ? c + 1 : c));
     }, 600);
     return () => clearInterval(interval);
   }, []);
 
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      {/* Spinner */}
-      <div className="relative w-20 h-20 mb-8">
-        <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: '#1c1c1c' }} />
-        <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: '#f97316', borderTopColor: 'transparent' }} />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z" stroke="#f97316" strokeWidth="1.5" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </div>
-
-      <h2 className="font-black text-2xl mb-2" style={{ color: '#f5f5f5' }}>Analyzing your data...</h2>
-      <p className="text-sm mb-10" style={{ color: '#a3a3a3' }}>Running your funnel through our diagnostic engine</p>
-
-      <div className="w-full max-w-sm space-y-2 text-left">
-        {steps.map((step, i) => (
-          <div key={step} className="flex items-center gap-3 text-sm transition-all"
-            style={{ color: i <= current ? '#f5f5f5' : '#333', opacity: i <= current ? 1 : 0.4 }}>
-            <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all"
-              style={{ background: i < current ? '#f97316' : i === current ? 'rgba(249,115,22,0.2)' : '#1c1c1c', border: `1px solid ${i <= current ? '#f97316' : '#2a2a2a'}` }}>
-              {i < current && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>}
-              {i === current && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#f97316' }} />}
+        return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          {/* Spinner */}
+          <div className="relative w-20 h-20 mb-8">
+            <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: '#1c1c1c' }} />
+            <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: '#f97316', borderTopColor: 'transparent' }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z" stroke="#f97316" strokeWidth="1.5" strokeLinejoin="round" />
+              </svg>
             </div>
-            {step}
           </div>
-        ))}
-      </div>
-    </div>
-  );
+
+          <h2 className="font-black text-2xl mb-2" style={{ color: '#f5f5f5' }}>Analyzing your data...</h2>
+          <p className="text-sm mb-10" style={{ color: '#a3a3a3' }}>Running your funnel through our diagnostic engine</p>
+
+          <div className="w-full max-w-sm space-y-2 text-left">
+            {steps.map((step, i) => (
+              <div key={step} className="flex items-center gap-3 text-sm transition-all"
+                style={{ color: i <= current ? '#f5f5f5' : '#333', opacity: i <= current ? 1 : 0.4 }}>
+                <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all"
+                  style={{ background: i < current ? '#f97316' : i === current ? 'rgba(249,115,22,0.2)' : '#1c1c1c', border: `1px solid ${i <= current ? '#f97316' : '#2a2a2a'}` }}>
+                  {i < current && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>}
+                  {i === current && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#f97316' }} />}
+                </div>
+                {step}
+              </div>
+            ))}
+          </div>
+        </div>
+        );
 }
 
-// ─── Success Screen ───────────────────────────────────────────────────────────
-function SuccessScreen({ email, businessType }: { email: string; businessType: string }) {
+        // ─── Success Screen ───────────────────────────────────────────────────────────
+        function SuccessScreen({email, businessType}: {email: string; businessType: string }) {
   const isOther = businessType === 'other';
 
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-        style={{
-          background: isOther ? 'rgba(249,115,22,0.1)' : 'rgba(34,197,94,0.1)',
-          border: `2px solid ${isOther ? '#f97316' : '#22c55e'}`,
-        }}>
-        {isOther ? (
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <path d="M16 6C10.477 6 6 10.477 6 16s4.477 10 10 10 10-4.477 10-10S21.523 6 16 6z" stroke="#f97316" strokeWidth="2"/>
-            <path d="M16 11v6M16 22v1" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round"/>
-          </svg>
-        ) : (
-          <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L13 23L26 10" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-        )}
-      </div>
+        return (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
+            style={{
+              background: isOther ? 'rgba(249,115,22,0.1)' : 'rgba(34,197,94,0.1)',
+              border: `2px solid ${isOther ? '#f97316' : '#22c55e'}`,
+            }}>
+            {isOther ? (
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <path d="M16 6C10.477 6 6 10.477 6 16s4.477 10 10 10 10-4.477 10-10S21.523 6 16 6z" stroke="#f97316" strokeWidth="2" />
+                <path d="M16 11v6M16 22v1" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
+              </svg>
+            ) : (
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L13 23L26 10" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            )}
+          </div>
 
-      {isOther ? (
-        <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Bespoke Audit Initiated!</h2>
-          <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
-            We've detected a custom business model (E-commerce / SaaS / Product).
-          </p>
-          <p className="text-sm mb-8" style={{ color: '#666' }}>
-            Because your model is non-standard, your data has been flagged for a <span style={{ color: '#f5f5f5' }}>Senior Strategic Review.</span>
-          </p>
-          <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
-            <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT'S INCLUDED IN YOUR CUSTOM AUDIT</div>
-            <div className="space-y-3">
-              {[
-                { icon: '🗺️', text: 'Manual funnel topology mapping' },
-                { icon: '📈', text: 'Custom unit economics analysis' },
-                { icon: '🚀', text: 'Bespoke 90-day growth roadmap' },
-                { icon: '⏱️', text: 'Personalized delivery in 24–48 hours' },
-              ].map(item => (
-                <div key={item.text} className="flex items-center gap-3 text-sm">
-                  <span style={{ fontSize: '14px' }}>{item.icon}</span>
-                  <span style={{ color: '#a3a3a3' }}>{item.text}</span>
+          {isOther ? (
+            <>
+              <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Bespoke Audit Initiated!</h2>
+              <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
+                We've detected a custom business model (E-commerce / SaaS / Product).
+              </p>
+              <p className="text-sm mb-8" style={{ color: '#666' }}>
+                Because your model is non-standard, your data has been flagged for a <span style={{ color: '#f5f5f5' }}>Senior Strategic Review.</span>
+              </p>
+              <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
+                <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT'S INCLUDED IN YOUR CUSTOM AUDIT</div>
+                <div className="space-y-3">
+                  {[
+                    { icon: '🗺️', text: 'Manual funnel topology mapping' },
+                    { icon: '📈', text: 'Custom unit economics analysis' },
+                    { icon: '🚀', text: 'Bespoke 90-day growth roadmap' },
+                    { icon: '⏱️', text: 'Personalized delivery in 24–48 hours' },
+                  ].map(item => (
+                    <div key={item.text} className="flex items-center gap-3 text-sm">
+                      <span style={{ fontSize: '14px' }}>{item.icon}</span>
+                      <span style={{ color: '#a3a3a3' }}>{item.text}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
+              </div>
 
-          <div className="w-full max-w-sm bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 mb-8 text-left">
-            <div className="text-xs font-bold text-[#f5f5f5] mb-2 uppercase tracking-wider">Recommended Next Step</div>
-            <p className="text-sm text-[#a3a3a3] mb-5">
-              Since your model is unique, a quick 15-min chat ensures our custom audit is 100% accurate to your specific operations.
-            </p>
-            <a href="#" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-bold text-sm transition-all"
-              style={{ background: '#f97316', color: '#fff' }}
-              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-              onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-              Book 15-min Calibration Call
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-            </a>
-          </div>
+              <div className="w-full max-w-sm bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 mb-8 text-left">
+                <div className="text-xs font-bold text-[#f5f5f5] mb-2 uppercase tracking-wider">Recommended Next Step</div>
+                <p className="text-sm text-[#a3a3a3] mb-5">
+                  Since your model is unique, a quick 15-min chat ensures our custom audit is 100% accurate to your specific operations.
+                </p>
+                <a href="#" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-bold text-sm transition-all"
+                  style={{ background: '#f97316', color: '#fff' }}
+                  onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
+                  onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
+                  Book 15-min Calibration Call
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                </a>
+              </div>
 
-          <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#555', border: '1px solid #2a2a2a' }}>
-            ✓ No charge — custom senior analysis is free
-          </div>
-        </>
-      ) : (
-        <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
-          <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
-          <p className="text-sm mb-10" style={{ color: '#666' }}>
-            It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
-          </p>
-          <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-            <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR REPORT WILL INCLUDE</div>
-            <div className="space-y-2">
-              {['Funnel analysis', 'Unit economics breakdown', 'Benchmark comparison', 'Cost of inaction', 'Bottleneck diagnosis', '90-day action plan'].map(item => (
-                <div key={item} className="flex items-center gap-2 text-sm">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                  </div>
-                  <span style={{ color: '#a3a3a3' }}>{item}</span>
+              <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#555', border: '1px solid #2a2a2a' }}>
+                ✓ No charge — custom senior analysis is free
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
+              <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
+              <p className="text-sm mb-10" style={{ color: '#666' }}>
+                It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
+              </p>
+              <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+                <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR REPORT WILL INCLUDE</div>
+                <div className="space-y-2">
+                  {['Funnel analysis', 'Unit economics breakdown', 'Benchmark comparison', 'Cost of inaction', 'Bottleneck diagnosis', '90-day action plan'].map(item => (
+                    <div key={item} className="flex items-center gap-2 text-sm">
+                      <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
+                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                      </div>
+                      <span style={{ color: '#a3a3a3' }}>{item}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
+              </div>
+            </>
+          )}
 
-      <a href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
-        onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-        onMouseOut={e => e.currentTarget.style.color = '#555'}>
-        ← Back to homepage
-      </a>
-    </div>
-  );
+          <a href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
+            onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={e => e.currentTarget.style.color = '#555'}>
+            ← Back to homepage
+          </a>
+        </div>
+        );
 }
 
-// ─── Main Page ─────────────────────────────────────────────────────────────────
-export default function DiagnosticForm() {
+        // ─── Main Page ─────────────────────────────────────────────────────────────────
+        export default function DiagnosticForm() {
   const [step, setStep] = useState(1);
-  const [data, setData] = useState<FormData>(initial);
-  const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-  const [status, setStatus] = useState<'form' | 'analyzing' | 'success' | 'error'>('form');
-  const [submitError, setSubmitError] = useState('');
-  const [revenueConfirmed, setRevenueConfirmed] = useState(false);
+        const [data, setData] = useState<FormData>(initial);
+          const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({ });
+            const [status, setStatus] = useState<'form' | 'analyzing' | 'success' | 'error'>('form');
+            const [submitError, setSubmitError] = useState('');
+            const [revenueConfirmed, setRevenueConfirmed] = useState(false);
 
   const onChange = (key: keyof FormData, value: string) => {
-    setData(d => ({ ...d, [key]: value }));
-    setErrors(e => ({ ...e, [key]: '' }));
-    // Reset revenue confirmation if user edits the revenue field
-    if (key === 'totalRevenue') setRevenueConfirmed(false);
+              setData(d => ({ ...d, [key]: value }));
+    setErrors(e => ({...e, [key]: '' }));
+            // Reset revenue confirmation if user edits the revenue field
+            if (key === 'totalRevenue') setRevenueConfirmed(false);
   };
 
   const validate = (): boolean => {
-    const errs: Partial<Record<keyof FormData, string>> = {};
+    const errs: Partial<Record<keyof FormData, string>> = { };
 
-    if (step === 1) {
+              if (step === 1) {
       if (!data.businessType) errs.businessType = 'Please select a business type';
-      if (!data.leadSource) errs.leadSource = 'Please select a lead source';
-      if (!data.adSpend && !data.exactAdSpend) errs.adSpend = 'Please select a range or enter an exact amount';
+              if (!data.leadSource) errs.leadSource = 'Please select a lead source';
+              if (!data.adSpend && !data.exactAdSpend) errs.adSpend = 'Please select a range or enter an exact amount';
     }
 
-    if (step === 2) {
+              if (step === 2) {
       if (!data.monthlyLeads) errs.monthlyLeads = 'Required';
-      if (!data.callsBooked) errs.callsBooked = 'Required';
-      if (!data.callsCompleted) errs.callsCompleted = 'Required';
-      if (!data.customersClosed) errs.customersClosed = 'Required';
+              if (!data.callsBooked) errs.callsBooked = 'Required';
+              if (!data.callsCompleted) errs.callsCompleted = 'Required';
+              if (!data.customersClosed) errs.customersClosed = 'Required';
 
-      const leads = parseInt(data.monthlyLeads) || 0;
-      const booked = parseInt(data.callsBooked) || 0;
-      const completed = parseInt(data.callsCompleted) || 0;
-      const closed = parseInt(data.customersClosed) || 0;
+              const leads = parseInt(data.monthlyLeads) || 0;
+              const booked = parseInt(data.callsBooked) || 0;
+              const completed = parseInt(data.callsCompleted) || 0;
+              const closed = parseInt(data.customersClosed) || 0;
 
       if (booked > leads) errs.callsBooked = 'Cannot exceed total leads';
       if (completed > booked) errs.callsCompleted = 'Cannot exceed calls booked';
       if (closed > completed) errs.customersClosed = 'Cannot exceed calls completed';
     }
 
-    if (step === 3) {
+              if (step === 3) {
       if (!data.dealSize) errs.dealSize = 'Required';
-      if (!data.profitMargin) errs.profitMargin = 'Required';
-      if (!data.salesCycle) errs.salesCycle = 'Required';
+              if (!data.profitMargin) errs.profitMargin = 'Required';
+              if (!data.salesCycle) errs.salesCycle = 'Required';
 
       // Extreme mismatch: entered < 10% of implied — require explicit confirmation
-      if (data.totalRevenue && data.dealSize && data.customersClosed) {
+              if (data.totalRevenue && data.dealSize && data.customersClosed) {
         const implied = (parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0);
-        const entered = parseInt(data.totalRevenue) || 0;
+              const entered = parseInt(data.totalRevenue) || 0;
         if (implied > 0 && entered < implied * 0.1 && !revenueConfirmed) {
-          errs.totalRevenue = 'confirm_required';
+                errs.totalRevenue = 'confirm_required';
         }
       }
     }
 
-    if (step === 4) {
+              if (step === 4) {
       if (!data.responseTime) errs.responseTime = 'Required';
-      if (!data.trackingQuality) errs.trackingQuality = 'Required';
-      if (!data.followUpSystem) errs.followUpSystem = 'Required';
-      if (!data.email) errs.email = 'Email is required';
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errs.email = 'Please enter a valid email';
+              if (!data.trackingQuality) errs.trackingQuality = 'Required';
+              if (!data.followUpSystem) errs.followUpSystem = 'Required';
+              if (!data.email) errs.email = 'Email is required';
+              else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errs.email = 'Please enter a valid email';
     }
 
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+              setErrors(errs);
+              return Object.keys(errs).length === 0;
   };
 
   const handleNext = () => {
     if (!validate()) return;
-    if (step < 4) {
-      setStep(s => s + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+              if (step < 4) {
+                setStep(s => s + 1);
+              window.scrollTo({top: 0, behavior: 'smooth' });
     } else {
-      handleSubmit();
+                handleSubmit();
     }
   };
 
   const handleSubmit = async () => {
-    setStatus('analyzing');
-    setSubmitError('');
+                setStatus('analyzing');
+              setSubmitError('');
 
-    const payload = {
-      // Step 1
-      businessType: data.businessType,
-      leadSource: data.leadSource,
-      adSpend: data.adSpend || null,
-      exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
-      // Step 2
-      monthlyLeads: parseInt(data.monthlyLeads) || 0,
-      callsBooked: parseInt(data.callsBooked) || 0,
-      callsCompleted: parseInt(data.callsCompleted) || 0,
-      customersClosed: parseInt(data.customersClosed) || 0,
-      // Step 3
-      dealSize: parseInt(data.dealSize) || 0,
-      profitMargin: data.profitMargin,
-      salesCycle: data.salesCycle,
-      totalRevenue: parseInt(data.totalRevenue) || null,
-      // Step 4
-      responseTime: data.responseTime,
-      trackingQuality: data.trackingQuality,
-      followUpSystem: data.followUpSystem,
-      email: data.email,
-      // Meta
-      submittedAt: new Date().toISOString(),
-      isCustomRequest: data.businessType === 'other',
+              const payload = {
+                // Step 1
+                businessType: data.businessType,
+              leadSource: data.leadSource,
+              adSpend: data.adSpend || null,
+              exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
+              // Step 2
+              monthlyLeads: parseInt(data.monthlyLeads) || 0,
+              callsBooked: parseInt(data.callsBooked) || 0,
+              callsCompleted: parseInt(data.callsCompleted) || 0,
+              customersClosed: parseInt(data.customersClosed) || 0,
+              // Step 3
+              dealSize: parseInt(data.dealSize) || 0,
+              profitMargin: data.profitMargin,
+              salesCycle: data.salesCycle,
+              totalRevenue: parseInt(data.totalRevenue) || null,
+              // Step 4
+              responseTime: data.responseTime,
+              trackingQuality: data.trackingQuality,
+              followUpSystem: data.followUpSystem,
+              email: data.email,
+              // Meta
+              submittedAt: new Date().toISOString(),
+              isCustomRequest: data.businessType === 'other',
     };
 
-    try {
+              try {
       const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+                method: 'POST',
+              headers: {'Content-Type': 'application/json' },
+              body: JSON.stringify(payload),
       });
 
-      if (!response.ok) {
+              if (!response.ok) {
         throw new Error(`Server error: ${response.status}`);
       }
 
       // Success — show analyzing UX for at least 4s
       setTimeout(() => setStatus('success'), 4000);
     } catch (err) {
-      console.error('Webhook error:', err);
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setSubmitError(`Submission failed: ${message}. Please try again.`);
-      setStatus('error');
+                console.error('Webhook error:', err);
+              const message = err instanceof Error ? err.message : 'Unknown error';
+              setSubmitError(`Submission failed: ${message}. Please try again.`);
+              setStatus('error');
     }
   };
 
-  return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
-      {/* Nav */}
-      <nav className="border-b" style={{ background: 'rgba(10,10,10,0.95)', borderColor: '#1a1a1a' }}>
-        <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: '#f97316' }}>
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="white" fillOpacity="0.9"/>
-                <path d="M8 5L11 7V9L8 11L5 9V7L8 5Z" fill="white"/>
-              </svg>
-            </div>
-            <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
-          </a>
-          <div className="flex items-center gap-2 text-xs" style={{ color: '#555' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#555" strokeWidth="1.2"/><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#555" strokeWidth="1.2" strokeLinecap="round"/></svg>
-            Secure & Confidential
-          </div>
-        </div>
-      </nav>
+              return (
+              <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
+                {/* Nav */}
+                <nav className="border-b" style={{ background: 'rgba(10,10,10,0.95)', borderColor: '#1a1a1a' }}>
+                  <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
+                    <a href="/" className="flex items-center gap-2">
+                      <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: '#f97316' }}>
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                          <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="white" fillOpacity="0.9" />
+                          <path d="M8 5L11 7V9L8 11L5 9V7L8 5Z" fill="white" />
+                        </svg>
+                      </div>
+                      <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
+                    </a>
+                    <div className="flex items-center gap-2 text-xs" style={{ color: '#555' }}>
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#555" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#555" strokeWidth="1.2" strokeLinecap="round" /></svg>
+                      Secure & Confidential
+                    </div>
+                  </div>
+                </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
-        {status === 'form' && (
-          <>
-            {/* Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f97316' }} />
-                <span className="text-xs font-semibold" style={{ color: '#f97316', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
-              </div>
-              <h1 className="font-black text-3xl mb-3" style={{ color: '#f5f5f5' }}>
-                Identify your revenue leak<br />in 3 minutes
-              </h1>
-              <p className="text-sm" style={{ color: '#a3a3a3' }}>
-                Answer 13 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.
-              </p>
-            </div>
+                <div className="max-w-2xl mx-auto px-6 py-12">
+                  {status === 'form' && (
+                    <>
+                      {/* Header */}
+                      <div className="text-center mb-10">
+                        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+                          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f97316' }} />
+                          <span className="text-xs font-semibold" style={{ color: '#f97316', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
+                        </div>
+                        <h1 className="font-black text-3xl mb-3" style={{ color: '#f5f5f5' }}>
+                          Identify your revenue leak<br />in 3 minutes
+                        </h1>
+                        <p className="text-sm" style={{ color: '#a3a3a3' }}>
+                          Answer 13 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.
+                        </p>
+                      </div>
 
-            {/* Progress */}
-            <ProgressBar step={step} total={4} />
+                      {/* Progress */}
+                      <ProgressBar step={step} total={4} />
 
-            {/* Form card */}
-            <div className="rounded-2xl border p-8" style={{ background: '#111', borderColor: '#2a2a2a' }}>
-              <div className="mb-6">
-                <div className="section-label mb-1">
-                  {['Business Profile', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
-                </div>
-                <h2 className="font-bold text-lg" style={{ color: '#f5f5f5' }}>
-                  {[
-                    'Tell us about your business',
-                    'How does your funnel perform?',
-                    'What are your deal economics?',
-                    'How do you handle leads?',
-                  ][step - 1]}
-                </h2>
-              </div>
+                      {/* Form card */}
+                      <div className="rounded-2xl border p-8" style={{ background: '#111', borderColor: '#2a2a2a' }}>
+                        <div className="mb-6">
+                          <div className="section-label mb-1">
+                            {['Business Profile', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
+                          </div>
+                          <h2 className="font-bold text-lg" style={{ color: '#f5f5f5' }}>
+                            {[
+                              'Tell us about your business',
+                              'How does your funnel perform?',
+                              'What are your deal economics?',
+                              'How do you handle leads?',
+                            ][step - 1]}
+                          </h2>
+                        </div>
 
-              {step === 1 && <Step1 data={data} onChange={onChange} errors={errors} />}
-              {step === 2 && <Step2 data={data} onChange={onChange} errors={errors} />}
-              {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} />}
-              {step === 4 && <Step4 data={data} onChange={onChange} errors={errors} />}
+                        {step === 1 && <Step1 data={data} onChange={onChange} errors={errors} />}
+                        {step === 2 && <Step2 data={data} onChange={onChange} errors={errors} />}
+                        {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} />}
+                        {step === 4 && <Step4 data={data} onChange={onChange} errors={errors} />}
 
-              {/* Navigation */}
-              <div className="flex justify-between mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
-                {step > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                    style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
-                    onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
-                    onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
-                  >
-                    ← Back
-                  </button>
-                ) : <div />}
+                        {/* Navigation */}
+                        <div className="flex justify-between mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
+                          {step > 1 ? (
+                            <button
+                              type="button"
+                              onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                              className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                              style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
+                              onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
+                              onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                            >
+                              ← Back
+                            </button>
+                          ) : <div />}
 
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
-                  style={{ background: '#f97316', color: '#fff' }}
-                  onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  {step < 4 ? (
-                    <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
-                  ) : data.businessType === 'other' ? (
-                    <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
-                  ) : (
-                    <>Generate My Report — $4.99 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg></>
+                          <button
+                            type="button"
+                            onClick={handleNext}
+                            className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
+                            style={{ background: '#f97316', color: '#fff' }}
+                            onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                            onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                          >
+                            {step < 4 ? (
+                              <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                            ) : data.businessType === 'other' ? (
+                              <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                            ) : (
+                              <>Generate My Report — $4.99 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Trust signals */}
+                      <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: '#444' }}>
+                        <span>🔒 Confidential</span>
+                        <span>⚡ Report delivered instantly</span>
+                        <span>📄 Structured PDF</span>
+                        <span>✓ No subscription</span>
+                      </div>
+                    </>
                   )}
-                </button>
+
+                  {status === 'analyzing' && <AnalyzingScreen businessType={data.businessType} />}
+                  {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
+                  {status === 'error' && (
+                    <div className="flex flex-col items-center justify-center py-16 text-center">
+                      <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
+                        style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #ef4444' }}>
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                          <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                      <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Submission failed</h2>
+                      <p className="text-sm mb-8 max-w-sm" style={{ color: '#a3a3a3' }}>{submitError}</p>
+                      <button
+                        onClick={() => { setStatus('form'); setSubmitError(''); }}
+                        className="px-6 py-3 rounded-lg text-sm font-bold transition-all"
+                        style={{ background: '#f97316', color: '#fff' }}
+                        onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
+                        onMouseOut={e => e.currentTarget.style.background = '#f97316'}
+                      >
+                        ← Try Again
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Trust signals */}
-            <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: '#444' }}>
-              <span>🔒 Confidential</span>
-              <span>⚡ Report delivered instantly</span>
-              <span>📄 Structured PDF</span>
-              <span>✓ No subscription</span>
-            </div>
-          </>
-        )}
-
-        {status === 'analyzing' && <AnalyzingScreen businessType={data.businessType} />}
-        {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
-        {status === 'error' && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #ef4444' }}>
-              <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </div>
-            <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Submission failed</h2>
-            <p className="text-sm mb-8 max-w-sm" style={{ color: '#a3a3a3' }}>{submitError}</p>
-            <button
-              onClick={() => { setStatus('form'); setSubmitError(''); }}
-              className="px-6 py-3 rounded-lg text-sm font-bold transition-all"
-              style={{ background: '#f97316', color: '#fff' }}
-              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-              onMouseOut={e => e.currentTarget.style.background = '#f97316'}
-            >
-              ← Try Again
-            </button>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+              );
 }

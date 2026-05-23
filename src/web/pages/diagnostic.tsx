@@ -969,7 +969,7 @@ export default function DiagnosticForm() {
 
               {step === 1 && <Step1 data={data} onChange={onChange} errors={errors} />}
               {step === 2 && <Step2 data={data} onChange={onChange} errors={errors} />}
-              {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} />}
+              {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} revenueConfirmed={revenueConfirmed} onRevenueConfirm={setRevenueConfirmed} />}
               {step === 4 && <Step4 data={data} onChange={onChange} errors={errors} />}
 
               {/* Navigation */}

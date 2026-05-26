@@ -16,21 +16,21 @@ export function Footer() {
           © 2026 GrowthDiagnostic. All rights reserved.
         </div>
         <div className="flex gap-6">
-          <a href="#" className="text-xs transition-colors" style={{ color: '#555' }}
-            onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-            onMouseOut={e => e.currentTarget.style.color = '#555'}>
+          <Link href="/privacy" className="text-xs transition-colors" style={{ color: '#555' }}
+            onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
             Privacy
-          </a>
+          </Link>
           <Link href="/terms" className="text-xs transition-colors" style={{ color: '#555' }}
             onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
             onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
             Terms
           </Link>
-          <a href="#" className="text-xs transition-colors" style={{ color: '#555' }}
-            onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-            onMouseOut={e => e.currentTarget.style.color = '#555'}>
+          <Link href="/contact" className="text-xs transition-colors" style={{ color: '#555' }}
+            onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
             Contact
-          </a>
+          </Link>
         </div>
       </div>
     </footer>

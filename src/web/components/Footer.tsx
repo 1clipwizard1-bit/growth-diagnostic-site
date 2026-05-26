@@ -1,3 +1,5 @@
+import { Link } from "wouter";
+
 export function Footer() {
   return (
     <footer className="border-t py-10" style={{ borderColor: '#1a1a1a', background: '#0a0a0a' }}>
@@ -14,13 +16,21 @@ export function Footer() {
           © 2026 GrowthDiagnostic. All rights reserved.
         </div>
         <div className="flex gap-6">
-          {['Privacy', 'Terms', 'Contact'].map(link => (
-            <a key={link} href="#" className="text-xs transition-colors" style={{ color: '#555' }}
-              onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-              onMouseOut={e => e.currentTarget.style.color = '#555'}>
-              {link}
-            </a>
-          ))}
+          <a href="#" className="text-xs transition-colors" style={{ color: '#555' }}
+            onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={e => e.currentTarget.style.color = '#555'}>
+            Privacy
+          </a>
+          <Link href="/terms" className="text-xs transition-colors" style={{ color: '#555' }}
+            onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
+            Terms
+          </Link>
+          <a href="#" className="text-xs transition-colors" style={{ color: '#555' }}
+            onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
+            onMouseOut={e => e.currentTarget.style.color = '#555'}>
+            Contact
+          </a>
         </div>
       </div>
     </footer>

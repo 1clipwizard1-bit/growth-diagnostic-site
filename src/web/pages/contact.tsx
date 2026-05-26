@@ -2,6 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 
+// ─── N8N Webhook for Contact Form ─────────────────────────────────────────────
+// You can replace this URL with your custom n8n contact webhook url if needed
+const N8N_CONTACT_WEBHOOK_URL = 'https://learning11b.app.n8n.cloud/webhook/408fcf55-a336-4f14-8a9e-afeb853aaa1b';
+
 export default function ContactPage() {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -38,12 +42,26 @@ export default function ContactPage() {
     setStatus("submitting");
 
     try {
-      // We can use a general webhook or simulate contact form submit.
-      // Let's send the contact submission to the n8n webhook or similar, or simulate a successful 1.5s delay submission.
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await fetch(N8N_CONTACT_WEBHOOK_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          eventType: "contact_submission",
+          timestamp: new Date().toISOString(),
+          ...formData,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
     } catch (err) {
+      console.error("Contact submit error:", err);
       setStatus("error");
     }
   };

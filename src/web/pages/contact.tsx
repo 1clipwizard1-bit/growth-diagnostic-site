@@ -16,6 +16,7 @@ export default function ContactPage() {
     email: "",
     subject: "",
     message: "",
+    website: "", // Honeypot field for anti-spam
   });
 
   const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -39,6 +40,18 @@ export default function ContactPage() {
     e.preventDefault();
     if (!validate()) return;
 
+    // Honeypot anti-spam check:
+    // If 'website' has any value, it's a bot submission.
+    // We silently simulate success to fool the bot, but NEVER send the request to n8n.
+    if (formData.website.trim().length > 0) {
+      console.warn("Spam bot detected via honeypot. Ignoring request.");
+      setStatus("submitting");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setStatus("success");
+      setFormData({ name: "", email: "", subject: "", message: "", website: "" });
+      return;
+    }
+
     setStatus("submitting");
 
     try {
@@ -50,7 +63,11 @@ export default function ContactPage() {
         body: JSON.stringify({
           eventType: "contact_submission",
           timestamp: new Date().toISOString(),
-          ...formData,
+          name: formData.name,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          website: formData.website, // Pass honeypot (always empty for humans)
         }),
       });
 
@@ -59,7 +76,7 @@ export default function ContactPage() {
       }
 
       setStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "" });
+      setFormData({ name: "", email: "", subject: "", message: "", website: "" });
     } catch (err) {
       console.error("Contact submit error:", err);
       setStatus("error");
@@ -132,6 +149,24 @@ export default function ContactPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Honeypot field (hidden from human users, targets automated bots) */}
+              <input
+                type="text"
+                name="website"
+                value={formData.website}
+                onChange={(e) => setFormData({ ...formData, website: e.target.value })}
+                style={{
+                  position: "absolute",
+                  left: "-9999px",
+                  opacity: 0,
+                  height: 0,
+                  width: 0,
+                  zIndex: -1,
+                }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+
               {status === "error" && (
                 <div
                   className="p-4 rounded-xl text-xs"

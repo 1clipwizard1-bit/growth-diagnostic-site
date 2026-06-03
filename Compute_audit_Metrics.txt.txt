@@ -579,19 +579,21 @@ if (hasBenchmarkCoverage) {
     responseTimeMinutes > bmResponseTime * 2;
 
   // Priority order:
-  // 1) Economics first
-  // 2) Then funnel
+  // 1) Funnel first (stages 1 -> 2 -> 3)
+  // 2) Then economics
   // 3) Then speed
-  if (economicsConstraint) {
-    primaryBottleneck = "economics_efficiency";
-  } else if (leadBookingConstraint) {
+  if (leadBookingConstraint) {
     primaryBottleneck = "lead_to_booking_conversion";
   } else if (showRateConstraint) {
     primaryBottleneck = "appointment_show_rate";
   } else if (salesConstraint) {
     primaryBottleneck = "sales_conversion";
+  } else if (economicsConstraint) {
+    primaryBottleneck = "economics_efficiency";
   } else if (speedConstraint) {
     primaryBottleneck = "speed_to_lead";
+  } else if (score !== null && score >= 85) {
+    primaryBottleneck = "ready_to_scale";
   }
 }
 
@@ -847,6 +849,13 @@ if (primaryBottleneck !== "insufficient_data" && benchmarkProfile) {
             2
           )
         }
+      };
+    }
+    // 6) Ready to scale
+    else if (primaryBottleneck === "ready_to_scale") {
+      impactSimulation = {
+        status: "ready_to_scale",
+        message: "Funnel is highly optimized. Priority shifts from fixing leaks to safely scaling ad spend and expanding channels."
       };
     }
   } catch (e) {

@@ -40,6 +40,7 @@ function toConsultingLabel(value) {
 function toPremiumBottleneckLabel(value) {
   const base = toConsultingLabel(value || "");
   if (!base) return "";
+  if (base.toLowerCase() === "ready to scale") return "Ready for Scaling / Expansion";
   return base
     .replace(/\bSpeed-to-Contact\b/g, "Speed-to-Lead")
     .replace(/\bLead Capture And Speed-to-Lead\b/g, "Lead Capture Reliability and Speed-to-Lead")
@@ -209,11 +210,16 @@ function renderGapCardsFromStructured(gaps) {
       }
     }
 
+    const arrowSymbol = rawDiff !== null ? (rawDiff >= 0 ? "▲ " : "▼ ") : "";
+    const arrowClass = isPositive ? "gap-arrow-up" : "gap-arrow-down";
+
     return {
       label: cfg.label, actual: actualFmt, benchmark: benchmarkFmt, diff: diffText, note: cfg.note,
       magnitude: rawDiff !== null ? Math.abs(rawDiff) : 0,
       isPositive: isPositive,
-      zoneClass: zoneClass
+      zoneClass: zoneClass,
+      arrowSymbol: arrowSymbol,
+      arrowClass: arrowClass
     };
   }).filter(Boolean).sort(function(a, b) {
     // Negative cards (actual problems) come first, sorted by magnitude descending.
@@ -234,7 +240,7 @@ function renderGapCardsFromStructured(gaps) {
       '<div class="gap-rows">' +
         '<div class="gap-row"><span class="gap-label">Current</span><span class="gap-val" style="font-weight:800;font-size:14px;color:#0d1b3e;">' + esc(item.actual) + "</span></div>" +
         '<div class="gap-row"><span class="gap-label">Benchmark</span><span class="gap-val" style="font-weight:400;color:#6b7a99;">' + esc(item.benchmark) + "</span></div>" +
-        '<div class="gap-row gap-row-diff"><span class="gap-label">Gap</span><span class="gap-val ' + (item.isPositive === null ? '' : item.isPositive ? 'gap-diff-positive' : 'gap-diff') + '">' + (item.isPositive === null ? '' : item.isPositive ? '<span class="gap-arrow-up">▲ </span>' : '<span class="gap-arrow-down">▼ </span>') + esc(item.diff) + "</span></div>" +
+        '<div class="gap-row gap-row-diff"><span class="gap-label">Gap</span><span class="gap-val ' + (item.isPositive === null ? '' : item.isPositive ? 'gap-diff-positive' : 'gap-diff') + '">' + (item.arrowSymbol ? '<span class="' + item.arrowClass + '">' + item.arrowSymbol + '</span>' : '') + esc(item.diff) + "</span></div>" +
       "</div>" +
       '<div class="gap-note">' + esc(item.note) + "</div>" +
       "</div>"
@@ -400,7 +406,9 @@ const keyFindingText = String(data.primary_bottleneck || "") === "insufficient_d
       : "Establishing reliable data tracking is the critical first step. Without correct attribution, marketing spend cannot be optimized for profit.")
   : String(data.primary_bottleneck || "") === "economics_efficiency"
     ? "The Money Leak: Your current sales process is killing your ad profit. Correcting this is the fastest way to immediate revenue without increasing budget."
-    : "Conversion Bottleneck: This constraint is directly blocking your ability to turn demand into booked revenue and profit.";
+    : String(data.primary_bottleneck || "") === "ready_to_scale"
+      ? "Scaling Opportunity: Your funnel is highly optimized and beating industry benchmarks. You are cleared to safely scale budget and expand acquisition channels."
+      : "Conversion Bottleneck: This constraint is directly blocking your ability to turn demand into booked revenue and profit.";
 
 // -------------------------
 // Custom Executive Summary — динамічний залежно від bottleneck
@@ -437,32 +445,76 @@ const customExecutiveSummaryHtml = String(data.primary_bottleneck || "") === "ec
     "</div>" +
     "</div>"
   )
+  : String(data.primary_bottleneck || "") === "ready_to_scale"
+  ? (
+    "<div class=\"section\">" +
+    "<div class=\"section-title\">Executive Summary: Ready for Scale</div>" +
+    "<div class=\"card profit-zone\" style=\"background-color: #f0fdf4; border-left-color: #22c55e;\">" +
+    "<p>Congratulations. Your funnel is outperforming industry benchmarks across all measured metrics. Your unit economics are currently in the <strong>strong</strong> zone.</p>" +
+    "<p style=\"margin-top:12px;\">Your lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and your ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> demonstrate a highly efficient acquisition machine.</p>" +
+    "<p style=\"margin-top:12px;\">The primary opportunity now is <strong>profitable expansion</strong>. It is time to safely increase ad spend, explore new acquisition channels, and optimize for higher lifetime value (LTV).</p>" +
+    "</div>" +
+    "</div>"
+  )
   : String(data.primary_bottleneck || "") === "insufficient_data"
   ? (
     "<div class=\"section\">" +
     "<div class=\"section-title\">Executive Summary</div>" +
     "<div class=\"card accent\">" +
-    (hasValidScore && score >= 85 && hasBenchmarks
-      ? "<p>Your funnel is outperforming industry benchmarks across all measured metrics. Your unit economics are currently in the 'strong' zone.</p>" +
-        "<p style=\"margin-top:12px;\">Your lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> is <strong>" + esc(execGapLeadToBookedAbs) + "%</strong> " + execGapDirection + " the industry benchmark, and your ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> is highly efficient.</p>" +
-        "<p style=\"margin-top:12px;\">The primary opportunity now is not 'fixing' a problem, but <strong>protecting your scale</strong> by establishing bulletproof tracking and follow-up infrastructure.</p>"
-      : "<p>A complete performance assessment could not be conducted because no industry benchmark data is available for this business type.</p>" +
-        "<p style=\"margin-top:12px;\">Your current funnel shows a lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and a ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> &mdash; however, without a benchmark reference, actual performance vs peers remains unverified.</p>" +
-        "<p style=\"margin-top:12px;\">The highest-leverage action is building <strong>data infrastructure</strong> (CRM, attribution, offline tracking) so you can optimize with confidence and stop guessing where profit is lost.</p>") +
+    "<p>A complete performance assessment could not be conducted because no industry benchmark data is available for this business type.</p>" +
+    "<p style=\"margin-top:12px;\">Your current funnel shows a lead-to-booked rate of <strong>" + esc(execCurrentLeadToBooked) + "%</strong> and a ROAS of <strong>" + esc(num(metrics.roas, 2)) + "x</strong> &mdash; however, without a benchmark reference, actual performance vs peers remains unverified.</p>" +
+    "<p style=\"margin-top:12px;\">The highest-leverage action is building <strong>data infrastructure</strong> (CRM, attribution, offline tracking) so you can optimize with confidence and stop guessing where profit is lost.</p>" +
     "</div>" +
     "</div>"
   )
-  : (
-    "<div class=\"section\">" +
-    "<div class=\"section-title\">Executive Summary: The Conversion Leak</div>" +
-    "<div class=\"card accent\">" +
-    "<p>Your current growth is not limited by lead volume &mdash; it is being killed by <strong>conversion failure</strong>.</p>" +
-    "<p style=\"margin-top:12px;\">Your lead-to-booked conversion rate is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(execCurrentLeadToBooked) + "%</strong>. The industry benchmark for a business like yours is <strong>" + esc(execBenchmarkLeadToBooked) + "%</strong>.</p>" +
-    "<p style=\"margin-top:12px;\">This gap means a majority of your leads disappear before they even reach a sales conversation. This is not just a 'low score' &mdash; it is a <strong>direct loss of revenue</strong> every single day.</p>" +
-    "<p style=\"margin-top:12px;\">Correcting this constraint is the single fastest way to unlock more deals and revenue without spending a single dollar more on advertising.</p>" +
-    "</div>" +
-    "</div>"
-  );
+  : (function() {
+      const bottleneckKey = String(data.primary_bottleneck || "");
+      let metricLabel = "lead-to-booked conversion rate";
+      let currentVal = execCurrentLeadToBooked + "%";
+      let benchmarkVal = execBenchmarkLeadToBooked + "%";
+      let gapExplanation = "This gap means a majority of your leads disappear before they even reach a sales conversation. This is not just a 'low score' &mdash; it is a <strong>direct loss of revenue</strong> every single day.";
+
+      if (bottleneckKey === "appointment_show_rate") {
+        metricLabel = "booked-to-completed show rate";
+        currentVal = Number.isFinite(Number(metrics.booked_to_completed_rate))
+          ? (Math.round(Number(metrics.booked_to_completed_rate) * 1000) / 10).toLocaleString("en-US") + "%"
+          : "Insufficient data";
+        benchmarkVal = Number.isFinite(Number(benchmarkProfile.booked_to_completed_rate))
+          ? (Math.round(Number(benchmarkProfile.booked_to_completed_rate) * 1000) / 10).toLocaleString("en-US") + "%"
+          : "Insufficient data";
+        gapExplanation = "This gap means a majority of your booked calls fail to show up or be completed. You are spending time and effort booking meetings that never happen, which drains sales capacity and marketing efficiency.";
+      } else if (bottleneckKey === "sales_conversion") {
+        metricLabel = "completed-to-close sales rate";
+        currentVal = Number.isFinite(Number(metrics.completed_to_close_rate))
+          ? (Math.round(Number(metrics.completed_to_close_rate) * 1000) / 10).toLocaleString("en-US") + "%"
+          : "Insufficient data";
+        benchmarkVal = Number.isFinite(Number(benchmarkProfile.completed_to_close_rate))
+          ? (Math.round(Number(benchmarkProfile.completed_to_close_rate) * 1000) / 10).toLocaleString("en-US") + "%"
+          : "Insufficient data";
+        gapExplanation = "This gap means your completed sales calls are failing to convert into clients. You are doing the hard work of getting qualified prospects on the phone, but losing them at the finish line.";
+      } else if (bottleneckKey === "speed_to_lead") {
+        metricLabel = "average response time";
+        currentVal = Number.isFinite(Number(metrics.response_time_minutes))
+          ? num(metrics.response_time_minutes, 0) + " minutes"
+          : "Insufficient data";
+        benchmarkVal = Number.isFinite(Number(benchmarkProfile.response_time_minutes))
+          ? num(benchmarkProfile.response_time_minutes, 0) + " minutes"
+          : "Insufficient data";
+        gapExplanation = "This gap means you are responding too slowly to inbound leads, allowing warm prospects to cool off and seek alternatives before you establish contact.";
+      }
+
+      return (
+        "<div class=\"section\">" +
+        "<div class=\"section-title\">Executive Summary: The Conversion Leak</div>" +
+        "<div class=\"card accent\">" +
+        "<p>Your current growth is not limited by lead volume &mdash; it is being killed by <strong>conversion failure</strong>.</p>" +
+        "<p style=\"margin-top:12px;\">Your " + esc(metricLabel) + " is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(currentVal) + "</strong>. The industry benchmark for a business like yours is <strong>" + esc(benchmarkVal) + "</strong>.</p>" +
+        "<p style=\"margin-top:12px;\">" + gapExplanation + "</p>" +
+        "<p style=\"margin-top:12px;\">Correcting this constraint is the single fastest way to unlock more deals and revenue without spending a single dollar more on advertising.</p>" +
+        "</div>" +
+        "</div>"
+      );
+    })();
 
 const revenueUnlockHtml = renderRevenueUnlockSection(impactSimulation);
 
@@ -471,11 +523,13 @@ const revenueUnlockHtml = renderRevenueUnlockSection(impactSimulation);
 // -------------------------
 const scoreInterpretation = !hasValidScore || !hasBenchmarks
   ? "A full performance assessment could not be completed. No benchmark data is available for this industry type. Establishing tracking infrastructure and data capture is the priority."
-  : score >= 85
-    ? "Based on the available data, current funnel economics are outperforming industry benchmark expectations" + (primaryBottleneck ? ", with the primary area for further optimization noted as " + primaryBottleneck + "." : ".")
-    : primaryBottleneck
-      ? "Based on the available data, current funnel economics are materially underperforming benchmark expectations, with the main constraint concentrated in " + primaryBottleneck + "."
-      : "Based on the available data, current funnel economics are materially underperforming benchmark expectations and require correction before additional scaling.";
+  : String(data.primary_bottleneck || "") === "ready_to_scale"
+    ? "Based on the available data, current funnel economics are outperforming industry benchmark expectations. The funnel is highly optimized and ready for profitable scaling."
+    : score >= 85
+      ? "Based on the available data, current funnel economics are outperforming industry benchmark expectations" + (primaryBottleneck ? ", with the primary area for further optimization noted as " + primaryBottleneck + "." : ".")
+      : primaryBottleneck
+        ? "Based on the available data, current funnel economics are materially underperforming benchmark expectations, with the main constraint concentrated in " + primaryBottleneck + "."
+        : "Based on the available data, current funnel economics are materially underperforming benchmark expectations and require correction before additional scaling.";
 
 const confidenceNote = "Data confidence reflects the completeness and reliability of the provided marketing, funnel, and tracking inputs.";
 
@@ -499,13 +553,21 @@ const adSpendAtRiskDisplay = displayMoney(adSpendAtRiskRaw, fieldStatus.ad_spend
 
 const recommendedEngagementText = String(data.primary_bottleneck || "") === "insufficient_data"
   ? "A focused implementation sprint to complete conversion tracking infrastructure, expand lead follow-up channels, and establish full funnel visibility — enabling data-driven optimization at scale."
-  : primaryBottleneck
-    ? "A focused implementation sprint to stabilize " + primaryBottleneck + ", improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel."
-    : "A focused implementation sprint to stabilize the primary conversion bottleneck, improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel.";
+  : String(data.primary_bottleneck || "") === "ready_to_scale"
+    ? "A strategic growth engagement to scale advertising budgets into new channels, implement advanced LTV optimization, and maximize market share while unit economics remain highly profitable."
+    : primaryBottleneck
+      ? "A focused implementation sprint to stabilize " + primaryBottleneck + ", improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel."
+      : "A focused implementation sprint to stabilize the primary conversion bottleneck, improve operating response speed, install reliable attribution, and reduce conversion leakage at the highest-impact point in the funnel.";
 
-const expectedOutcomeText        = "Improved lead handling reliability, faster response times, clearer attribution, and stronger conversion economics before additional budget is deployed.";
-const implementationOpportunityText1 = "If this diagnostic reflects the current state of your funnel, the next step is typically a short implementation sprint focused on correcting the primary constraint identified in this report.";
-const implementationOpportunityText2 = "This usually involves stabilizing lead capture and CRM integrations, reducing response time through automation, and implementing reliable attribution and conversion tracking.";
+const expectedOutcomeText        = String(data.primary_bottleneck || "") === "ready_to_scale" 
+  ? "Increased overall revenue and market share through scaled acquisition and higher lifetime value per customer."
+  : "Improved lead handling reliability, faster response times, clearer attribution, and stronger conversion economics before additional budget is deployed.";
+const implementationOpportunityText1 = String(data.primary_bottleneck || "") === "ready_to_scale"
+  ? "If this diagnostic reflects the current state of your funnel, the next step is typically a strategic scaling sprint to safely increase your customer acquisition volume."
+  : "If this diagnostic reflects the current state of your funnel, the next step is typically a short implementation sprint focused on correcting the primary constraint identified in this report.";
+const implementationOpportunityText2 = String(data.primary_bottleneck || "") === "ready_to_scale"
+  ? "This usually involves launching new ad platforms, expanding geographical targeting, creating high-ticket upsells, or building out an automated referral engine."
+  : "This usually involves stabilizing lead capture and CRM integrations, reducing response time through automation, and implementing reliable attribution and conversion tracking.";
 const implementationOpportunityText3 = "If helpful, these findings can be translated into a practical implementation plan with clear priorities, owners, and expected operating outcomes.";
 const methodologyNote            = "This audit is based on the data provided, benchmark comparisons, and modeled estimates of performance loss across the funnel. It is intended as a strategic diagnostic to identify the highest-leverage constraint limiting growth.";
 
@@ -561,10 +623,12 @@ const _rootCausesRaw = (function() {
 const _rootCauses     = renderList(_rootCausesRaw);
 const _bmSummary      = esc(polishNarrativeText(benchmarkAnalysis.summary || ""));
 const _gapCards       = renderGapCardsFromStructured(gaps);
-const _lossDisplay    = esc(monthlyLossDisplay);
+
+const isReadyToScale = String(data.primary_bottleneck || "") === "ready_to_scale";
+const _lossDisplay    = isReadyToScale ? "" : esc(monthlyLossDisplay);
 const _urgency        = esc(costOfInactionAI.urgency_statement || "");
-const _lossVal        = esc(monthlyValueAtRiskDisplay);
-const _adSpend        = esc(adSpendAtRiskDisplay);
+const _lossVal        = isReadyToScale ? "0 (Optimized)" : esc(monthlyValueAtRiskDisplay);
+const _adSpend        = isReadyToScale ? "Ready to Grow" : esc(adSpendAtRiskDisplay);
 const _lossChannel    = esc(primaryLossChannel);
 const _explanation    = esc(polishNarrativeText(costOfInactionAI.explanation || ""));
 const _next7          = renderList(actionPlan.next_7_days);
@@ -583,45 +647,78 @@ const _lossValueShort = displayMoney(monthlyLossNumber, "ok");
 
 // -------------------------
 // Conditional: three states — active loss (> 0), growth ceiling (=== 0), insufficient data (null)
-// -------------------------
 const hasActiveLoss      = monthlyLossNumber !== null && monthlyLossNumber > 0;
 const hasZeroLoss        = monthlyLossNumber !== null && monthlyLossNumber === 0;
 const hasInsufficientData = monthlyLossNumber === null;
 
-const _sectionTitleFinancial = hasActiveLoss
+const _sectionTitleFinancial = isReadyToScale
+  ? "Financial Upside: Ready for Scale"
+  : hasActiveLoss
   ? "Financial Bleeding: The Cost of Inaction"
   : hasZeroLoss
     ? "Growth Ceiling Detected: The Cost of Underperformance"
     : "Revenue Impact: Insufficient Data to Quantify";
 
-const _inactionBannerHeading = hasActiveLoss
+const _inactionBannerHeading = isReadyToScale
+  ? "SCALABILITY CONFIRMED"
+  : hasActiveLoss
   ? "ESTIMATED MONTHLY PROFIT LOSS"
   : hasZeroLoss
     ? "ESTIMATED GROWTH CEILING IMPACT"
     : "REVENUE IMPACT — DATA INCOMPLETE";
 
-const _headerStatusLabel = hasActiveLoss
+const _headerStatusLabel = isReadyToScale
+  ? "&#10003; READY TO SCALE"
+  : hasActiveLoss
   ? "&#9888; LOSS DETECTED"
   : hasZeroLoss
     ? "&#9650; GROWTH CEILING DETECTED"
     : "&#8212; AWAITING DATA";
 
-const _headerStatusColor = hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+const _headerStatusColor = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
 
-const _ctaConfirmedLabel = hasActiveLoss
+const _ctaConfirmedLabel = isReadyToScale
+  ? "&#10003; Ready for Scale"
+  : hasActiveLoss
   ? "&#9888; Revenue Bleeding Confirmed"
   : hasZeroLoss
     ? "&#9650; Growth Ceiling Confirmed"
     : "&#8505; Diagnostic Complete";
 
-const _ctaBorderColor = hasActiveLoss ? "#ef4444" : hasZeroLoss ? "#f59e0b" : "#1a5fff";
-const _ctaLossColor   = hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+const _ctaBorderColor = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ef4444" : hasZeroLoss ? "#f59e0b" : "#1a5fff";
+const _ctaLossColor   = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
 
-const _ctaLossSublabel = hasActiveLoss
+const _ctaLossSublabel = isReadyToScale
+  ? "Your funnel is highly optimized. Priority is to safely scale ad spend and expand into new channels."
+  : hasActiveLoss
   ? "Estimated monthly profit loss while the bottleneck remains unfixed"
   : hasZeroLoss
     ? "Estimated monthly growth opportunity being left on the table"
     : "Complete funnel data required for full financial impact modelling";
+
+const _ctaLossAmountDisplay = isReadyToScale ? "SCALE NOW" : _lossValueShort + " / mo";
+
+const stopActionBoxHtml = isReadyToScale
+  ? "        <h3>What To Do Next</h3>\n" +
+    "        <div class=\"stop-action-box\" style=\"background: #f0fdf4; border-color: #86efac;\">\n" +
+    "          <div class=\"stop-action-label\" style=\"color: #166534;\">&#10003; Green Light for Growth</div>\n" +
+    "          <div class=\"stop-action-text\" style=\"color: #166534;\">INCREASE YOUR AD SPEND. Your funnel is ready to handle more volume. You should actively expand your marketing budget and explore new channels to capture more market share.</div>\n" +
+    "        </div>\n"
+  : "        <h3>What Not To Do Yet</h3>\n" +
+    "        <div class=\"stop-action-box\">\n" +
+    "          <div class=\"stop-action-label\">&#9940; Critical Warning</div>\n" +
+    "          <div class=\"stop-action-text\">DO NOT GIVE GOOGLE / META MORE MONEY until the funnel leaks identified in this report are fixed. Scaling ad spend into a broken funnel accelerates losses &mdash; it does not solve them.</div>\n" +
+    "        </div>\n" +
+    "        <p>" + _notYet + "</p>\n";
+
+const _ctaHeadlineV2 = isReadyToScale
+  ? "          This report shows you <em>that</em> you are ready for scale.<br>\n" +
+    "          I'll walk you through exactly how to execute a scaling strategy &mdash; maximizing new channels and LTV.\n"
+  : "          This report shows you <em>where</em> the money is going.<br>\n" +
+    "          I'll walk you through exactly how to stop it &mdash; using your current assets, no complex rebuilds.\n";
+
+const _ctaButtonText = isReadyToScale ? "Schedule Scaling Strategy Call" : "Stop the Bleeding";
+const _ctaButtonColor = isReadyToScale ? "#22c55e" : "#ef4444";
 
 // -------------------------
 // Score / subscore logic
@@ -867,7 +964,7 @@ const html = "<!doctype html>\n" +
 "      <div class=\"section-title\">" + _sectionTitleFinancial + "</div>\n" +
 "      <div class=\"inaction-banner\">\n" +
 "        <h3>" + _inactionBannerHeading + "</h3>\n" +
-"        <div class=\"inaction-loss\">" + _lossDisplay + "</div>\n" +
+"        " + (isReadyToScale ? "" : "<div class=\"inaction-loss\">" + _lossDisplay + "</div>") + "\n" +
 "        <div class=\"inaction-urgency\">" + _urgency + "</div>\n" +
 "      </div>\n" +
 "      " + stopLossHtml + "\n" +
@@ -959,33 +1056,27 @@ const html = "<!doctype html>\n" +
 "      <div class=\"card accent\" style=\"margin-top:14px;\">\n" +
 "        <h3>Implementation Priority</h3><p>" + _bestMove + "</p>\n" +
 "        <h3>Why This First</h3><p>" + _whyFirst + "</p>\n" +
-"        <h3>What Not To Do Yet</h3>\n" +
-"        <div class=\"stop-action-box\">\n" +
-"          <div class=\"stop-action-label\">&#9940; Critical Warning</div>\n" +
-"          <div class=\"stop-action-text\">DO NOT GIVE GOOGLE / META MORE MONEY until the funnel leaks identified in this report are fixed. Scaling ad spend into a broken funnel accelerates losses &mdash; it does not solve them.</div>\n" +
-"        </div>\n" +
-"        <p>" + _notYet + "</p>\n" +
+"        " + stopActionBoxHtml +
 "        <div class=\"offer-box\"><div class=\"offer-label\">Recommended Engagement</div><div class=\"offer-text\">" + _engagement + "</div></div>\n" +
 "        <div class=\"outcome-box\"><div class=\"offer-label\">Expected Outcome</div><div class=\"offer-text\">" + _outcome + "</div></div>\n" +
 "      </div>\n" +
 "    </div>\n" +
 "\n" +
 "    <div class=\"section\">\n" +
-"      <div class=\"cta-box-v2\">\n" +
-"        <div class=\"cta-bleeding-label\">" + _ctaConfirmedLabel + "</div>\n" +
-"        <div class=\"cta-loss-amount\" style=\"color:" + _ctaLossColor + "\">" + _lossValueShort + " / mo</div>\n" +
+"      <div class=\"cta-box-v2\" style=\"border-left-color:" + _ctaBorderColor + ";\">\n" +
+"        <div class=\"cta-bleeding-label\" style=\"color:" + _ctaLossColor + ";\">" + _ctaConfirmedLabel + "</div>\n" +
+"        <div class=\"cta-loss-amount\" style=\"color:" + _ctaLossColor + ";\">" + _ctaLossAmountDisplay + "</div>\n" +
 "        <div class=\"cta-loss-sublabel\">" + _ctaLossSublabel + "</div>\n" +
 "        <div class=\"cta-headline-v2\">\n" +
-"          This report shows you <em>where</em> the money is going.<br>\n" +
-"          I’ll walk you through exactly <strong>how to stop it</strong> &mdash; using your current assets, no complex rebuilds.\n" +
+"          " + _ctaHeadlineV2 +
 "        </div>\n" +
 "        <div>\n" +
-"          <a href=\"[Calendar Link]\" class=\"button-cta-v2\">&#128680;&nbsp; STOP THE BLEEDING &mdash; Book a 15-Min Strategy Call</a>\n" +
+"          <a href=\"[Calendar Link]\" class=\"button-cta-v2\" style=\"background-color:" + _ctaButtonColor + "; border-color: #ffffff;\">&#128680;&nbsp; " + _ctaButtonText + "</a>\n" +
 "        </div>\n" +
 "        <div class=\"cta-scarcity\">\n" +
 "          &#9889; I only run 5 of these strategy audits per week. My next available slot for a 1-on-1 walkthrough is [Date].\n" +
 "        </div>\n" +
-"        <div class=\"cta-subtext\">No pitch. No fluff. Just a clear plan to fix the leak identified above.</div>\n" +
+"        <div class=\"cta-subtext\">" + (isReadyToScale ? "No pitch. No fluff. Just a clear strategy session to maximize your growth." : "No pitch. No fluff. Just a clear plan to fix the leak identified above.") + "</div>\n" +
 "      </div>\n" +
 "    </div>\n" +
 "\n" +

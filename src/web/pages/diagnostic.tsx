@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
+import { Link } from 'wouter';
 const RevenueWarning = React.lazy(() => import('../components/RevenueWarning'));
 
 
@@ -772,11 +773,11 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
         </>
       )}
 
-      <a href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
+      <Link href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
         onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
         onMouseOut={e => e.currentTarget.style.color = '#555'}>
         ← Back to homepage
-      </a>
+      </Link>
     </div>
   );
 }
@@ -915,7 +916,7 @@ export default function DiagnosticForm() {
       {/* Nav */}
       <nav className="border-b" style={{ background: 'rgba(10,10,10,0.95)', borderColor: '#1a1a1a' }}>
         <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="flex items-center gap-2">
+          <Link href="/" className="flex items-center gap-2">
             <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: '#f97316' }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="white" fillOpacity="0.9" />
@@ -923,7 +924,7 @@ export default function DiagnosticForm() {
               </svg>
             </div>
             <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
-          </a>
+          </Link>
           <div className="flex items-center gap-2 text-xs" style={{ color: '#555' }}>
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#555" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#555" strokeWidth="1.2" strokeLinecap="round" /></svg>
             Secure & Confidential

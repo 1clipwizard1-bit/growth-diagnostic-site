@@ -25,6 +25,16 @@ export default async function handler(req: any, res: any) {
     return res.status(400).json({ error: 'Token is required and must be a string' });
   }
 
+  // Increment view counter if NOT requested by PDFShift (avoids double counting)
+  const isPDFShift = req.query.source === 'pdfshift';
+  if (!isPDFShift) {
+    try {
+      await supabase.rpc('increment_report_views', { report_token: token });
+    } catch (rpcErr) {
+      console.error('Error calling increment_report_views RPC:', rpcErr);
+    }
+  }
+
   try {
     const { data, error } = await supabase
       .from('client_reports')

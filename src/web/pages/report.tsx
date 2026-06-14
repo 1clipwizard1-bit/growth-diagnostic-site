@@ -1,9 +1,41 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
 
 export default function ReportPage() {
   const { token } = useParams<{ token: string }>();
   const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    let startTime = Date.now();
+
+    const sendTimeData = () => {
+      const endTime = Date.now();
+      const sessionSeconds = Math.round((endTime - startTime) / 1000);
+      
+      if (sessionSeconds > 0 && token) {
+        const url = `/api/track-time?token=${token}&seconds=${sessionSeconds}`;
+        // Use sendBeacon for reliable analytics transmission on page close/unload
+        navigator.sendBeacon(url);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        sendTimeData();
+      } else {
+        startTime = Date.now(); // reset timer start when tab gains focus
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('beforeunload', sendTimeData);
+
+    return () => {
+      sendTimeData();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('beforeunload', sendTimeData);
+    };
+  }, [token]);
 
   const handleDownloadPDF = async () => {
     setDownloading(true);

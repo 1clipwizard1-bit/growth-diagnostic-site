@@ -53,9 +53,16 @@ export default async function handler(req: any, res: any) {
       return res.status(404).json({ error: 'Report data not found in DB.' });
     }
 
+    // Increment download counter
+    try {
+      await supabase.rpc('increment_report_downloads', { report_token: token });
+    } catch (rpcErr) {
+      console.error('Error calling increment_report_downloads RPC:', rpcErr);
+    }
+
     // 3. Call PDFShift API to generate the PDF
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || `https://${req.headers.host}`;
-    const reportUrl = `${siteUrl}/api/report?token=${token}&html=true`;
+    const reportUrl = `${siteUrl}/api/report?token=${token}&html=true&source=pdfshift`;
     const pdfShiftKey = process.env.PDFSHIFT_API_KEY;
 
     if (!pdfShiftKey) {

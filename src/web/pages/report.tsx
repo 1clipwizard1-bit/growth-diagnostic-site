@@ -8,11 +8,29 @@ export default function ReportPage() {
   const handleDownloadPDF = async () => {
     setDownloading(true);
     try {
-      window.location.href = `/api/pdf?token=${token}`;
-      setTimeout(() => setDownloading(false), 3000);
-    } catch (err) {
+      const response = await fetch(`/api/pdf?token=${token}`);
+      if (!response.ok) {
+        let errorDetails = "";
+        try {
+          const errJson = await response.json();
+          errorDetails = errJson.error || errJson.details || "";
+        } catch {}
+        throw new Error(errorDetails || `Server error: ${response.status}`);
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report-${token}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
       console.error(err);
-      alert("Не вдалося завантажити PDF. Спробуйте пізніше.");
+      alert(`Failed to download PDF: ${err.message || "Please try again later."}`);
+    } finally {
       setDownloading(false);
     }
   };
@@ -43,7 +61,7 @@ export default function ReportPage() {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>
-                Генерація PDF...
+                Generating PDF...
               </>
             ) : (
               <>
@@ -52,7 +70,7 @@ export default function ReportPage() {
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
-                Скачати PDF
+                Download PDF
               </>
             )}
           </button>

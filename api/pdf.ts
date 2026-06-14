@@ -62,7 +62,7 @@ export default async function handler(req: any, res: any) {
       return res.status(500).json({ error: 'PDFSHIFT_API_KEY is not configured on the server.' });
     }
 
-    const pdfShiftResponse = await fetch('https://api.pdfshift.co/v3/convert/pdf', {
+    const pdfShiftResponse = await fetch('https://api.pdfshift.io/v3/convert/pdf', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

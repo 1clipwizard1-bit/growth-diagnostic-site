@@ -1,0 +1,11 @@
+# Growth Diagnostic
+
+AI-powered business audit, funnel analysis, and response time comparison tool.
+
+## Key Resources
+
+- [Home](https://growth-diagnostic.com/): Interactive landing page detailing the diagnostic process and value proposition.
+- [Diagnostic Form](https://growth-diagnostic.com/diagnostic): 13-question diagnostic tool to evaluate business conversion rates, response times, and identify revenue leaks.
+- [Contact](https://growth-diagnostic.com/contact): Get in touch with our team for custom growth analysis and support.
+- [Privacy Policy](https://growth-diagnostic.com/privacy): Details on how we collect, process, and safeguard customer data.
+- [Terms of Service](https://growth-diagnostic.com/terms): Rules and guidelines for using the Growth Diagnostic tool.

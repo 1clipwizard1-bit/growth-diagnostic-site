@@ -110,13 +110,13 @@ export default function ReportPage() {
       </header>
 
       {/* Report Iframe */}
-      <div className="flex-1 bg-[#e8eaf0]">
+      <main className="flex-1 bg-[#e8eaf0]">
         <iframe
           src={`/api/report?token=${token}&html=true`}
           title="Growth Diagnostic Report"
           className="w-full h-full border-none"
         />
-      </div>
+      </main>
     </div>
   );
 }

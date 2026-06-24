@@ -16,17 +16,19 @@ export default function Index() {
   return (
     <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
       <Nav />
-      <Hero />
-      <ProblemFraming />
-      <ProductExplanation />
-      <DiagnosticPreview />
-      <InteractiveDemo />
-      <ReportIncludes />
-      <CostOfInaction />
-      <Industries />
-      <CTA />
-      <FAQ />
-      <FinalCTA />
+      <main>
+        <Hero />
+        <ProblemFraming />
+        <ProductExplanation />
+        <DiagnosticPreview />
+        <InteractiveDemo />
+        <ReportIncludes />
+        <CostOfInaction />
+        <Industries />
+        <CTA />
+        <FAQ />
+        <FinalCTA />
+      </main>
       <Footer />
     </div>
   );

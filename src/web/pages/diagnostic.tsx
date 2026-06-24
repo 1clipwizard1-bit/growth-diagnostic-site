@@ -1022,7 +1022,7 @@ export default function DiagnosticForm() {
         </div>
       </nav>
 
-      <div className="max-w-2xl mx-auto px-6 py-12">
+      <main className="max-w-2xl mx-auto px-6 py-12">
         {status === 'form' && (
           <>
             {/* Header */}
@@ -1135,7 +1135,7 @@ export default function DiagnosticForm() {
             </button>
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 }

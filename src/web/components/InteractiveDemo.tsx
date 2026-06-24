@@ -93,7 +93,7 @@ export function InteractiveDemo() {
                   <div className="flex items-center justify-between">
                     <div>
                       <div className="font-semibold text-sm" style={{ color: selected === opt.key ? '#f97316' : '#f5f5f5' }}>{opt.label}</div>
-                      <div className="text-xs mt-0.5" style={{ color: '#666' }}>{opt.desc}</div>
+                      <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{opt.desc}</div>
                     </div>
                     {selected === opt.key && (
                       <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
@@ -111,10 +111,10 @@ export function InteractiveDemo() {
             {!data ? (
               <div className="rounded-2xl border p-8 flex flex-col items-center justify-center text-center min-h-80" style={{ borderColor: '#2a2a2a', background: '#111', borderStyle: 'dashed' }}>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: '#1c1c1c' }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#666" strokeWidth="1.5"/><path d="M10 7V10M10 13V13.5" stroke="#666" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#8f8f8f" strokeWidth="1.5"/><path d="M10 7V10M10 13V13.5" stroke="#8f8f8f" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </div>
                 <div className="font-semibold mb-2" style={{ color: '#a3a3a3' }}>Select your business type</div>
-                <div className="text-sm" style={{ color: '#555' }}>We'll show you the most common bottlenecks in your industry</div>
+                <div className="text-sm" style={{ color: '#8a8a8a' }}>We'll show you the most common bottlenecks in your industry</div>
               </div>
             ) : (
               <div className={revealed ? 'animate-fade-up' : 'opacity-0'}>
@@ -125,8 +125,8 @@ export function InteractiveDemo() {
                       <div className="font-bold" style={{ color: '#f5f5f5' }}>{data.name}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs mb-0.5" style={{ color: '#666' }}>Avg. monthly leak</div>
-                      <div className="font-black text-xl" style={{ color: '#ef4444' }}>{data.avgLeak}</div>
+                      <div className="text-xs mb-0.5" style={{ color: '#8f8f8f' }}>Avg. monthly leak</div>
+                      <div className="font-black text-xl" style={{ color: '#f87171' }}>{data.avgLeak}</div>
                     </div>
                   </div>
 
@@ -136,13 +136,13 @@ export function InteractiveDemo() {
                       {data.bottlenecks.map((b, i) => (
                         <div key={b.rank} className="rounded-xl border p-4" style={{ borderColor: i === 0 ? 'rgba(239,68,68,0.3)' : '#2a2a2a', background: i === 0 ? 'rgba(239,68,68,0.04)' : '#161616' }}>
                           <div className="flex items-start gap-3">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black" style={{ background: i === 0 ? '#ef4444' : '#2a2a2a', color: i === 0 ? '#fff' : '#666' }}>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black" style={{ background: i === 0 ? '#ef4444' : '#2a2a2a', color: i === 0 ? '#fff' : '#8f8f8f' }}>
                               {b.rank}
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="font-semibold text-sm mb-1" style={{ color: i === 0 ? '#f5f5f5' : '#a3a3a3' }}>{b.title}</div>
-                              <div className="text-xs leading-relaxed mb-2" style={{ color: '#666' }}>{b.desc}</div>
-                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>
+                              <div className="text-xs leading-relaxed mb-2" style={{ color: '#949494' }}>{b.desc}</div>
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
                                 {b.impact}
                               </div>
                             </div>
@@ -152,8 +152,8 @@ export function InteractiveDemo() {
                     </div>
 
                     <div className="mt-6 rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                      <div className="text-xs mb-3" style={{ color: '#666' }}>This is industry-level data. The full diagnostic identifies <span className="font-semibold" style={{ color: '#f97316' }}>your specific bottleneck</span> based on your actual numbers.</div>
-                      <a href="/diagnostic" className="block w-full text-center py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#fff' }}
+                      <div className="text-xs mb-3" style={{ color: '#949494' }}>This is industry-level data. The full diagnostic identifies <span className="font-semibold" style={{ color: '#f97316' }}>your specific bottleneck</span> based on your actual numbers.</div>
+                      <a href="/diagnostic" className="block w-full text-center py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
                         onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
                         onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
                         Run My Full Diagnostic — $4.99

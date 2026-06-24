@@ -48,13 +48,13 @@ export function Industries() {
             <div key={ind.name} className="rounded-xl border p-6 card-hover" style={{ background: '#111', borderColor: '#2a2a2a' }}>
               <div className="text-3xl mb-4">{ind.icon}</div>
               <div className="font-bold mb-1" style={{ color: '#f5f5f5' }}>{ind.name}</div>
-              <div className="text-xs mb-4" style={{ color: '#555' }}>{ind.examples}</div>
+              <div className="text-xs mb-4" style={{ color: '#8a8a8a' }}>{ind.examples}</div>
               <div className="border-t pt-4" style={{ borderColor: '#2a2a2a' }}>
-                <div className="text-xs mb-1" style={{ color: '#666' }}>Most common bottleneck</div>
+                <div className="text-xs mb-1" style={{ color: '#8f8f8f' }}>Most common bottleneck</div>
                 <div className="text-sm font-medium mb-3" style={{ color: '#a3a3a3' }}>{ind.topBottleneck}</div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#ef4444' }} />
-                  <span className="text-xs font-bold" style={{ color: '#ef4444' }}>Avg. leak: {ind.avgLeak}</span>
+                  <span className="text-xs font-bold" style={{ color: '#f87171' }}>Avg. leak: {ind.avgLeak}</span>
                 </div>
               </div>
             </div>

@@ -314,4 +314,14 @@ if (j.isCustomRequest === true) {
   parsed.constraints.is_custom_request = true;
 }
 
-return [{ json: parsed }];
+// Generate unique report ID and timestamp
+const reportId = 'REP-' + Math.floor(Date.now() / 1000) + '-' + Math.floor(1000 + Math.random() * 9000);
+const createdAt = new Date().toISOString();
+
+const result = {
+  ...parsed,
+  report_id: reportId,
+  created_at: createdAt
+};
+
+return [{ json: result }];

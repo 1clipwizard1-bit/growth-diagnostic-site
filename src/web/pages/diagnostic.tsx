@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Suspense } from 'react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 const RevenueWarning = React.lazy(() => import('../components/RevenueWarning'));
 
 
@@ -64,7 +64,7 @@ function Label({ children, required, helper }: { children: React.ReactNode; requ
         {children}
         {required && <span style={{ color: '#f97316' }}>*</span>}
       </label>
-      {helper && <div className="text-xs mt-0.5" style={{ color: '#666' }}>{helper}</div>}
+      {helper && <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{helper}</div>}
     </div>
   );
 }
@@ -82,17 +82,17 @@ function Select({ value, onChange, options, placeholder, error, disabled }: {
         disabled={disabled}
         className="w-full px-4 py-3 rounded-xl border text-sm appearance-none outline-none transition-all"
         style={{
-          background: '#161616', color: value ? '#f5f5f5' : '#555',
-          borderColor: error ? '#ef4444' : value ? '#f97316' : '#2a2a2a',
-          boxShadow: error ? '0 0 0 1px rgba(239,68,68,0.2)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          background: '#161616', color: value ? '#f5f5f5' : '#8a8a8a',
+          borderColor: error ? '#f87171' : value ? '#f97316' : '#2a2a2a',
+          boxShadow: error ? '0 0 0 1px rgba(248,113,113,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           opacity: disabled ? 0.4 : 1,
           cursor: disabled ? 'not-allowed' : 'pointer',
         }}
       >
-        <option value="" disabled style={{ color: '#555' }}>{placeholder}</option>
+        <option value="" disabled style={{ color: '#8a8a8a' }}>{placeholder}</option>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{error}</div>}
+      {error && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{error}</div>}
     </div>
   );
 }
@@ -112,12 +112,12 @@ function NumberInput({ value, onChange, placeholder, helper, error, optional }: 
         className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
         style={{
           background: '#161616', color: '#f5f5f5',
-          borderColor: error ? '#ef4444' : value ? '#f97316' : '#2a2a2a',
-          boxShadow: error ? '0 0 0 1px rgba(239,68,68,0.2)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          borderColor: error ? '#f87171' : value ? '#f97316' : '#2a2a2a',
+          boxShadow: error ? '0 0 0 1px rgba(248,113,113,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
         }}
       />
-      {helper && <div className="text-xs mt-1" style={{ color: '#555' }}>{helper}</div>}
-      {error && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{error}</div>}
+      {helper && <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>{helper}</div>}
+      {error && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{error}</div>}
     </div>
   );
 }
@@ -134,21 +134,21 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
               style={{
                 background: i + 1 < step ? '#f97316' : i + 1 === step ? '#f97316' : '#1c1c1c',
-                color: i + 1 <= step ? '#fff' : '#555',
+                color: i + 1 <= step ? '#fff' : '#8a8a8a',
                 border: `2px solid ${i + 1 <= step ? '#f97316' : '#2a2a2a'}`,
               }}>
               {i + 1 < step
                 ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 : i + 1}
             </div>
-            <span className="text-xs text-center hidden sm:block" style={{ color: i + 1 === step ? '#f97316' : '#555' }}>{label}</span>
+            <span className="text-xs text-center hidden sm:block" style={{ color: i + 1 === step ? '#f97316' : '#8a8a8a' }}>{label}</span>
           </div>
         ))}
       </div>
       <div className="h-1 rounded-full" style={{ background: '#1c1c1c' }}>
         <div className="h-full rounded-full transition-all duration-500" style={{ background: '#f97316', width: `${pct}%` }} />
       </div>
-      <div className="flex justify-between mt-2 text-xs" style={{ color: '#555' }}>
+      <div className="flex justify-between mt-2 text-xs" style={{ color: '#8a8a8a' }}>
         <span>Step {step} of {total}</span>
         <span>Approximate answers are fine</span>
       </div>
@@ -234,7 +234,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
                 <span className="text-2xl">{opt.icon}</span>
                 <div>
                   <div className="font-semibold text-sm" style={{ color: data.businessType === opt.value ? '#f97316' : '#f5f5f5' }}>{opt.label}</div>
-                  <div className="text-xs mt-0.5" style={{ color: '#555' }}>{opt.desc}</div>
+                  <div className="text-xs mt-0.5" style={{ color: '#8a8a8a' }}>{opt.desc}</div>
                 </div>
                 {data.businessType === opt.value && (
                   <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
@@ -274,7 +274,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           </div>
         )}
 
-        {errors.businessType && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.businessType}</div>}
+        {errors.businessType && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.businessType}</div>}
       </div>
 
       <div>
@@ -313,9 +313,9 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               type="button"
               onClick={() => onChange('adSpend', '')}
               className="absolute right-9 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
-              style={{ background: '#2a2a2a', color: '#666' }}
+              style={{ background: '#2a2a2a', color: '#8f8f8f' }}
               onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}
+              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#8f8f8f'; }}
               title="Clear selection"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -328,7 +328,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         {/* OR divider */}
         <div className="flex items-center gap-3 my-3">
           <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
-          <span className="text-xs font-semibold" style={{ color: '#444' }}>OR enter exact amount</span>
+          <span className="text-xs font-semibold" style={{ color: '#8a8a8a' }}>OR enter exact amount</span>
           <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
         </div>
 
@@ -336,7 +336,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         <div className="relative">
           <div
             className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold pointer-events-none"
-            style={{ color: data.exactAdSpend ? '#f97316' : '#555' }}
+            style={{ color: data.exactAdSpend ? '#f97316' : '#8a8a8a' }}
           >$</div>
           <input
             type="number"
@@ -360,9 +360,9 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               type="button"
               onClick={() => onChange('exactAdSpend', '')}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
-              style={{ background: '#2a2a2a', color: '#666' }}
+              style={{ background: '#2a2a2a', color: '#8f8f8f' }}
               onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#666'; }}
+              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#8f8f8f'; }}
               title="Clear"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -378,7 +378,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           style={{ background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.12)' }}
         >
           <span style={{ fontSize: '11px', lineHeight: 1.6, marginTop: '1px', flexShrink: 0 }}>📊</span>
-          <p className="text-xs leading-relaxed" style={{ color: '#666' }}>
+          <p className="text-xs leading-relaxed" style={{ color: '#8f8f8f' }}>
             Spend precision = calculation precision. An estimate works —{' '}
             <span style={{ color: '#a3a3a3' }}>exact 30-day spend gives you a surgical-grade result.</span>
           </p>
@@ -435,8 +435,8 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               return (
                 <div key={row.label}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span style={{ color: '#666' }}>{row.label}</span>
-                    <span style={{ color: '#f5f5f5' }}>{row.value} <span style={{ color: '#555' }}>({pct}%)</span></span>
+                    <span style={{ color: '#8f8f8f' }}>{row.label}</span>
+                    <span style={{ color: '#f5f5f5' }}>{row.value} <span style={{ color: '#8a8a8a' }}>({pct}%)</span></span>
                   </div>
                   <div className="h-1.5 rounded-full" style={{ background: '#2a2a2a' }}>
                     <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: '#f97316' }} />
@@ -504,7 +504,7 @@ function Step3({
       </div>
 
       <div>
-        <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: '#555' }}>(optional)</span></Label>
+        <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: '#8a8a8a' }}>(optional)</span></Label>
         <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue === 'confirm_required' ? undefined : errors.totalRevenue} />
 
         {/* EXTREME mismatch: <10% of implied — require explicit confirmation */}
@@ -527,7 +527,7 @@ function Step3({
       <div className="flex items-start gap-3">
         <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
         <div>
-          <div className="text-sm font-semibold mb-1" style={{ color: '#ef4444' }}>Revenue mismatch detected</div>
+          <div className="text-sm font-semibold mb-1" style={{ color: '#f87171' }}>Revenue mismatch detected</div>
           <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
             You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
             <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
@@ -548,7 +548,7 @@ function Step3({
       <div className="text-2xl font-black" style={{ color: '#f97316' }}>
         ${((parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0)).toLocaleString()}
       </div>
-      <div className="text-xs mt-1" style={{ color: '#555' }}>
+      <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>
         Based on {data.customersClosed} closes × ${parseInt(data.dealSize).toLocaleString()} avg. deal
       </div>
     </div>
@@ -614,35 +614,46 @@ function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
           style={{
             background: '#161616', color: '#f5f5f5',
-            borderColor: errors.email ? '#ef4444' : data.email ? '#f97316' : '#2a2a2a',
-            boxShadow: errors.email ? '0 0 0 1px rgba(239,68,68,0.2)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+            borderColor: errors.email ? '#f87171' : data.email ? '#f97316' : '#2a2a2a',
+            boxShadow: errors.email ? '0 0 0 1px rgba(248,113,113,0.25)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           }}
         />
-        {errors.email && <div className="text-xs mt-1" style={{ color: '#ef4444' }}>{errors.email}</div>}
-        <div className="text-xs mt-1" style={{ color: '#555' }}>🔒 Confidential. Used only to deliver your report.</div>
+        {errors.email && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.email}</div>}
+        <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>🔒 Confidential. Used only to deliver your report.</div>
       </div>
     </div>
   );
 }
 
 // ─── Analyzing Screen ─────────────────────────────────────────────────────────
-function AnalyzingScreen({ businessType }: { businessType: string }) {
+function AnalyzingScreen({ businessType, isCheckoutConfirming }: { businessType: string; isCheckoutConfirming?: boolean }) {
   const isOther = businessType === 'other';
-  const steps = isOther ? [
-    'Mapping bespoke funnel topology...',
-    'Analyzing model-specific constraints...',
-    'Evaluating unit economics metrics...',
-    'Assigning to senior analyst queue...',
-    'Preparing strategic review brief...',
-    'Initiating custom model audit...',
-  ] : [
-    'Calculating funnel conversion rates...',
-    'Benchmarking against industry averages...',
-    'Identifying unit economics gaps...',
-    'Isolating primary bottleneck...',
-    'Estimating revenue opportunity...',
-    'Generating your report...',
-  ];
+  const steps = isCheckoutConfirming
+    ? [
+        'Verifying checkout session...',
+        'Confirming payment status...',
+        'Calibrating funnel analysis models...',
+        'Mapping unit economics diagnostics...',
+        'Generating custom PDF layout...',
+        'Finalizing report...',
+      ]
+    : isOther
+    ? [
+        'Mapping bespoke funnel topology...',
+        'Analyzing model-specific constraints...',
+        'Evaluating unit economics metrics...',
+        'Assigning to senior analyst queue...',
+        'Preparing strategic review brief...',
+        'Initiating custom model audit...',
+      ]
+    : [
+        'Calculating funnel conversion rates...',
+        'Benchmarking against industry averages...',
+        'Identifying unit economics gaps...',
+        'Isolating primary bottleneck...',
+        'Estimating revenue opportunity...',
+        'Generating your report...',
+      ];
   const [current, setCurrent] = useState(0);
 
   useEffect(() => {
@@ -650,7 +661,7 @@ function AnalyzingScreen({ businessType }: { businessType: string }) {
       setCurrent(c => (c < steps.length - 1 ? c + 1 : c));
     }, 600);
     return () => clearInterval(interval);
-  }, []);
+  }, [steps.length]);
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -665,8 +676,12 @@ function AnalyzingScreen({ businessType }: { businessType: string }) {
         </div>
       </div>
 
-      <h2 className="font-black text-2xl mb-2" style={{ color: '#f5f5f5' }}>Analyzing your data...</h2>
-      <p className="text-sm mb-10" style={{ color: '#a3a3a3' }}>Running your funnel through our diagnostic engine</p>
+      <h2 className="font-black text-2xl mb-2" style={{ color: '#f5f5f5' }}>
+        {isCheckoutConfirming ? 'Verifying payment...' : 'Analyzing your data...'}
+      </h2>
+      <p className="text-sm mb-10" style={{ color: '#a3a3a3' }}>
+        {isCheckoutConfirming ? 'Securing your diagnostic data' : 'Running your funnel through our diagnostic engine'}
+      </p>
 
       <div className="w-full max-w-sm space-y-2 text-left">
         {steps.map((step, i) => (
@@ -712,7 +727,7 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
           <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
             We've detected a custom business model (E-commerce / SaaS / Product).
           </p>
-          <p className="text-sm mb-8" style={{ color: '#666' }}>
+          <p className="text-sm mb-8" style={{ color: '#8f8f8f' }}>
             Because your model is non-standard, your data has been flagged for a <span style={{ color: '#f5f5f5' }}>Senior Strategic Review.</span>
           </p>
           <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
@@ -738,7 +753,7 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
               Since your model is unique, a quick 15-min chat ensures our custom audit is 100% accurate to your specific operations.
             </p>
             <a href="#" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-bold text-sm transition-all"
-              style={{ background: '#f97316', color: '#fff' }}
+              style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
               onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
               Book 15-min Calibration Call
@@ -746,7 +761,7 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
             </a>
           </div>
 
-          <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#555', border: '1px solid #2a2a2a' }}>
+          <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#8a8a8a', border: '1px solid #2a2a2a' }}>
             ✓ No charge — custom senior analysis is free
           </div>
         </>
@@ -754,7 +769,7 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
         <>
           <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
           <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
-          <p className="text-sm mb-10" style={{ color: '#666' }}>
+          <p className="text-sm mb-10" style={{ color: '#8f8f8f' }}>
             It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
           </p>
           <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
@@ -773,9 +788,9 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
         </>
       )}
 
-      <Link href="/" className="mt-8 text-sm transition-colors" style={{ color: '#555' }}
+      <Link href="/" className="mt-8 text-sm transition-colors" style={{ color: '#8a8a8a' }}
         onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-        onMouseOut={e => e.currentTarget.style.color = '#555'}>
+        onMouseOut={e => e.currentTarget.style.color = '#8a8a8a'}>
         ← Back to homepage
       </Link>
     </div>
@@ -788,8 +803,52 @@ export default function DiagnosticForm() {
   const [data, setData] = useState<FormData>(initial);
   const [errors, setErrors] = useState<Partial<Record<keyof FormData, string>>>({});
   const [status, setStatus] = useState<'form' | 'analyzing' | 'success' | 'error'>('form');
+  const [isCheckoutConfirming, setIsCheckoutConfirming] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [revenueConfirmed, setRevenueConfirmed] = useState(false);
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const success = params.get('success');
+    const sessionId = params.get('session_id');
+
+    if (success === 'true' && sessionId) {
+      setStatus('analyzing');
+      setIsCheckoutConfirming(true);
+      
+      let pollCount = 0;
+      const interval = setInterval(async () => {
+        pollCount++;
+        try {
+          const res = await fetch(`/api/check-session?session_id=${sessionId}`);
+          if (!res.ok) {
+            throw new Error(`Session check failed: ${res.status}`);
+          }
+          const checkData = await res.json();
+          if (checkData.status === 'completed' && checkData.token) {
+            clearInterval(interval);
+            setLocation(`/report/${checkData.token}`);
+          } else if (pollCount > 60) { // Timeout after 2 minutes (60 * 2 seconds)
+            clearInterval(interval);
+            setSubmitError("We are taking longer than expected to process your payment and generate the report. Please check your email or contact support.");
+            setStatus('error');
+            setIsCheckoutConfirming(false);
+          }
+        } catch (err: any) {
+          console.error("Error polling session status:", err);
+          if (pollCount > 60) {
+            clearInterval(interval);
+            setSubmitError(`Error checking report status: ${err.message}`);
+            setStatus('error');
+            setIsCheckoutConfirming(false);
+          }
+        }
+      }, 2000);
+
+      return () => clearInterval(interval);
+    }
+  }, [setLocation]);
 
   const onChange = (key: keyof FormData, value: string) => {
     setData(d => ({ ...d, [key]: value }));
@@ -890,24 +949,55 @@ export default function DiagnosticForm() {
       isCustomRequest: data.businessType === 'other',
     };
 
-    try {
-      const response = await fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+    if (data.businessType === 'other') {
+      try {
+        const response = await fetch(N8N_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
 
-      if (!response.ok) {
-        throw new Error(`Server error: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        // Success — show analyzing UX for at least 4s
+        setTimeout(() => setStatus('success'), 4000);
+      } catch (err) {
+        console.error('Webhook error:', err);
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        setSubmitError(`Submission failed: ${message}. Please try again.`);
+        setStatus('error');
       }
+    } else {
+      try {
+        const response = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
 
-      // Success — show analyzing UX for at least 4s
-      setTimeout(() => setStatus('success'), 4000);
-    } catch (err) {
-      console.error('Webhook error:', err);
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      setSubmitError(`Submission failed: ${message}. Please try again.`);
-      setStatus('error');
+        if (!response.ok) {
+          let errorMsg = `Server error: ${response.status}`;
+          try {
+            const errJson = await response.json();
+            if (errJson.error) errorMsg = errJson.error;
+          } catch {}
+          throw new Error(errorMsg);
+        }
+
+        const resData = await response.json();
+        if (resData.url) {
+          window.location.href = resData.url;
+        } else {
+          throw new Error('No checkout URL returned from server.');
+        }
+      } catch (err) {
+        console.error('Checkout error:', err);
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        setSubmitError(`Failed to initiate checkout: ${message}. Please try again.`);
+        setStatus('error');
+      }
     }
   };
 
@@ -925,8 +1015,8 @@ export default function DiagnosticForm() {
             </div>
             <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
           </Link>
-          <div className="flex items-center gap-2 text-xs" style={{ color: '#555' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#555" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#555" strokeWidth="1.2" strokeLinecap="round" /></svg>
+          <div className="flex items-center gap-2 text-xs" style={{ color: '#8a8a8a' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#8a8a8a" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#8a8a8a" strokeWidth="1.2" strokeLinecap="round" /></svg>
             Secure & Confidential
           </div>
         </div>
@@ -992,7 +1082,7 @@ export default function DiagnosticForm() {
                   type="button"
                   onClick={handleNext}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
-                  style={{ background: '#f97316', color: '#fff' }}
+                  style={{ background: '#f97316', color: '#09090b' }}
                   onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
                   onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
                 >
@@ -1008,7 +1098,7 @@ export default function DiagnosticForm() {
             </div>
 
             {/* Trust signals */}
-            <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: '#444' }}>
+            <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: '#7c7c7c' }}>
               <span>🔒 Confidential</span>
               <span>⚡ Report delivered instantly</span>
               <span>📄 Structured PDF</span>
@@ -1017,14 +1107,19 @@ export default function DiagnosticForm() {
           </>
         )}
 
-        {status === 'analyzing' && <AnalyzingScreen businessType={data.businessType} />}
+        {status === 'analyzing' && (
+          <AnalyzingScreen
+            businessType={data.businessType}
+            isCheckoutConfirming={isCheckoutConfirming}
+          />
+        )}
         {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
         {status === 'error' && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #ef4444' }}>
+              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #f87171' }}>
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
             <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Submission failed</h2>
@@ -1032,7 +1127,7 @@ export default function DiagnosticForm() {
             <button
               onClick={() => { setStatus('form'); setSubmitError(''); }}
               className="px-6 py-3 rounded-lg text-sm font-bold transition-all"
-              style={{ background: '#f97316', color: '#fff' }}
+              style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
               onMouseOut={e => e.currentTarget.style.background = '#f97316'}
             >

@@ -14,7 +14,7 @@ export function CostOfInaction() {
             <p className="mb-8" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
               The question isn't whether the bottleneck exists. It's whether you want to know what it is.
             </p>
-            <a href="/diagnostic" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#fff' }}
+            <a href="/diagnostic" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
               onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
               Run My Diagnostic — $4.99
@@ -37,9 +37,9 @@ export function CostOfInaction() {
                   <div key={row.period} className="px-6 py-4 flex items-center justify-between" style={{ background: i === 3 ? 'rgba(239,68,68,0.04)' : 'transparent' }}>
                     <div>
                       <div className="font-semibold text-sm" style={{ color: i === 3 ? '#f5f5f5' : '#a3a3a3' }}>{row.period}</div>
-                      <div className="text-xs" style={{ color: '#555' }}>{row.context}</div>
+                      <div className="text-xs" style={{ color: '#8a8a8a' }}>{row.context}</div>
                     </div>
-                    <div className="text-xl font-black" style={{ color: i === 3 ? '#ef4444' : '#666' }}>{row.loss}</div>
+                    <div className="text-xl font-black" style={{ color: i === 3 ? '#f87171' : '#8f8f8f' }}>{row.loss}</div>
                   </div>
                 ))}
               </div>

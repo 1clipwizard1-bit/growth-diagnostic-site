@@ -132,7 +132,7 @@ export function ReportIncludes() {
           </div>
           <div className="shrink-0 px-6 py-4 rounded-xl border text-center" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
             <div className="text-3xl font-black mb-0.5" style={{ color: '#f97316' }}>$4.99</div>
-            <div className="text-xs" style={{ color: '#666' }}>One-time · PDF delivered instantly</div>
+            <div className="text-xs" style={{ color: '#8f8f8f' }}>One-time · PDF delivered instantly</div>
           </div>
         </div>
 
@@ -148,7 +148,7 @@ export function ReportIncludes() {
                 </div>
                 <div className="font-bold text-sm" style={{ color: '#f5f5f5' }}>{item.title}</div>
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#666' }}>{item.desc}</div>
+              <div className="text-xs leading-relaxed" style={{ color: '#949494' }}>{item.desc}</div>
             </div>
           ))}
         </div>

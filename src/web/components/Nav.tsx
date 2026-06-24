@@ -25,8 +25,8 @@ export function Nav() {
             onMouseOut={e => (e.currentTarget.style.color = '#a3a3a3')}>FAQ</a>
         </div>
         <Link href="/diagnostic"
-          className="text-sm font-semibold px-4 py-2 rounded-lg transition-all"
-          style={{ background: '#f97316', color: '#fff' }}
+          className="text-sm font-bold px-4 py-2 rounded-lg transition-all"
+          style={{ background: '#f97316', color: '#09090b' }}
           onMouseOver={e => (e.currentTarget.style.background = '#ea6c0a')}
           onMouseOut={e => (e.currentTarget.style.background = '#f97316')}>
           Run Diagnostic — $4.99

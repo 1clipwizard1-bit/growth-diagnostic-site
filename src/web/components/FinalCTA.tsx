@@ -18,7 +18,7 @@ export function FinalCTA() {
             <div className="rounded-2xl border p-8" style={{ borderColor: '#2a2a2a', background: '#111', minWidth: '320px' }}>
               <div className="text-center mb-6">
                 <div className="text-4xl font-black mb-1" style={{ color: '#f97316' }}>$4.99</div>
-                <div className="text-sm" style={{ color: '#666' }}>Complete Diagnostic Report</div>
+                <div className="text-sm" style={{ color: '#8f8f8f' }}>Complete Diagnostic Report</div>
               </div>
               <div className="space-y-3 mb-6">
                 {[
@@ -39,12 +39,12 @@ export function FinalCTA() {
               </div>
               <a href="/diagnostic"
                 className="block w-full text-center py-4 rounded-xl font-bold text-base transition-all"
-                style={{ background: '#f97316', color: '#fff' }}
+                style={{ background: '#f97316', color: '#09090b' }}
                 onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(249,115,22,0.25)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.boxShadow = 'none'; }}>
                 Run My Diagnostic Now →
               </a>
-              <div className="text-center mt-3 text-xs" style={{ color: '#555' }}>No subscription · Instant delivery</div>
+              <div className="text-center mt-3 text-xs" style={{ color: '#8a8a8a' }}>No subscription · Instant delivery</div>
             </div>
           </div>
         </div>

@@ -30,7 +30,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
             <a href="/diagnostic"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all"
-              style={{ background: '#f97316', color: '#fff' }}
+              style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}>
               Run My Diagnostic — $4.99
@@ -38,7 +38,7 @@ export function Hero() {
                 <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
-            <span className="text-sm" style={{ color: '#666' }}>PDF delivered instantly · No subscription</span>
+            <span className="text-sm" style={{ color: '#8f8f8f' }}>PDF delivered instantly · No subscription</span>
           </div>
 
           {/* Stats row */}
@@ -50,7 +50,7 @@ export function Hero() {
             ].map(stat => (
               <div key={stat.label}>
                 <div className="text-2xl font-black" style={{ color: '#f97316' }}>{stat.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#666' }}>{stat.label}</div>
+                <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -62,12 +62,12 @@ export function Hero() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="section-label mb-0.5">Diagnostic Report</div>
-                <div className="text-xs" style={{ color: '#666' }}>Sunrise Plumbing Co. · $15k/mo ads</div>
+                <div className="text-xs" style={{ color: '#8f8f8f' }}>Sunrise Plumbing Co. · $15k/mo ads</div>
               </div>
-              <div className="px-2 py-1 rounded text-xs font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#ef4444' }}>CRITICAL</div>
+              <div className="px-2 py-1 rounded text-xs font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>CRITICAL</div>
             </div>
-            <div className="border rounded-xl p-4 mb-4" style={{ borderColor: '#ef4444', background: 'rgba(239,68,68,0.04)' }}>
-              <div className="text-xs font-semibold mb-2" style={{ color: '#ef4444' }}>⚠ PRIMARY BOTTLENECK DETECTED</div>
+            <div className="border rounded-xl p-4 mb-4" style={{ borderColor: '#f87171', background: 'rgba(239,68,68,0.04)' }}>
+              <div className="text-xs font-semibold mb-2" style={{ color: '#f87171' }}>⚠ PRIMARY BOTTLENECK DETECTED</div>
               <div className="font-bold text-base mb-1" style={{ color: '#f5f5f5' }}>Slow Lead Response Time</div>
               <div className="text-xs" style={{ color: '#a3a3a3' }}>Avg. response: 52 min · Benchmark: &lt;15 min</div>
             </div>
@@ -87,7 +87,7 @@ export function Hero() {
               <div className="border-t pt-3" style={{ borderColor: '#2a2a2a' }}>
                 <div className="flex justify-between text-xs mb-1">
                   <span style={{ color: '#a3a3a3' }}>Missed revenue / month</span>
-                  <span className="font-black" style={{ color: '#ef4444' }}>–$4,300</span>
+                  <span className="font-black" style={{ color: '#f87171' }}>–$4,300</span>
                 </div>
                 <div className="metric-bar">
                   <div className="metric-bar-fill-red" style={{ width: '72%' }} />

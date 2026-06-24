@@ -12,23 +12,23 @@ export function Footer() {
           </div>
           <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
         </Link>
-        <div className="text-xs" style={{ color: '#444' }}>
+        <div className="text-xs" style={{ color: '#7c7c7c' }}>
           © 2026 GrowthDiagnostic. All rights reserved.
         </div>
         <div className="flex gap-6">
-          <Link href="/privacy" className="text-xs transition-colors" style={{ color: '#555' }}
+          <Link href="/privacy" className="text-xs transition-colors" style={{ color: '#8a8a8a' }}
             onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
-            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#8a8a8a'}>
             Privacy
           </Link>
-          <Link href="/terms" className="text-xs transition-colors" style={{ color: '#555' }}
+          <Link href="/terms" className="text-xs transition-colors" style={{ color: '#8a8a8a' }}
             onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
-            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#8a8a8a'}>
             Terms
           </Link>
-          <Link href="/contact" className="text-xs transition-colors" style={{ color: '#555' }}
+          <Link href="/contact" className="text-xs transition-colors" style={{ color: '#8a8a8a' }}
             onMouseOver={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#a3a3a3'}
-            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#555'}>
+            onMouseOut={(e: React.MouseEvent<HTMLAnchorElement>) => e.currentTarget.style.color = '#8a8a8a'}>
             Contact
           </Link>
         </div>

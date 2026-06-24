@@ -1071,7 +1071,7 @@ const html = "<!doctype html>\n" +
 "          " + _ctaHeadlineV2 +
 "        </div>\n" +
 "        <div>\n" +
-"          <a href=\"[Calendar Link]\" class=\"button-cta-v2\" style=\"background-color:" + _ctaButtonColor + "; border-color: #ffffff;\">&#128680;&nbsp; " + _ctaButtonText + "</a>\n" +
+"          <a href=\"https://cal.com/eugene-igs/15min\" class=\"button-cta-v2\" style=\"background-color:" + _ctaButtonColor + "; border-color: #ffffff;\">&#128680;&nbsp; " + _ctaButtonText + "</a>\n" +
 "        </div>\n" +
 "        <div class=\"cta-scarcity\">\n" +
 "          &#9889; I only run 5 of these strategy audits per week. My next available slot for a 1-on-1 walkthrough is [Date].\n" +

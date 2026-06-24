@@ -173,7 +173,7 @@ export default function ContactPage() {
                   style={{
                     background: "rgba(239, 68, 68, 0.1)",
                     border: "1px solid rgba(239, 68, 68, 0.3)",
-                    color: "#ef4444",
+                    color: "#f87171",
                   }}
                 >
                   Oops! Something went wrong while sending your message. Please try again.
@@ -197,15 +197,15 @@ export default function ContactPage() {
                   style={{
                     background: "#161616",
                     color: "#f5f5f5",
-                    borderColor: errors.name ? "#ef4444" : formData.name ? "#f97316" : "#2a2a2a",
+                    borderColor: errors.name ? "#f87171" : formData.name ? "#f97316" : "#2a2a2a",
                     boxShadow: errors.name
-                      ? "0 0 0 1px rgba(239,68,68,0.2)"
+                      ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.name
                       ? "0 0 0 1px rgba(249,115,22,0.15)"
                       : "none",
                   }}
                 />
-                {errors.name && <div className="text-xs mt-1" style={{ color: "#ef4444" }}>{errors.name}</div>}
+                {errors.name && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.name}</div>}
               </div>
 
               {/* Email */}
@@ -225,15 +225,15 @@ export default function ContactPage() {
                   style={{
                     background: "#161616",
                     color: "#f5f5f5",
-                    borderColor: errors.email ? "#ef4444" : formData.email ? "#f97316" : "#2a2a2a",
+                    borderColor: errors.email ? "#f87171" : formData.email ? "#f97316" : "#2a2a2a",
                     boxShadow: errors.email
-                      ? "0 0 0 1px rgba(239,68,68,0.2)"
+                      ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.email
                       ? "0 0 0 1px rgba(249,115,22,0.15)"
                       : "none",
                   }}
                 />
-                {errors.email && <div className="text-xs mt-1" style={{ color: "#ef4444" }}>{errors.email}</div>}
+                {errors.email && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.email}</div>}
               </div>
 
               {/* Subject */}
@@ -253,15 +253,15 @@ export default function ContactPage() {
                   style={{
                     background: "#161616",
                     color: "#f5f5f5",
-                    borderColor: errors.subject ? "#ef4444" : formData.subject ? "#f97316" : "#2a2a2a",
+                    borderColor: errors.subject ? "#f87171" : formData.subject ? "#f97316" : "#2a2a2a",
                     boxShadow: errors.subject
-                      ? "0 0 0 1px rgba(239,68,68,0.2)"
+                      ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.subject
                       ? "0 0 0 1px rgba(249,115,22,0.15)"
                       : "none",
                   }}
                 />
-                {errors.subject && <div className="text-xs mt-1" style={{ color: "#ef4444" }}>{errors.subject}</div>}
+                {errors.subject && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.subject}</div>}
               </div>
 
               {/* Message */}
@@ -281,15 +281,15 @@ export default function ContactPage() {
                   style={{
                     background: "#161616",
                     color: "#f5f5f5",
-                    borderColor: errors.message ? "#ef4444" : formData.message ? "#f97316" : "#2a2a2a",
+                    borderColor: errors.message ? "#f87171" : formData.message ? "#f97316" : "#2a2a2a",
                     boxShadow: errors.message
-                      ? "0 0 0 1px rgba(239,68,68,0.2)"
+                      ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.message
                       ? "0 0 0 1px rgba(249,115,22,0.15)"
                       : "none",
                   }}
                 />
-                {errors.message && <div className="text-xs mt-1" style={{ color: "#ef4444" }}>{errors.message}</div>}
+                {errors.message && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.message}</div>}
               </div>
 
               {/* Submit Button */}
@@ -299,7 +299,7 @@ export default function ContactPage() {
                 className="w-full text-sm font-semibold py-3 rounded-xl transition-all mt-2 flex items-center justify-center gap-2"
                 style={{
                   background: "#f97316",
-                  color: "#fff",
+                  color: "#09090b",
                   opacity: status === "submitting" ? 0.6 : 1,
                   cursor: status === "submitting" ? "not-allowed" : "pointer",
                 }}

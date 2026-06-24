@@ -37,9 +37,9 @@ export function ProblemFraming() {
           {problems.map((p) => (
             <div key={p.wrong} className="rounded-xl border p-6 card-hover" style={{ background: '#111', borderColor: '#2a2a2a' }}>
               <div className="text-2xl mb-4">{p.icon}</div>
-              <div className="text-sm font-medium mb-3 line-through" style={{ color: '#666' }}>{p.wrong}</div>
+              <div className="text-sm font-medium mb-3 line-through" style={{ color: '#8f8f8f' }}>{p.wrong}</div>
               <div className="text-sm font-semibold mb-4" style={{ color: '#f5f5f5' }}>{p.real}</div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(239,68,68,0.12)', color: '#ef4444' }}>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171' }}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1V9M5 9L2 6M5 9L8 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {p.loss}
               </div>
@@ -52,7 +52,7 @@ export function ProblemFraming() {
             <div className="font-bold text-base mb-1" style={{ color: '#f5f5f5' }}>The bottleneck is already costing you money this month.</div>
             <div className="text-sm" style={{ color: '#a3a3a3' }}>Every day without a diagnosis is a day you're paying for leads that never convert — not because of the leads, but because of a fixable process gap.</div>
           </div>
-          <a href="/diagnostic" className="shrink-0 px-6 py-3 rounded-lg font-semibold text-sm transition-all" style={{ background: '#f97316', color: '#fff' }}
+          <a href="/diagnostic" className="shrink-0 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
             onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
             onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
             Find My Bottleneck

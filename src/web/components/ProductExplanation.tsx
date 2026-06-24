@@ -54,7 +54,7 @@ export function ProductExplanation() {
             {steps.map((step, i) => (
               <div key={step.num} className="flex gap-5">
                 <div className="shrink-0">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black" style={{ background: i === 0 ? '#f97316' : '#1c1c1c', color: i === 0 ? '#fff' : '#f97316', border: '1px solid', borderColor: i === 0 ? 'transparent' : '#2a2a2a' }}>
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center text-sm font-black" style={{ background: i === 0 ? '#f97316' : '#1c1c1c', color: i === 0 ? '#09090b' : '#f97316', border: '1px solid', borderColor: i === 0 ? 'transparent' : '#2a2a2a' }}>
                     {step.num}
                   </div>
                 </div>

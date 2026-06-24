@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "wouter";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 
@@ -144,16 +145,16 @@ export default function PrivacyPage() {
           {/* 7 */}
           <Section title="7. Contact Us">
             <p>
-              If you have any questions about this Privacy Policy or would like to request immediate data deletion, please contact us:
+              If you have any questions about this Privacy Policy or would like to request immediate data deletion, please contact us by filling out our{" "}
+              <Link
+                href="/contact"
+                className="font-semibold transition-colors hover:opacity-80"
+                style={{ color: "#f97316", textDecoration: "underline" }}
+              >
+                contact form
+              </Link>
+              .
             </p>
-            <div
-              className="mt-4 p-4 rounded-xl"
-              style={{ background: "#0a0a0a", border: "1px solid #2a2a2a" }}
-            >
-              <p style={{ color: "#a3a3a3" }}>
-                Email: <span style={{ color: "#f97316" }}>[your-email]</span>
-              </p>
-            </div>
           </Section>
 
         </div>

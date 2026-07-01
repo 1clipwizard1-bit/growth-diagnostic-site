@@ -1,6 +1,12 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
 const RevenueWarning = React.lazy(() => import('../components/RevenueWarning'));
+
+declare global {
+  interface Window {
+    paypal?: any;
+  }
+}
 
 
 // ─── N8N Webhook ─────────────────────────────────────────────────────────────
@@ -1064,36 +1070,77 @@ export default function DiagnosticForm() {
               {step === 4 && <Step4 data={data} onChange={onChange} errors={errors} />}
 
               {/* Navigation */}
-              <div className="flex justify-between mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
-                {step > 1 ? (
-                  <button
-                    type="button"
-                    onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                    className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                    style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
-                    onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
-                    onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
-                  >
-                    ← Back
-                  </button>
-                ) : <div />}
+              <div className="mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
+                {step === 4 && data.businessType !== 'other' ? (
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center mb-4">
+                      {step > 1 ? (
+                        <button
+                          type="button"
+                          onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                          style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
+                          onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
+                          onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                        >
+                          ← Back
+                        </button>
+                      ) : <div />}
+                      <span className="text-xs text-right" style={{ color: '#8a8a8a' }}>
+                        🔒 Secured by PayPal
+                      </span>
+                    </div>
 
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
-                  style={{ background: '#f97316', color: '#09090b' }}
-                  onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                  onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
-                >
-                  {step < 4 ? (
-                    <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-                  ) : data.businessType === 'other' ? (
-                    <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-                  ) : (
-                    <>Generate My Report — $4.99 <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-                  )}
-                </button>
+                    <div className="w-full max-w-sm mx-auto">
+                      <PayPalButtonContainer
+                        data={data}
+                        validate={validate}
+                        onStartPayment={() => {
+                          setStatus('analyzing');
+                          setIsCheckoutConfirming(true);
+                        }}
+                        onSuccessPayment={(orderId) => {
+                          window.location.href = `/diagnostic?success=true&session_id=${orderId}`;
+                        }}
+                        onPaymentError={(errMessage) => {
+                          setSubmitError(errMessage);
+                          setStatus('error');
+                          setIsCheckoutConfirming(false);
+                        }}
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex justify-between">
+                    {step > 1 ? (
+                      <button
+                        type="button"
+                        onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                        className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
+                        style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
+                        onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
+                        onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                      >
+                        ← Back
+                      </button>
+                    ) : <div />}
+
+                    <button
+                      type="button"
+                      onClick={handleNext}
+                      className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
+                      style={{ background: '#f97316', color: '#09090b' }}
+                      onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                      onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                      {step < 4 ? (
+                        <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                      ) : (
+                        <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                      )}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1138,4 +1185,156 @@ export default function DiagnosticForm() {
       </main>
     </div>
   );
+}
+
+interface PayPalButtonContainerProps {
+  data: FormData;
+  validate: () => boolean;
+  onStartPayment: () => void;
+  onSuccessPayment: (orderId: string) => void;
+  onPaymentError: (msg: string) => void;
+}
+
+function PayPalButtonContainer({ data, validate, onStartPayment, onSuccessPayment, onPaymentError }: PayPalButtonContainerProps) {
+  const [paypalLoaded, setPaypalLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const buttonsInstanceRef = useRef<any>(null);
+
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_PAYPAL_CLIENT_ID;
+    if (!clientId) {
+      console.error("VITE_PAYPAL_CLIENT_ID is not configured in env variables.");
+      setLoadError(true);
+      return;
+    }
+
+    if (window.paypal) {
+      setPaypalLoaded(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+    script.async = true;
+    script.onload = () => {
+      setPaypalLoaded(true);
+    };
+    script.onerror = () => {
+      console.error("Failed to load PayPal SDK script.");
+      setLoadError(true);
+    };
+    document.body.appendChild(script);
+  }, []);
+
+  useEffect(() => {
+    if (paypalLoaded && window.paypal && containerRef.current) {
+      containerRef.current.innerHTML = '';
+      
+      try {
+        buttonsInstanceRef.current = window.paypal.Buttons({
+          style: {
+            layout: 'vertical',
+            color: 'gold',
+            shape: 'rect',
+            label: 'paypal'
+          },
+          onClick: (clickData: any, actions: any) => {
+            if (!validate()) {
+              return actions.reject();
+            }
+            return actions.resolve();
+          },
+          createOrder: async () => {
+            const res = await fetch('/api/paypal-create-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email: data.email })
+            });
+            if (!res.ok) {
+              const errData = await res.json();
+              throw new Error(errData.error || 'Failed to create PayPal order');
+            }
+            const order = await res.json();
+            return order.id;
+          },
+          onApprove: async (approveData: any) => {
+            onStartPayment();
+            try {
+              const payload = {
+                businessType: data.businessType,
+                leadSource: data.leadSource,
+                adSpend: data.adSpend || null,
+                exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
+                monthlyLeads: parseInt(data.monthlyLeads) || 0,
+                callsBooked: parseInt(data.callsBooked) || 0,
+                callsCompleted: parseInt(data.callsCompleted) || 0,
+                customersClosed: parseInt(data.customersClosed) || 0,
+                dealSize: parseInt(data.dealSize) || 0,
+                profitMargin: data.profitMargin,
+                salesCycle: data.salesCycle,
+                totalRevenue: parseInt(data.totalRevenue) || null,
+                responseTime: data.responseTime,
+                trackingQuality: data.trackingQuality,
+                followUpSystem: data.followUpSystem,
+                email: data.email,
+                submittedAt: new Date().toISOString(),
+                isCustomRequest: data.businessType === 'other',
+              };
+
+              const res = await fetch(`/api/paypal-capture-order`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  orderId: approveData.orderID,
+                  payload
+                })
+              });
+              
+              if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error || 'Failed to capture PayPal order');
+              }
+              const result = await res.json();
+              if (result.success) {
+                onSuccessPayment(approveData.orderID);
+              } else {
+                throw new Error('Capture failed');
+              }
+            } catch (err: any) {
+              console.error('PayPal capture error:', err);
+              onPaymentError(err.message || 'Payment capture failed. Please contact support.');
+            }
+          },
+          onError: (err: any) => {
+            console.error('PayPal Buttons error:', err);
+            onPaymentError('An error occurred during PayPal checkout. Please try again.');
+          }
+        });
+        
+        buttonsInstanceRef.current.render(containerRef.current);
+      } catch (err) {
+        console.error('Error rendering PayPal buttons:', err);
+      }
+    }
+  }, [paypalLoaded, data]);
+
+  if (loadError) {
+    return (
+      <div className="p-4 rounded-xl border text-center text-sm" style={{ background: 'rgba(239,68,68,0.1)', borderColor: '#ef4444', color: '#f87171' }}>
+        ⚠️ Failed to load PayPal checkout. Please refresh or verify env variables.
+      </div>
+    );
+  }
+
+  if (!paypalLoaded) {
+    return (
+      <div className="flex flex-col items-center justify-center py-4 text-center">
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin mb-2" style={{ borderColor: '#f97316', borderTopColor: 'transparent' }} />
+        <div className="text-xs" style={{ color: '#8a8a8a' }}>Loading secure PayPal checkout...</div>
+      </div>
+    );
+  }
+
+  return <div ref={containerRef} className="w-full" />;
 }

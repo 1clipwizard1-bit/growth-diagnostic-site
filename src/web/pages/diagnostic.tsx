@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Suspense, useRef } from 'react';
 import { Link, useLocation } from 'wouter';
+import { trackEvent } from '../lib/analytics';
 const RevenueWarning = React.lazy(() => import('../components/RevenueWarning'));
 
 declare global {
@@ -918,6 +919,12 @@ export default function DiagnosticForm() {
   const handleNext = () => {
     if (!validate()) return;
     if (step < 4) {
+      const stepNames = ['business_profile', 'funnel_metrics', 'unit_economics', 'performance'];
+      trackEvent('quiz_step_completed', {
+        step,
+        step_name: stepNames[step - 1],
+        business_type: data.businessType,
+      });
       setStep(s => s + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -926,6 +933,10 @@ export default function DiagnosticForm() {
   };
 
   const handleSubmit = async () => {
+    trackEvent('quiz_submitted', {
+      business_type: data.businessType,
+      is_custom: data.businessType === 'other',
+    });
     setStatus('analyzing');
     setSubmitError('');
 
@@ -1096,13 +1107,16 @@ export default function DiagnosticForm() {
                         data={data}
                         validate={validate}
                         onStartPayment={() => {
+                          trackEvent('payment_initiated', { business_type: data.businessType });
                           setStatus('analyzing');
                           setIsCheckoutConfirming(true);
                         }}
                         onSuccessPayment={(orderId) => {
+                          trackEvent('payment_completed', { business_type: data.businessType, order_id: orderId });
                           window.location.href = `/diagnostic?success=true&session_id=${orderId}`;
                         }}
                         onPaymentError={(errMessage) => {
+                          trackEvent('payment_failed', { business_type: data.businessType, error: errMessage });
                           setSubmitError(errMessage);
                           setStatus('error');
                           setIsCheckoutConfirming(false);

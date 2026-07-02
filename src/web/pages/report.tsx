@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "wouter";
+import { trackEvent } from "../lib/analytics";
 
 export default function ReportPage() {
   const { token } = useParams<{ token: string }>();
   const [downloading, setDownloading] = useState(false);
 
   useEffect(() => {
+    trackEvent('report_viewed', { token });
     let startTime = Date.now();
 
     const sendTimeData = () => {
@@ -59,6 +61,7 @@ export default function ReportPage() {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
+      trackEvent('pdf_downloaded', { token });
     } catch (err: any) {
       console.error(err);
       alert(`Failed to download PDF: ${err.message || "Please try again later."}`);

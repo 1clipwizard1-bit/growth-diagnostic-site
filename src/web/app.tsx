@@ -1,5 +1,6 @@
-import React, { Suspense } from "react";
-import { Route, Switch } from "wouter";
+import React, { Suspense, useEffect } from "react";
+import { Route, Switch, useLocation } from "wouter";
+import { trackPageView } from "./lib/analytics";
 import Index from "./pages/index";
 
 // Lazy load non-homepage routes for code splitting
@@ -10,6 +11,13 @@ const ContactPage = React.lazy(() => import("./pages/contact"));
 const ReportPage = React.lazy(() => import("./pages/report"));
 
 function App() {
+  // ─── SPA Route Tracking ──────────────────────────────────────────────────────
+  // GA4 only fires page_view on initial load. This sends it on every route change.
+  const [location] = useLocation();
+  useEffect(() => {
+    trackPageView(location);
+  }, [location]);
+
   return (
     <Suspense
       fallback={

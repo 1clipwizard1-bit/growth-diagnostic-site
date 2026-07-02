@@ -72,7 +72,7 @@ export default function PrivacyPage() {
                 <Highlight>Contact Information:</Highlight> Your email address to deliver the report and process payment.
               </li>
               <li>
-                <Highlight>Technical Data:</Highlight> IP address, browser type, and basic analytics cookies to ensure application stability and improve user experience.
+                <Highlight>Technical Data:</Highlight> IP address, browser type, and analytics cookies to ensure application stability and improve user experience. We use <Highlight>Microsoft Clarity</Highlight> (heatmaps and session recordings) and <Highlight>Google Analytics</Highlight> (traffic and usage analytics) to understand how visitors interact with our site. These services may collect anonymized usage data to help us improve the experience.
               </li>
             </ul>
           </Section>

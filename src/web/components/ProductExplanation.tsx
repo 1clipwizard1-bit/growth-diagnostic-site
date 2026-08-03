@@ -29,10 +29,10 @@ export function ProductExplanation() {
           <div>
             <div className="section-label mb-4">What It Is</div>
             <h2 className="font-black tracking-tight mb-6" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5' }}>
-              A structured financial analysis of your growth constraints
+              A simple report showing where customers drop off and how much it may be costing you
             </h2>
             <p className="mb-6" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
-              The Business Growth Diagnostic is not a quiz or a generic audit. It's a systematic analysis that applies funnel economics logic to your actual numbers — then benchmarks them against your industry to quantify the exact revenue impact of your biggest gap.
+              This isn’t a generic audit. You answer a few questions. We compare your numbers to industry benchmarks and show where your business is most likely leaking money.
             </p>
 
             {/* Methodology flow */}

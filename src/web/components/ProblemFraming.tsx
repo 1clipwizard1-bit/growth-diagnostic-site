@@ -2,8 +2,8 @@ const problems = [
   {
     icon: '📣',
     wrong: 'You think: "I need more traffic"',
-    real: 'Reality: Out of every 100 people who click your ad, one buys. For your competitors — four to six.',
-    loss: '$3,800/mo lost',
+    real: 'Reality: Maybe. Or maybe the traffic is fine — but customers drop off before they book, buy, or show up.',
+    loss: 'More spend goes into the same broken path.',
   },
   {
     icon: '📞',
@@ -14,13 +14,13 @@ const problems = [
   {
     icon: '📊',
     wrong: 'You think: "My ads aren\'t working"',
-    real: 'Reality: You\'re not overpaying for leads. You\'re overpaying for customers — because too few leads become jobs.',
+    real: 'Reality: You may not have an ad problem. You may have a follow-up or sales problem — leads come in, but too few become real jobs.',
     loss: '$4,200/mo lost',
   },
   {
     icon: '📅',
     wrong: 'You think: "Ads work in season, so we pause them in summer"',
-    real: 'Reality: Most owners have never separated seasonal demand from ad performance. In peak season you pay top ad prices for customers who were coming anyway — and go quiet when clicks are cheapest.',
+    real: 'Reality: You may cut ads, increase spend, or wait it out — without knowing what actually needs fixing.',
     loss: 'Thousands overpaid every season',
   },
 ];

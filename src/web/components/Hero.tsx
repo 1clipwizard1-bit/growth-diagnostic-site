@@ -17,8 +17,8 @@ export function Hero() {
 
           {/* Headline */}
           <h1 className="font-black tracking-tight leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: '#f5f5f5' }}>
-            Know Exactly Where Your<br />
-            <span style={{ color: '#f97316' }}>Marketing Leaks Money — in 7 Minutes</span>
+            Know Exactly Where Your Marketing<br />
+            <span style={{ color: '#f97316' }}>Leaks Money — in 7 Minutes</span>
           </h1>
 
           <p className="text-lg leading-relaxed mb-10 max-w-3xl" style={{ color: '#a3a3a3' }}>

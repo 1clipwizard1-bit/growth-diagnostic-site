@@ -8,7 +8,7 @@ export default function TermsPage() {
   }, []);
 
   return (
-    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#f5f5f5" }}>
+    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "var(--text)" }}>
       <Nav />
 
       {/* Hero */}
@@ -29,7 +29,7 @@ export default function TermsPage() {
           >
             Terms &amp; Conditions
           </h1>
-          <p style={{ color: "#a3a3a3", fontSize: "1rem" }}>
+          <p style={{ color: "var(--muted)", fontSize: "1rem" }}>
             Last Updated: May 25, 2026
           </p>
         </div>
@@ -44,10 +44,10 @@ export default function TermsPage() {
           style={{
             background: "rgba(249,115,22,0.06)",
             border: "1px solid rgba(249,115,22,0.2)",
-            color: "#a3a3a3",
+            color: "var(--muted)",
           }}
         >
-          <span style={{ color: "#f97316", fontWeight: 600 }}>Important: </span>
+          <span style={{ color: "var(--orange)", fontWeight: 600 }}>Important: </span>
           By purchasing or using our AI-powered diagnostic service ("Service"), you agree to the
           following Terms &amp; Conditions. I understand this report is automatically generated
           based on the information provided and is intended as a business insight tool, not
@@ -57,7 +57,7 @@ export default function TermsPage() {
         {/* Sections card */}
         <div
           className="rounded-2xl p-8 md:p-12 space-y-10"
-          style={{ background: "#111111", border: "1px solid #1a1a1a" }}
+          style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
         >
 
           {/* 1 */}
@@ -87,7 +87,7 @@ export default function TermsPage() {
             </p>
             <p>
               For hands-on implementation support, book a strategy call:{" "}
-              <span style={{ color: "#f97316" }}>[Calendar Link]</span>
+              <span style={{ color: "var(--orange)" }}>[Calendar Link]</span>
             </p>
           </Section>
 
@@ -102,7 +102,7 @@ export default function TermsPage() {
             </p>
             <p>
               If you experience a technical issue preventing delivery, contact us at{" "}
-              <span style={{ color: "#f97316" }}>[your-email]</span> and we will resolve it.
+              <span style={{ color: "var(--orange)" }}>[your-email]</span> and we will resolve it.
             </p>
           </Section>
 
@@ -147,10 +147,10 @@ export default function TermsPage() {
             <p>For questions:</p>
             <div
               className="mt-4 p-4 rounded-xl"
-              style={{ background: "#0a0a0a", border: "1px solid #2a2a2a" }}
+              style={{ background: "#0a0a0a", border: "1px solid var(--border)" }}
             >
-              <p style={{ color: "#a3a3a3" }}>
-                Email: <span style={{ color: "#f97316" }}>[your-email]</span>
+              <p style={{ color: "var(--muted)" }}>
+                Email: <span style={{ color: "var(--orange)" }}>[your-email]</span>
               </p>
             </div>
           </Section>
@@ -174,10 +174,10 @@ function Section({
 }) {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4" style={{ color: "#f5f5f5" }}>
+      <h2 className="text-xl font-bold mb-4" style={{ color: "var(--text)" }}>
         {title}
       </h2>
-      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#a3a3a3" }}>
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
         {children}
       </div>
     </div>
@@ -185,9 +185,9 @@ function Section({
 }
 
 function Divider() {
-  return <hr style={{ borderColor: "#1a1a1a" }} />;
+  return <hr style={{ borderColor: "var(--border)" }} />;
 }
 
 function Highlight({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: "#f97316", fontWeight: 600 }}>{children}</span>;
+  return <span style={{ color: "var(--orange)", fontWeight: 600 }}>{children}</span>;
 }

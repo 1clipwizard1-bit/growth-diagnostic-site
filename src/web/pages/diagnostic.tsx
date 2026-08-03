@@ -175,9 +175,9 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border p-5 bg-[#161616]" style={{ borderColor: '#2a2a2a' }}>
-        <p className="text-sm font-semibold mb-2" style={{ color: '#f97316' }}>Let's start with your business.</p>
-        <p className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+      <div className="rounded-xl border p-5 bg-[var(--bg2)]" style={{ borderColor: 'var(--border)' }}>
+        <p className="text-sm font-semibold mb-2" style={{ color: 'var(--orange)' }}>Let's start with your business.</p>
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
           Your name gives us the connection. Your website gives us the context. Together they make the diagnosis specific to you — not an industry average.
         </p>
       </div>
@@ -191,12 +191,12 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           placeholder="John Doe"
           className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
           style={{
-            background: '#161616', color: '#f5f5f5',
-            borderColor: errors.name ? '#f87171' : data.name ? '#f97316' : '#2a2a2a',
+            background: 'var(--bg2)', color: 'var(--text)',
+            borderColor: errors.name ? 'var(--red)' : data.name ? 'var(--orange)' : 'var(--border)',
             boxShadow: errors.name ? '0 0 0 1px rgba(248,113,113,0.25)' : data.name ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           }}
         />
-        {errors.name && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.name}</div>}
+        {errors.name && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.name}</div>}
       </div>
 
       <div>
@@ -208,12 +208,12 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           placeholder="www.company.com or linkedin.com/in/..."
           className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
           style={{
-            background: '#161616', color: '#f5f5f5',
-            borderColor: errors.website ? '#f87171' : data.website ? '#f97316' : '#2a2a2a',
+            background: 'var(--bg2)', color: 'var(--text)',
+            borderColor: errors.website ? 'var(--red)' : data.website ? 'var(--orange)' : 'var(--border)',
             boxShadow: errors.website ? '0 0 0 1px rgba(248,113,113,0.25)' : data.website ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           }}
         />
-        {errors.website && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.website}</div>}
+        {errors.website && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.website}</div>}
       </div>
     </div>
   );
@@ -235,8 +235,8 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
     <div className="space-y-6">
       <div>
         <div className="flex items-start gap-2 mb-2 relative">
-          <label className="font-semibold text-sm" style={{ color: '#f5f5f5' }}>
-            Business Type <span style={{ color: '#f97316' }}>*</span>
+          <label className="font-semibold text-sm" style={{ color: 'var(--text)' }}>
+            Business Type <span style={{ color: 'var(--orange)' }}>*</span>
           </label>
           <div className="relative">
             <button
@@ -246,22 +246,22 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               onFocus={() => setTooltip(true)}
               onBlur={() => setTooltip(false)}
               className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-colors"
-              style={{ background: '#2a2a2a', color: '#a3a3a3', border: '1px solid #3a3a3a' }}
+              style={{ background: 'var(--border)', color: 'var(--muted)', border: '1px solid #3a3a3a' }}
             >?</button>
             {tooltip && (
               <div className="absolute left-0 top-full mt-2 z-50 rounded-xl border p-3 w-72 shadow-2xl"
-                style={{ background: '#1c1c1c', borderColor: '#3a3a3a' }}>
-                <div className="text-xs mb-2" style={{ color: '#a3a3a3' }}>
+                style={{ background: 'var(--card)', borderColor: '#383838' }}>
+                <div className="text-xs mb-2" style={{ color: 'var(--muted)' }}>
                   Local service = businesses that get customers from a specific geographic area.
                 </div>
                 {data.businessType && businessTypeTooltips[data.businessType] && (
                   <>
-                    <div className="text-xs font-semibold mb-2" style={{ color: '#f97316' }}>EXAMPLES FOR YOUR TYPE</div>
+                    <div className="text-xs font-semibold mb-2" style={{ color: 'var(--orange)' }}>EXAMPLES FOR YOUR TYPE</div>
                     <div className="grid grid-cols-2 gap-1.5">
                       {businessTypeTooltips[data.businessType].map(item => (
                         <div key={item} className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg"
-                          style={{ background: '#2a2a2a', color: '#a3a3a3' }}>
-                          <div className="w-1 h-1 rounded-full shrink-0" style={{ background: '#f97316' }} />
+                          style={{ background: 'var(--border)', color: 'var(--muted)' }}>
+                          <div className="w-1 h-1 rounded-full shrink-0" style={{ background: 'var(--orange)' }} />
                           {item}
                         </div>
                       ))}
@@ -288,19 +288,19 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               onClick={() => onChange('businessType', opt.value)}
               className="text-left p-4 rounded-xl border transition-all"
               style={{
-                background: data.businessType === opt.value ? 'rgba(249,115,22,0.08)' : '#161616',
-                borderColor: data.businessType === opt.value ? '#f97316' : '#2a2a2a',
+                background: data.businessType === opt.value ? 'rgba(249,115,22,0.08)' : 'var(--bg2)',
+                borderColor: data.businessType === opt.value ? 'var(--orange)' : 'var(--border)',
                 boxShadow: data.businessType === opt.value ? '0 0 16px rgba(249,115,22,0.12)' : 'none',
               }}
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">{opt.icon}</span>
                 <div>
-                  <div className="font-semibold text-sm" style={{ color: data.businessType === opt.value ? '#f97316' : '#f5f5f5' }}>{opt.label}</div>
-                  <div className="text-xs mt-0.5" style={{ color: '#8a8a8a' }}>{opt.desc}</div>
+                  <div className="font-semibold text-sm" style={{ color: data.businessType === opt.value ? 'var(--orange)' : 'var(--text)' }}>{opt.label}</div>
+                  <div className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{opt.desc}</div>
                 </div>
                 {data.businessType === opt.value && (
-                  <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
+                  <div className="ml-auto w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--orange)' }}>
                     <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                   </div>
                 )}
@@ -308,11 +308,11 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
               {/* Smart tooltip examples shown inline when selected */}
               {data.businessType === opt.value && businessTypeTooltips[opt.value] && (
-                <div className="mt-3 pt-3 border-t" style={{ borderColor: '#2a2a2a' }}>
-                  <div className="text-xs font-semibold mb-2" style={{ color: '#f97316' }}>COMMON EXAMPLES</div>
+                <div className="mt-3 pt-3 border-t" style={{ borderColor: 'var(--border)' }}>
+                  <div className="text-xs font-semibold mb-2" style={{ color: 'var(--orange)' }}>COMMON EXAMPLES</div>
                   <div className="flex flex-wrap gap-1.5">
                     {businessTypeTooltips[opt.value].map(ex => (
-                      <span key={ex} className="text-xs px-2 py-0.5 rounded-full" style={{ background: '#2a2a2a', color: '#a3a3a3' }}>{ex}</span>
+                      <span key={ex} className="text-xs px-2 py-0.5 rounded-full" style={{ background: 'var(--border)', color: 'var(--muted)' }}>{ex}</span>
                     ))}
                   </div>
                 </div>
@@ -327,17 +327,17 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
             <div className="flex items-start gap-3">
               <span style={{ fontSize: '16px', lineHeight: 1.4 }}>⚠️</span>
               <div>
-                <div className="text-sm font-semibold mb-1" style={{ color: '#f97316' }}>Different funnel model detected</div>
-                <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+                <div className="text-sm font-semibold mb-1" style={{ color: 'var(--orange)' }}>Different funnel model detected</div>
+                <div className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
                   This diagnostic is built for service businesses with a sales call funnel. You can still complete the form —
-                  we'll review your data manually and send a <strong style={{ color: '#f5f5f5' }}>custom analysis</strong> tailored to your business model. No charge.
+                  we'll review your data manually and send a <strong style={{ color: 'var(--text)' }}>custom analysis</strong> tailored to your business model. No charge.
                 </div>
               </div>
             </div>
           </div>
         )}
 
-        {errors.businessType && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.businessType}</div>}
+        {errors.businessType && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.businessType}</div>}
       </div>
 
       <div>
@@ -376,9 +376,9 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               type="button"
               onClick={() => onChange('adSpend', '')}
               className="absolute right-9 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
-              style={{ background: '#2a2a2a', color: '#8f8f8f' }}
-              onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#8f8f8f'; }}
+              style={{ background: 'var(--border)', color: 'var(--muted)' }}
+              onMouseOver={e => { e.currentTarget.style.background = '#383838'; e.currentTarget.style.color = 'var(--text)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)'; }}
               title="Clear selection"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -390,16 +390,16 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
         {/* OR divider */}
         <div className="flex items-center gap-3 my-3">
-          <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
-          <span className="text-xs font-semibold" style={{ color: '#8a8a8a' }}>OR enter exact amount</span>
-          <div className="flex-1 h-px" style={{ background: '#2a2a2a' }} />
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+          <span className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>OR enter exact amount</span>
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
         </div>
 
         {/* Exact spend input with clear button */}
         <div className="relative">
           <div
             className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold pointer-events-none"
-            style={{ color: data.exactAdSpend ? '#f97316' : '#8a8a8a' }}
+            style={{ color: data.exactAdSpend ? 'var(--orange)' : 'var(--muted)' }}
           >$</div>
           <input
             type="number"
@@ -410,9 +410,9 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
             disabled={!!data.adSpend}
             className="w-full pl-8 pr-10 py-3 rounded-xl border text-sm outline-none transition-all"
             style={{
-              background: '#161616',
-              color: '#f5f5f5',
-              borderColor: data.exactAdSpend ? '#f97316' : '#2a2a2a',
+              background: 'var(--bg2)',
+              color: 'var(--text)',
+              borderColor: data.exactAdSpend ? 'var(--orange)' : 'var(--border)',
               boxShadow: data.exactAdSpend ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
               opacity: data.adSpend ? 0.4 : 1,
               cursor: data.adSpend ? 'not-allowed' : 'text',
@@ -423,9 +423,9 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               type="button"
               onClick={() => onChange('exactAdSpend', '')}
               className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 rounded-full flex items-center justify-center transition-all"
-              style={{ background: '#2a2a2a', color: '#8f8f8f' }}
-              onMouseOver={e => { e.currentTarget.style.background = '#3a3a3a'; e.currentTarget.style.color = '#f5f5f5'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#2a2a2a'; e.currentTarget.style.color = '#8f8f8f'; }}
+              style={{ background: 'var(--border)', color: 'var(--muted)' }}
+              onMouseOver={e => { e.currentTarget.style.background = '#383838'; e.currentTarget.style.color = 'var(--text)'; }}
+              onMouseOut={e => { e.currentTarget.style.background = 'var(--border)'; e.currentTarget.style.color = 'var(--muted)'; }}
               title="Clear"
             >
               <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
@@ -441,9 +441,9 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           style={{ background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.12)' }}
         >
           <span style={{ fontSize: '11px', lineHeight: 1.6, marginTop: '1px', flexShrink: 0 }}>📊</span>
-          <p className="text-xs leading-relaxed" style={{ color: '#8f8f8f' }}>
+          <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
             Spend precision = calculation precision. An estimate works —{' '}
-            <span style={{ color: '#a3a3a3' }}>exact 30-day spend gives you a surgical-grade result.</span>
+            <span style={{ color: 'var(--muted)' }}>exact 30-day spend gives you a surgical-grade result.</span>
           </p>
         </div>
       </div>
@@ -455,9 +455,9 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border p-4 bg-[#161616]" style={{ borderColor: '#2a2a2a' }}>
-        <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>WHY THIS MATTERS</div>
-        <div className="text-xs" style={{ color: '#a3a3a3' }}>
+      <div className="rounded-xl border p-4 bg-[var(--bg2)]" style={{ borderColor: 'var(--border)' }}>
+        <div className="text-xs font-semibold mb-1" style={{ color: 'var(--orange)' }}>WHY THIS MATTERS</div>
+        <div className="text-xs" style={{ color: 'var(--muted)' }}>
           This helps us avoid confusing seasonal demand with funnel performance.
         </div>
       </div>
@@ -515,9 +515,9 @@ function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-        <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>WHY THIS MATTERS</div>
-        <div className="text-xs" style={{ color: '#a3a3a3' }}>
+      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+        <div className="text-xs font-semibold mb-1" style={{ color: 'var(--orange)' }}>WHY THIS MATTERS</div>
+        <div className="text-xs" style={{ color: 'var(--muted)' }}>
           These numbers reveal where leads are dropping out of your funnel. The gap between any two steps is where your revenue leak lives.
         </div>
       </div>
@@ -531,8 +531,8 @@ function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
 
       {/* Visual funnel mini-preview */}
       {data.monthlyLeads && data.callsBooked && data.callsCompleted && data.customersClosed && (
-        <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#111' }}>
-          <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR FUNNEL PREVIEW</div>
+        <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+          <div className="text-xs font-semibold mb-3" style={{ color: 'var(--muted)' }}>YOUR FUNNEL PREVIEW</div>
           <div className="space-y-2">
             {[
               { label: isOther ? 'Leads' : 'Leads', value: parseInt(data.monthlyLeads) || 0, base: parseInt(data.monthlyLeads) || 1 },
@@ -544,11 +544,11 @@ function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
               return (
                 <div key={row.label}>
                   <div className="flex justify-between text-xs mb-1">
-                    <span style={{ color: '#8f8f8f' }}>{row.label}</span>
-                    <span style={{ color: '#f5f5f5' }}>{row.value} <span style={{ color: '#8a8a8a' }}>({pct}%)</span></span>
+                    <span style={{ color: 'var(--muted)' }}>{row.label}</span>
+                    <span style={{ color: 'var(--text)' }}>{row.value} <span style={{ color: 'var(--muted)' }}>({pct}%)</span></span>
                   </div>
-                  <div className="h-1.5 rounded-full" style={{ background: '#2a2a2a' }}>
-                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: '#f97316' }} />
+                  <div className="h-1.5 rounded-full" style={{ background: 'var(--border)' }}>
+                    <div className="h-full rounded-full transition-all" style={{ width: `${pct}%`, background: 'var(--orange)' }} />
                   </div>
                 </div>
               );
@@ -613,12 +613,12 @@ function Step5({
       </div>
 
       <div>
-        <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: '#8a8a8a' }}>(optional)</span></Label>
+        <Label helper="Optional — helps us calibrate your unit economics more precisely">Total Revenue Last 30 Days ($) <span className="font-normal text-xs" style={{ color: 'var(--muted)' }}>(optional)</span></Label>
         <NumberInput value={data.totalRevenue} onChange={v => onChange('totalRevenue', v)} placeholder="e.g. 28000" error={errors.totalRevenue === 'confirm_required' ? undefined : errors.totalRevenue} />
 
         {/* EXTREME mismatch: <10% of implied — require explicit confirmation */}
         {isExtremeMismatch && (
-          <Suspense fallback={<div className="text-xs mt-2" style={{ color: '#a3a3a3' }}>Loading...</div>}>
+          <Suspense fallback={<div className="text-xs mt-2" style={{ color: 'var(--muted)' }}>Loading...</div>}>
             <RevenueWarning
               revenueConfirmed={revenueConfirmed}
               onRevenueConfirm={onRevenueConfirm}
@@ -636,10 +636,10 @@ function Step5({
       <div className="flex items-start gap-3">
         <span style={{ fontSize: '16px', flexShrink: 0 }}>⚠️</span>
         <div>
-          <div className="text-sm font-semibold mb-1" style={{ color: '#f87171' }}>Revenue mismatch detected</div>
-          <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
-            You entered <strong style={{ color: '#f5f5f5' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
-            <strong style={{ color: '#f5f5f5' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: '#f5f5f5' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
+          <div className="text-sm font-semibold mb-1" style={{ color: 'var(--red)' }}>Revenue mismatch detected</div>
+          <div className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
+            You entered <strong style={{ color: 'var(--text)' }}>${enteredRevenue.toLocaleString()}</strong> revenue, but{' '}
+            <strong style={{ color: 'var(--text)' }}>{data.customersClosed} deals × ${(parseInt(data.dealSize) || 0).toLocaleString()}</strong> = <strong style={{ color: 'var(--text)' }}>${impliedRevenue.toLocaleString()}</strong>.{' '}
             Please verify your revenue figure — this affects the accuracy of your entire audit.
           </div>
         </div>
@@ -652,12 +652,12 @@ function Step5({
   {/* Revenue estimate preview */ }
 {
   data.dealSize && data.customersClosed && (
-    <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-      <div className="text-xs font-semibold mb-2" style={{ color: '#a3a3a3' }}>ESTIMATED MONTHLY REVENUE</div>
-      <div className="text-2xl font-black" style={{ color: '#f97316' }}>
+    <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+      <div className="text-xs font-semibold mb-2" style={{ color: 'var(--muted)' }}>ESTIMATED MONTHLY REVENUE</div>
+      <div className="text-2xl font-black" style={{ color: 'var(--orange)' }}>
         ${((parseInt(data.dealSize) || 0) * (parseInt(data.customersClosed) || 0)).toLocaleString()}
       </div>
-      <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>
+      <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>
         Based on {data.customersClosed} closes × ${parseInt(data.dealSize).toLocaleString()} avg. deal
       </div>
     </div>
@@ -671,9 +671,9 @@ function Step5({
 function Step6({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-        <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>ALMOST DONE</div>
-        <div className="text-xs" style={{ color: '#a3a3a3' }}>
+      <div className="rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+        <div className="text-xs font-semibold mb-1" style={{ color: 'var(--orange)' }}>ALMOST DONE</div>
+        <div className="text-xs" style={{ color: 'var(--muted)' }}>
           These last fields have a disproportionate impact on your diagnostic result. Lead response time alone accounts for 40%+ of revenue leaks in local service businesses.
         </div>
       </div>
@@ -722,13 +722,13 @@ function Step6({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           placeholder="you@company.com"
           className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
           style={{
-            background: '#161616', color: '#f5f5f5',
-            borderColor: errors.email ? '#f87171' : data.email ? '#f97316' : '#2a2a2a',
+            background: 'var(--bg2)', color: 'var(--text)',
+            borderColor: errors.email ? 'var(--red)' : data.email ? 'var(--orange)' : 'var(--border)',
             boxShadow: errors.email ? '0 0 0 1px rgba(248,113,113,0.25)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           }}
         />
-        {errors.email && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.email}</div>}
-        <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>🔒 Confidential. Used only to deliver your report.</div>
+        {errors.email && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.email}</div>}
+        <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>🔒 Confidential. Used only to deliver your report.</div>
       </div>
     </div>
   );
@@ -776,30 +776,30 @@ function AnalyzingScreen({ businessType, isCheckoutConfirming }: { businessType:
     <div className="flex flex-col items-center justify-center py-16 text-center">
       {/* Spinner */}
       <div className="relative w-20 h-20 mb-8">
-        <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: '#1c1c1c' }} />
-        <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: '#f97316', borderTopColor: 'transparent' }} />
+        <div className="absolute inset-0 rounded-full border-4" style={{ borderColor: 'var(--card)' }} />
+        <div className="absolute inset-0 rounded-full border-4 border-t-transparent animate-spin" style={{ borderColor: 'var(--orange)', borderTopColor: 'transparent' }} />
         <div className="absolute inset-0 flex items-center justify-center">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z" stroke="#f97316" strokeWidth="1.5" strokeLinejoin="round" />
+            <path d="M12 3L20 8V16L12 21L4 16V8L12 3Z" stroke="var(--orange)" strokeWidth="1.5" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
 
-      <h2 className="font-black text-2xl mb-2" style={{ color: '#f5f5f5' }}>
+      <h2 className="font-black text-2xl mb-2" style={{ color: 'var(--text)' }}>
         {isCheckoutConfirming ? 'Verifying payment...' : 'Analyzing your data...'}
       </h2>
-      <p className="text-sm mb-10" style={{ color: '#a3a3a3' }}>
+      <p className="text-sm mb-10" style={{ color: 'var(--muted)' }}>
         {isCheckoutConfirming ? 'Securing your diagnostic data' : 'Running your funnel through our diagnostic engine'}
       </p>
 
       <div className="w-full max-w-sm space-y-2 text-left">
         {steps.map((step, i) => (
           <div key={step} className="flex items-center gap-3 text-sm transition-all"
-            style={{ color: i <= current ? '#f5f5f5' : '#333', opacity: i <= current ? 1 : 0.4 }}>
+            style={{ color: i <= current ? 'var(--text)' : 'var(--muted)', opacity: i <= current ? 1 : 0.4 }}>
             <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0 transition-all"
-              style={{ background: i < current ? '#f97316' : i === current ? 'rgba(249,115,22,0.2)' : '#1c1c1c', border: `1px solid ${i <= current ? '#f97316' : '#2a2a2a'}` }}>
+              style={{ background: i < current ? 'var(--orange)' : i === current ? 'rgba(249,115,22,0.2)' : 'var(--card)', border: `1px solid ${i <= current ? 'var(--orange)' : 'var(--border)'}` }}>
               {i < current && <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>}
-              {i === current && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#f97316' }} />}
+              {i === current && <div className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: 'var(--orange)' }} />}
             </div>
             {step}
           </div>
@@ -1461,7 +1461,7 @@ function PayPalButtonContainer({ data, validate, onStartPayment, onSuccessPaymen
 
   if (loadError) {
     return (
-      <div className="p-4 rounded-xl border text-center text-sm" style={{ background: 'rgba(239,68,68,0.1)', borderColor: '#ef4444', color: '#f87171' }}>
+      <div className="p-4 rounded-xl border text-center text-sm" style={{ background: 'rgba(239,68,68,0.1)', borderColor: 'var(--red)', color: 'var(--red)' }}>
         ⚠️ Failed to load PayPal checkout. Please refresh or verify env variables.
       </div>
     );
@@ -1470,8 +1470,8 @@ function PayPalButtonContainer({ data, validate, onStartPayment, onSuccessPaymen
   if (!paypalLoaded) {
     return (
       <div className="flex flex-col items-center justify-center py-4 text-center">
-        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin mb-2" style={{ borderColor: '#f97316', borderTopColor: 'transparent' }} />
-        <div className="text-xs" style={{ color: '#8a8a8a' }}>Loading secure PayPal checkout...</div>
+        <div className="w-8 h-8 rounded-full border-2 border-t-transparent animate-spin mb-2" style={{ borderColor: 'var(--orange)', borderTopColor: 'transparent' }} />
+        <div className="text-xs" style={{ color: 'var(--muted)' }}>Loading secure PayPal checkout...</div>
       </div>
     );
   }

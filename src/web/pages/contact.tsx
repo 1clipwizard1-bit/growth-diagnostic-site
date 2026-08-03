@@ -84,7 +84,7 @@ export default function ContactPage() {
   };
 
   return (
-    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#f5f5f5" }}>
+    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "var(--text)" }}>
       <Nav />
 
       {/* Hero */}
@@ -105,7 +105,7 @@ export default function ContactPage() {
           >
             Get in Touch
           </h1>
-          <p style={{ color: "#a3a3a3", fontSize: "1rem", maxWidth: "500px", margin: "0 auto" }}>
+          <p style={{ color: "var(--muted)", fontSize: "1rem", maxWidth: "500px", margin: "0 auto" }}>
             Have questions about your diagnostic report, billing, or implementation? Drop us a message below.
           </p>
         </div>
@@ -116,8 +116,8 @@ export default function ContactPage() {
         <div
           className="rounded-2xl p-6 md:p-8 space-y-6"
           style={{
-            background: "#111111",
-            border: "1px solid #1a1a1a",
+            background: "var(--bg2)",
+            border: "1px solid var(--border)",
             boxShadow: "0 4px 30px rgba(0, 0, 0, 0.5)",
           }}
         >
@@ -127,22 +127,22 @@ export default function ContactPage() {
                 className="w-16 h-16 rounded-full flex items-center justify-center mx-auto"
                 style={{ background: "rgba(249, 115, 22, 0.1)", border: "1px solid #f97316" }}
               >
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f97316" strokeWidth="2.5">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--orange)" strokeWidth="2.5">
                   <polyline points="20 6 9 17 4 12" />
                 </svg>
               </div>
-              <h3 className="text-xl font-bold" style={{ color: "#f5f5f5" }}>
+              <h3 className="text-xl font-bold" style={{ color: "var(--text)" }}>
                 Message Sent Successfully!
               </h3>
-              <p style={{ color: "#a3a3a3", fontSize: "0.9rem" }}>
+              <p style={{ color: "var(--muted)", fontSize: "0.9rem" }}>
                 Thank you for reaching out. Our team will get back to you at your provided email address within 24 hours.
               </p>
               <button
                 onClick={() => setStatus("idle")}
                 className="text-sm font-semibold px-6 py-2.5 rounded-lg transition-all mt-4"
-                style={{ background: "#1c1c1c", color: "#f5f5f5", border: "1px solid #2a2a2a" }}
-                onMouseOver={(e) => (e.currentTarget.style.background = "#2a2a2a")}
-                onMouseOut={(e) => (e.currentTarget.style.background = "#1c1c1c")}
+                style={{ background: "var(--card)", color: "var(--text)", border: "1px solid var(--border)" }}
+                onMouseOver={(e) => (e.currentTarget.style.background = "var(--border)")}
+                onMouseOut={(e) => (e.currentTarget.style.background = "var(--card)")}
               >
                 Send Another Message
               </button>
@@ -173,7 +173,7 @@ export default function ContactPage() {
                   style={{
                     background: "rgba(239, 68, 68, 0.1)",
                     border: "1px solid rgba(239, 68, 68, 0.3)",
-                    color: "#f87171",
+                    color: "var(--red)",
                   }}
                 >
                   Oops! Something went wrong while sending your message. Please try again.
@@ -182,8 +182,8 @@ export default function ContactPage() {
 
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "#f5f5f5" }}>
-                  YOUR NAME <span style={{ color: "#f97316" }}>*</span>
+                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>
+                  YOUR NAME <span style={{ color: "var(--orange)" }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -195,9 +195,9 @@ export default function ContactPage() {
                   }}
                   className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
                   style={{
-                    background: "#161616",
-                    color: "#f5f5f5",
-                    borderColor: errors.name ? "#f87171" : formData.name ? "#f97316" : "#2a2a2a",
+                    background: "var(--bg2)",
+                    color: "var(--text)",
+                    borderColor: errors.name ? "var(--red)" : formData.name ? "var(--orange)" : "var(--border)",
                     boxShadow: errors.name
                       ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.name
@@ -205,13 +205,13 @@ export default function ContactPage() {
                       : "none",
                   }}
                 />
-                {errors.name && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.name}</div>}
+                {errors.name && <div className="text-xs mt-1" style={{ color: "var(--red)" }}>{errors.name}</div>}
               </div>
 
               {/* Email */}
               <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "#f5f5f5" }}>
-                  EMAIL ADDRESS <span style={{ color: "#f97316" }}>*</span>
+                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>
+                  EMAIL ADDRESS <span style={{ color: "var(--orange)" }}>*</span>
                 </label>
                 <input
                   type="email"
@@ -223,9 +223,9 @@ export default function ContactPage() {
                   }}
                   className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
                   style={{
-                    background: "#161616",
-                    color: "#f5f5f5",
-                    borderColor: errors.email ? "#f87171" : formData.email ? "#f97316" : "#2a2a2a",
+                    background: "var(--bg2)",
+                    color: "var(--text)",
+                    borderColor: errors.email ? "var(--red)" : formData.email ? "var(--orange)" : "var(--border)",
                     boxShadow: errors.email
                       ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.email
@@ -233,13 +233,13 @@ export default function ContactPage() {
                       : "none",
                   }}
                 />
-                {errors.email && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.email}</div>}
+                {errors.email && <div className="text-xs mt-1" style={{ color: "var(--red)" }}>{errors.email}</div>}
               </div>
 
               {/* Subject */}
               <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "#f5f5f5" }}>
-                  SUBJECT <span style={{ color: "#f97316" }}>*</span>
+                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>
+                  SUBJECT <span style={{ color: "var(--orange)" }}>*</span>
                 </label>
                 <input
                   type="text"
@@ -251,9 +251,9 @@ export default function ContactPage() {
                   }}
                   className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
                   style={{
-                    background: "#161616",
-                    color: "#f5f5f5",
-                    borderColor: errors.subject ? "#f87171" : formData.subject ? "#f97316" : "#2a2a2a",
+                    background: "var(--bg2)",
+                    color: "var(--text)",
+                    borderColor: errors.subject ? "var(--red)" : formData.subject ? "var(--orange)" : "var(--border)",
                     boxShadow: errors.subject
                       ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.subject
@@ -261,13 +261,13 @@ export default function ContactPage() {
                       : "none",
                   }}
                 />
-                {errors.subject && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.subject}</div>}
+                {errors.subject && <div className="text-xs mt-1" style={{ color: "var(--red)" }}>{errors.subject}</div>}
               </div>
 
               {/* Message */}
               <div>
-                <label className="block text-xs font-semibold mb-2" style={{ color: "#f5f5f5" }}>
-                  MESSAGE <span style={{ color: "#f97316" }}>*</span>
+                <label className="block text-xs font-semibold mb-2" style={{ color: "var(--text)" }}>
+                  MESSAGE <span style={{ color: "var(--orange)" }}>*</span>
                 </label>
                 <textarea
                   placeholder="Type your message details here..."
@@ -279,9 +279,9 @@ export default function ContactPage() {
                   }}
                   className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all resize-none"
                   style={{
-                    background: "#161616",
-                    color: "#f5f5f5",
-                    borderColor: errors.message ? "#f87171" : formData.message ? "#f97316" : "#2a2a2a",
+                    background: "var(--bg2)",
+                    color: "var(--text)",
+                    borderColor: errors.message ? "var(--red)" : formData.message ? "var(--orange)" : "var(--border)",
                     boxShadow: errors.message
                       ? "0 0 0 1px rgba(248,113,113,0.25)"
                       : formData.message
@@ -289,7 +289,7 @@ export default function ContactPage() {
                       : "none",
                   }}
                 />
-                {errors.message && <div className="text-xs mt-1" style={{ color: "#f87171" }}>{errors.message}</div>}
+                {errors.message && <div className="text-xs mt-1" style={{ color: "var(--red)" }}>{errors.message}</div>}
               </div>
 
               {/* Submit Button */}
@@ -298,16 +298,16 @@ export default function ContactPage() {
                 disabled={status === "submitting"}
                 className="w-full text-sm font-semibold py-3 rounded-xl transition-all mt-2 flex items-center justify-center gap-2"
                 style={{
-                  background: "#f97316",
-                  color: "#09090b",
+                  background: "var(--orange)",
+                  color: "#0a0a0a",
                   opacity: status === "submitting" ? 0.6 : 1,
                   cursor: status === "submitting" ? "not-allowed" : "pointer",
                 }}
                 onMouseOver={(e) => {
-                  if (status !== "submitting") e.currentTarget.style.background = "#ea6c0a";
+                  if (status !== "submitting") e.currentTarget.style.background = "var(--orange-dark)";
                 }}
                 onMouseOut={(e) => {
-                  if (status !== "submitting") e.currentTarget.style.background = "#f97316";
+                  if (status !== "submitting") e.currentTarget.style.background = "var(--orange)";
                 }}
               >
                 {status === "submitting" ? (

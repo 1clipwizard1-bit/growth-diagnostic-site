@@ -25,7 +25,7 @@ export function Nav() {
             onMouseOut={e => (e.currentTarget.style.color = 'var(--muted)')}>FAQ</a>
         </div>
         <Link href="/diagnostic"
-          className="text-xs font-bold px-5 py-2.5 rounded-full transition-all flex items-center gap-1.5 shrink-0"
+          className="text-sm font-bold px-5 py-2.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0"
           style={{ background: 'var(--orange)', color: '#0a0a0a' }}
           onMouseOver={e => (e.currentTarget.style.background = 'var(--orange-dark)')}
           onMouseOut={e => (e.currentTarget.style.background = 'var(--orange)')}>

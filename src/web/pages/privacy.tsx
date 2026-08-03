@@ -9,7 +9,7 @@ export default function PrivacyPage() {
   }, []);
 
   return (
-    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "#f5f5f5" }}>
+    <div style={{ background: "#0a0a0a", minHeight: "100vh", color: "var(--text)" }}>
       <Nav />
 
       {/* Hero */}
@@ -30,7 +30,7 @@ export default function PrivacyPage() {
           >
             Privacy Policy
           </h1>
-          <p style={{ color: "#a3a3a3", fontSize: "1rem" }}>
+          <p style={{ color: "var(--muted)", fontSize: "1rem" }}>
             Last Updated: May 25, 2026
           </p>
         </div>
@@ -45,10 +45,10 @@ export default function PrivacyPage() {
           style={{
             background: "rgba(249,115,22,0.06)",
             border: "1px solid rgba(249,115,22,0.2)",
-            color: "#a3a3a3",
+            color: "var(--muted)",
           }}
         >
-          <span style={{ color: "#f97316", fontWeight: 600 }}>Our Commitment: </span>
+          <span style={{ color: "var(--orange)", fontWeight: 600 }}>Our Commitment: </span>
           We respect your privacy and are committed to protecting the business and personal data you share with us.
           This Privacy Policy explains how we collect, use, and safeguard your information when you run our AI-powered growth diagnostic.
         </div>
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
         {/* Sections card */}
         <div
           className="rounded-2xl p-8 md:p-12 space-y-10"
-          style={{ background: "#111111", border: "1px solid #1a1a1a" }}
+          style={{ background: "var(--bg2)", border: "1px solid var(--border)" }}
         >
 
           {/* 1 */}
@@ -149,7 +149,7 @@ export default function PrivacyPage() {
               <Link
                 href="/contact"
                 className="font-semibold transition-colors hover:opacity-80"
-                style={{ color: "#f97316", textDecoration: "underline" }}
+                style={{ color: "var(--orange)", textDecoration: "underline" }}
               >
                 contact form
               </Link>
@@ -176,10 +176,10 @@ function Section({
 }) {
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4" style={{ color: "#f5f5f5" }}>
+      <h2 className="text-xl font-bold mb-4" style={{ color: "var(--text)" }}>
         {title}
       </h2>
-      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "#a3a3a3" }}>
+      <div className="space-y-3 text-sm leading-relaxed" style={{ color: "var(--muted)" }}>
         {children}
       </div>
     </div>
@@ -187,9 +187,9 @@ function Section({
 }
 
 function Divider() {
-  return <hr style={{ borderColor: "#1a1a1a" }} />;
+  return <hr style={{ borderColor: "var(--border)" }} />;
 }
 
 function Highlight({ children }: { children: React.ReactNode }) {
-  return <span style={{ color: "#f97316", fontWeight: 600 }}>{children}</span>;
+  return <span style={{ color: "var(--orange)", fontWeight: 600 }}>{children}</span>;
 }

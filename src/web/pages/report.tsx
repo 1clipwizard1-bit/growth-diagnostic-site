@@ -73,10 +73,10 @@ export default function ReportPage() {
   return (
     <div className="flex flex-col h-screen bg-[#0a0a0a] text-white overflow-hidden">
       {/* Header */}
-      <header className="border-b" style={{ background: "rgba(10,10,10,0.95)", borderColor: "#1a1a1a" }}>
+      <header className="border-b" style={{ background: "rgba(10,10,10,0.95)", borderColor: "var(--border)" }}>
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center bg-orange-600">
+            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: "var(--orange)" }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
                 <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="white" fillOpacity="0.9" />
                 <path d="M8 5L11 7V9L8 11L5 9V7L8 5Z" fill="white" />
@@ -88,11 +88,14 @@ export default function ReportPage() {
           <button
             onClick={handleDownloadPDF}
             disabled={downloading}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all text-white bg-orange-600 hover:bg-orange-500 disabled:opacity-50"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all disabled:opacity-50"
+            style={{ background: "var(--orange)", color: "#0a0a0a" }}
+            onMouseOver={e => (e.currentTarget.style.background = "var(--orange-dark)")}
+            onMouseOut={e => (e.currentTarget.style.background = "var(--orange)")}
           >
             {downloading ? (
               <>
-                <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                 </svg>

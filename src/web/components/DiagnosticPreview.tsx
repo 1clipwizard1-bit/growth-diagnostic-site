@@ -1,12 +1,12 @@
 export function DiagnosticPreview() {
   return (
-    <section className="py-24 border-t" style={{ borderColor: '#1a1a1a', background: '#0d0d0d' }}>
+    <section className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
       <div className="max-w-6xl mx-auto px-6">
-        <div className="section-label mb-4">Sample Output</div>
-        <h2 className="font-black tracking-tight mb-4" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5' }}>
+        <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>Sample Output</div>
+        <h2 className="mb-4">
           This is what your diagnostic report looks like
         </h2>
-        <p className="mb-12 max-w-2xl" style={{ color: '#a3a3a3' }}>
+        <p className="mb-12 max-w-2xl" style={{ color: 'var(--muted)' }}>
           Real numbers, real benchmarks, real financial impact. Not generic advice — a specific diagnosis for your specific funnel.
         </p>
 
@@ -138,7 +138,7 @@ export function DiagnosticPreview() {
                   Your answers suggest seasonality may be affecting how you read your marketing numbers. This diagnostic can flag the risk, but a full seasonality adjustment requires historical monthly data.
                 </p>
                 <div className="text-xs p-2 rounded" style={{ background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-                  <span className="font-semibold style={{ color: \'var(--orange)\' }}" style={{ color: 'var(--orange)', fontWeight: 'bold' }}>Next Step: </span>
+                  <span className="font-bold" style={{ color: 'var(--orange)' }}>Next Step: </span>
                   Before increasing or cutting ad spend, compare this period against the same period last year.
                 </div>
               </div>

@@ -20,12 +20,12 @@ export default function RevenueWarning({
       <div className="flex items-start gap-3 mb-3">
         <span style={{ fontSize: '18px', flexShrink: 0 }}>🛑</span>
         <div>
-          <div className="text-sm font-bold mb-1" style={{ color: '#ef4444' }}>Unusual revenue figure</div>
-          <div className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
-            You entered <strong style={{ color: '#f5f5f5' }}>{`$${enteredRevenue.toLocaleString()}`}</strong>, but{' '}
-            <strong style={{ color: '#f5f5f5' }}>{`${(impliedRevenue / (parseInt('1') || 1)).toLocaleString()}`}</strong>
-            implies <strong style={{ color: '#f5f5f5' }}>{`$${impliedRevenue.toLocaleString()}`}</strong> — that's a{' '}
-            <strong style={{ color: '#ef4444' }}>{`${Math.round((1 - enteredRevenue / impliedRevenue) * 100)}%`}</strong> gap.
+          <div className="text-sm font-bold mb-1" style={{ color: 'var(--red)' }}>Unusual revenue figure</div>
+          <div className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
+            You entered <strong style={{ color: 'var(--text)' }}>{`$${enteredRevenue.toLocaleString()}`}</strong>, but{' '}
+            <strong style={{ color: 'var(--text)' }}>{`${(impliedRevenue / (parseInt('1') || 1)).toLocaleString()}`}</strong>
+            implies <strong style={{ color: 'var(--text)' }}>{`$${impliedRevenue.toLocaleString()}`}</strong> — that's a{' '}
+            <strong style={{ color: 'var(--red)' }}>{`${Math.round((1 - enteredRevenue / impliedRevenue) * 100)}%`}</strong> gap.
             This may be a typo (e.g. missing zeros). A wrong figure here will skew your entire audit.
           </div>
         </div>
@@ -35,8 +35,8 @@ export default function RevenueWarning({
         <div
           className="w-5 h-5 rounded flex items-center justify-center shrink-0 transition-all"
           style={{
-            background: revenueConfirmed ? '#f97316' : 'transparent',
-            border: `2px solid ${revenueConfirmed ? '#f97316' : errors.totalRevenue === 'confirm_required' ? '#ef4444' : '#444'}`,
+            background: revenueConfirmed ? 'var(--orange)' : 'transparent',
+            border: `2px solid ${revenueConfirmed ? 'var(--orange)' : errors.totalRevenue === 'confirm_required' ? 'var(--red)' : 'var(--border)'}`,
           }}
         >
           {revenueConfirmed && (
@@ -45,12 +45,12 @@ export default function RevenueWarning({
             </svg>
           )}
         </div>
-        <span className="text-xs select-none" style={{ color: '#a3a3a3' }}>
-          Yes, I confirm — <strong style={{ color: '#f5f5f5' }}>{`$${enteredRevenue.toLocaleString()}`}</strong> is my actual revenue for the last 30 days
+        <span className="text-xs select-none" style={{ color: 'var(--muted)' }}>
+          Yes, I confirm — <strong style={{ color: 'var(--text)' }}>{`$${enteredRevenue.toLocaleString()}`}</strong> is my actual revenue for the last 30 days
         </span>
       </label>
       {errors.totalRevenue === 'confirm_required' && !revenueConfirmed && (
-        <div className="text-xs mt-2" style={{ color: '#ef4444' }}>Please confirm this figure to continue</div>
+        <div className="text-xs mt-2" style={{ color: 'var(--red)' }}>Please confirm this figure to continue</div>
       )}
     </div>
   );

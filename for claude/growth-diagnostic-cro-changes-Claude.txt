@@ -1,0 +1,266 @@
+﻿# Growth-Diagnostic.com — конкретні зміни для конверсії (v2)
+
+Синтез трьох джерел:
+1. CRO-фреймворк Targetorium (порядок блоків)
+2. ICP-дослідження «Портрети клієнтів — Флорида» (5 кластерів, Language Bank)
+3. Твій Customer Journey Audit (позиціонування: продаємо мислення, не PDF)
+
+Дата: 28.07.2026. Вікно: 1–2 тижні до старту outreach.
+
+---
+
+## Спершу — два конфлікти між джерелами, які я вирішив
+
+### Конфлікт 1: «Consulting entry point» vs страх sales-пастки
+
+Твій аудит правильно позиціонує діагностику як вхід у консалтинг («walk through the findings together», анкета як «перша консультація»). Але кластер 2 ICP (обпечені агентствами) купує саме тому, що це НЕ консультація: будь-який натяк «далі поговоримо» зчитується як «зараз буде pitch» — і вбиває покупку за $4.99.
+
+**Рішення:** до оплати — жодних сигналів людського контакту. «It's a report, not a pitch. No sales call unless you ask for one.» Консалтинговий місток відкривається тільки ПІСЛЯ доставки звіту: остання сторінка PDF + follow-up email пропонують опціональний readout call. Так працює і мікро-комітмент, і consulting-модель — без конфлікту.
+
+### Конфлікт 2: Discovery Stories vs нуль клієнтів
+
+Discovery Stories («Wrong Assumption → Discovery → Result») — найсильніша ідея аудиту. Але клієнтів ще нема, а приклад з аудиту («We thought the problem was Google Ads... 47% of leads never called back») написаний від першої особи — як цитата клієнта. Для аудиторії, що професійно винюхує фейк (кластер 2), вигадана цитата = та сама міна, що й «94% identified a bottleneck».
+
+**Рішення:** формат Discovery Stories беремо, авторство міняємо. До перших клієнтів — подавати як іменовані сценарії від системи, не від людей:
+
+> **SCENARIO: The "Bad Ads" That Weren't**
+> Owner's assumption: Google Ads underperforming.
+> What the math shows in cases like this: lead response time of 50+ min kills conversion before ads get a chance.
+> The fix that matters: response process — before touching ad spend.
+
+Кожен проданий звіт закінчувати питанням «Can we quote your result, anonymized?» — через 20–30 звітів сценарії замінюються справжніми Discovery Stories.
+
+---
+
+## TL;DR — порядок впровадження
+
+1. **Hero: заголовок + стата-бар** — 1 год
+2. **Прибрати неверифіковані цифри, контекстуалізувати решту** — 1 год
+3. **Гарантія + якорювання в блоці оффера** — 30 хв
+4. **CTA-мова: кнопка завершує думку** — 30 хв
+5. **Сезонна картка + переклад consultant language у customer language** — 2 год
+6. **FAQ → Before You Decide (заперечення, не логістика)** — 1 год
+7. **Discovery Scenarios блок** — 2 год
+8. **Анкета: Name + Website + фреймінг** — 1–2 год
+9. **Pre-payment confirmation + post-purchase екран** — 2 год
+10. **Метод-схема (Your numbers → ... → Action Plan)** — 1 год
+
+---
+
+## 1. Перший екран (Above the Fold)
+
+### 1.1 Заголовок
+
+**Зараз:** `Find the Bottleneck Limiting Your Growth`
+Обидва аудити зійшлися: consultant language («bottleneck») + process-framing. Клієнт думає не «мені треба знайти bottleneck», а «куди діваються гроші?».
+
+**Замінити на:**
+
+> **Know Exactly Where Your Marketing Leaks Money — in 7 Minutes**
+
+Це і внутрішній діалог клієнта («куди зникають маркетингові гроші»), і dream outcome з ICP («нарешті точно знати»), і механізм-якір («7 minutes») для скептиків. Альтернатива, якщо хочеш агресивніше: `Stop Fixing the Wrong Problem` — сильний хук, але без outcome і механізму; краще як заголовок секції THE REAL PROBLEM, ніж hero.
+
+### 1.2 Сабхедлайн
+
+**Замінити на:**
+
+> Stop guessing why your marketing isn't scaling. If you spend $3k–$20k/month on ads, you almost certainly don't have a traffic problem — you have one hidden constraint in your funnel. This diagnostic finds it and shows what it costs you every month.
+
+`$3k–$20k/month` — самокваліфікація (ICP: $5k–$20k; $3k — твій поріг із блоку ROI). «One hidden constraint» — фрейм «одна відповідь, не 12 рекомендацій». Прибрав «unit economics» з сабхеда — consultant language, вона живе нижче на сторінці.
+
+### 1.3 Стата-бар під CTA — критично
+
+**Зараз:** `$4,300 Avg. monthly revenue leak found · 7 min · 94% Identified a fixable bottleneck`
+
+«Avg. found» і «94%» — метрики по клієнтах, яких нема. Твій аудит каже те саме про «$3,800–$6,200»: непояснений average перемикає увагу з власної проблеми на перевірку достовірності.
+
+**Замінити на верифіковане:**
+
+> **8** growth blockers analyzed · **12** questions · **7 min** · **Refund if no bottleneck found**
+
+Це ж по всій сторінці: «Avg. leak: $4,300/mo» в Industries → «Typical scenario: $4,300/mo»; «EXAMPLE» у Cost of Inaction → «Scenario: one hidden bottleneck worth $4,300/month»; секція THE MATH — замінити опору на average однією логікою:
+
+> If you're already spending money on ads, you're already paying for the problem. The only question is whether you know where it's coming from.
+
+### 1.4 CTA — кнопка завершує думку
+
+Принцип з твого аудиту приймаю: не команда, а висновок аргументу. Але ціну з кнопки не ховаємо — для кластерів 3 і 5 видима ціна = сигнал «це не пастка з sales call».
+
+- Hero: **See Where Your Money Is Leaking — $4.99**
+- Після THE REAL PROBLEM: **Stop Guessing. Find the Cause — $4.99**
+- Після Cost of Inaction: **Find What's Quietly Costing You Money — $4.99**
+- Фінальний: **Run My Diagnostic Now — $4.99** (тут команда доречна — рішення вже прийняте)
+
+Мікрокопія під hero-кнопкою:
+
+> PDF delivered instantly · No subscription · No sales call · Refund if no bottleneck found
+
+«No sales call» — три слова, що закривають головний страх двох кластерів. Це найдешевша правка в усьому документі.
+
+---
+
+## 2. THE REAL PROBLEM — customer language + сезонність
+
+### 2.1 Переклад consultant language
+
+Структура «You think / Reality» — сильна, залишаємо. Правимо мову правої частини (принцип: спочатку recognition, потім interpretation):
+
+| Зараз | Замінити на |
+|---|---|
+| «Your funnel converts at 1.2% when competitors convert at 4–6%» | «Out of every 100 people who click your ad, one buys. For your competitors — four to six.» |
+| «60% of inbound leads never get a follow-up within 1 hour» | «More than half the people who ask for a quote never hear back within the hour. They hire whoever answers first.» |
+| «Your cost-per-lead is fine. Your cost-per-close is broken» | «You're not overpaying for leads. You're overpaying for customers — because too few leads become jobs.» |
+
+### 2.2 Додати четверту картку — сезонність (головний тригер кластера 1)
+
+> 📅
+> **You think: "Ads work in season, so we pause them in summer"**
+> Reality: Most owners have never separated seasonal demand from ad performance. In peak season you pay top ad prices for customers who were coming anyway — and go quiet when clicks are cheapest.
+> **Scenario: thousands overpaid every season**
+
+Єдиний елемент, що готує сторінку до FL-трафіку без переробки під Флориду. «Most owners» замість «You've never» — не звинувачуємо (заборонений фрейм кластерів 3, 5).
+
+---
+
+## 3. Метод — продати мислення, не інструмент
+
+Додати в секцію WHAT IT IS візуальний ланцюжок (з твого аудиту, приймаю без змін):
+
+> Your numbers → Validation → Benchmark → Business Math → Diagnosis → Action Plan
+
+І рядок, що ставить AI на місце:
+
+> AI explains the findings. The business math comes first.
+
+Це відповідає на питання «чому ви знайдете те, що інші пропускають» — і диференціює від «ще одного AI-квіза» (заперечення «5 хвилин квізу скажуть мені щось?» з Language Bank).
+
+## 3.1 SAMPLE OUTPUT — продати відповідь, не документ
+
+Заголовок секції зараз: «This is what your diagnostic report looks like». Людина купує не 8 секцій PDF, а момент «ось тут ви втрачаєте гроші».
+
+**Замінити на:** «This is the answer you walk away with» + перефреймити інтро списку WHAT'S INCLUDED зі списку фіч на шлях:
+
+> 1. What is really happening in your funnel
+> 2. Where the money is leaking
+> 3. Which of your assumptions was wrong
+> 4. What to fix first
+> 5. What to do in the next 90 days
+
+Самі 8 карток залишити — вони працюють як deep-dive для тих, хто хоче деталей (ієрархія Targetorium: цінність → характеристики → деталі).
+
+---
+
+## 4. Блок довіри
+
+**4.1 Гарантія (заміна відгуків):**
+
+> If your report doesn't identify a specific, quantified bottleneck — you get your $4.99 back. No questions.
+
+**4.2 Discovery Scenarios** — блок з 3 сценаріїв у форматі з Конфлікту 2 (по одному на топ-індустрії: local services / agency / clinic). Чесно підписані як сценарії, побудовані на бенчмарк-математиці. Замінюються справжніми історіями з перших 20–30 звітів.
+
+**4.3 Методологія з іменованими джерелами** — рядок «Benchmarks sourced from: [реальні джерела]». Інституційний авторитет замість peer proof.
+
+**4.4 Founder note** — 3–4 речення, справжнє фото. Кластери 3 і 5 купують у людей.
+
+**4.5 Trust badges** — Stripe/Visa/MC біля оплати.
+
+**4.6 Цінове якорювання** — рядок над ціною:
+
+> A manual funnel audit from an agency runs $1,500–$5,000. This is the same math, systematized.
+
+«Дешевше за каву» — не використовувати як головний фрейм (здешевлює perception); допустимо тільки в підрядковій формі з твого аудиту.
+
+---
+
+## 5. FAQ → «Before You Decide»
+
+Перейменувати секцію. Логістику (формат, доставка, підписка) — залишити внизу. Зверху — заперечення:
+
+**Q: Can 12 questions really find my bottleneck?**
+
+> A: 12 questions can't tell us everything about your business. They can tell us where your numbers break against benchmarks — and in funnel math, the biggest break IS the bottleneck. The report shows the calculation behind the diagnosis, so you can check the logic yourself.
+
+**Q: What if the problem isn't marketing?**
+
+> A: Then that's the answer you get. About a third of bottlenecks sit outside ad accounts — in response time, follow-up, pricing, or capacity. If your marketing is fine, the report says so and shows what's actually leaking.
+
+**Q: My business is seasonal. Can this even measure my marketing correctly?**
+
+> A: Seasonality is exactly why most owners misread their numbers. The diagnostic separates your funnel economics from demand cycles — so you can see whether ads drive revenue or just ride the season.
+
+**Q: I've run this business for 10+ years. What can this tell me that I don't know?**
+
+> A: Nothing about your business. Something about your numbers. Most owners have never seen their cost-per-close or in-season vs. off-season cost-per-lead side by side against benchmarks. This doesn't question your experience — it runs a calculation you've never had a reason to run.
+
+**Q: What if my agency is already doing everything right?**
+
+> A: Then the report confirms it — with numbers you can show them. And if something's off, you'll know exactly what to ask about at the next meeting. Either way, you stop taking "it's performing well" on faith.
+
+**Q: I don't know some of my numbers. Can I still complete it?**
+
+> A: Yes. Ranges and best estimates work — the math flags where precision matters and where it doesn't. Not knowing your numbers is itself a data point: it usually means tracking is one of the gaps.
+
+**Q: I've been burned by agencies and lead platforms before. How is this different?**
+
+> A: It's $4.99, not a retainer. It's a report, not a pitch — no sales call unless you ask for one. And every number in it shows its math, so you verify the logic yourself. If it doesn't identify a quantified bottleneck, you get a refund.
+
+---
+
+## 6. Анкета — перша демонстрація підходу (не «перша консультація»)
+
+Приймаю механіку з твого аудиту, міняю тільки слово: для кластера 2 «consultation» = тригер. Фреймити як аналіз.
+
+Додати поля: Name, Website (або social profile). Фреймінг на старті:
+
+> **Let's start with your business.**
+> Your answers give us the numbers. Your website gives us the context. Together they make the diagnosis specific to you — not an industry average.
+
+«Not an industry average» — пряма відбудова від досвіду з агентськими звітами «три числа без сенсу».
+
+Educational friction: 2–3 питання анкети супроводити мікро-поясненням, чому це питаємо («Response time matters because conversion drops ~80% after 5 minutes»). Людина ще до оплати думає «я ніколи не дивився на бізнес під таким кутом» — це продає звіт краще за лендінг.
+
+---
+
+## 7. Pre-payment confirmation
+
+Перед оплатою — блок (з твого аудиту, приймаю з одною правкою):
+
+> **Today we'll analyze:** your marketing inputs · your funnel · your unit economics · your biggest growth constraint · your next best move
+> **You'll receive:** a personalized diagnostic report · revenue leak analysis · benchmark comparison · a 90-day action plan
+> *A small commitment to stop guessing where your business is leaking money.*
+
+Правка: «30–90 day action direction» → «90-day action plan» — консистентно з рештою сторінки.
+
+---
+
+## 8. Post-purchase екран
+
+Замість «Thank you for your purchase»:
+
+> **Good call. Your diagnostic is running.**
+> 1. We validate your inputs
+> 2. We benchmark them against your industry
+> 3. We isolate your biggest constraint
+> 4. Your report lands in your inbox
+>
+> **While you wait, write down one guess:** what do YOU think your biggest bottleneck is? Most owners are surprised by the answer.
+
+Один reflection prompt замість трьох — мобільний екран, одна дія. Контраст «моя гіпотеза vs діагноз» — це і є момент Discovery, який потім проситься в відгук. «Then we'll walk through the findings together» з аудиту — прибрано (Конфлікт 1); опціональний readout call пропонується в самому PDF і follow-up email.
+
+---
+
+## 9. Наскрізне
+
+- **Консистентність:** скрізь «12 questions · 7 minutes». В outreach-шаблонах з дослідження фігурує «5-хвилинна діагностика» — оновити на 7 або скоротити квіз.
+- **Заборонені фрейми:** жодного «your marketing is broken» / «you've been doing it wrong». Формула: «Most owners have never...» замість «You never...».
+- **Мова:** consultant terms (funnel economics, cost-per-close, constraint) допустимі в глибині сторінки і в звіті; в hero, THE REAL PROBLEM і CTA — тільки customer language (money leaking, phone rings but profit doesn't grow, fixing the wrong problem).
+- **Mobile:** кнопки ≥44px, стата-бар на 375px, sample report без зуму.
+- **Не чіпати зараз:** кольори кнопок, відступи, типографіка (узгоджено з твоїм аудитом: «Do Not Over-Optimize Yet»).
+
+## Що свідомо НЕ робимо зараз
+
+- FL-специфічну версію сторінки — сезонна картка достатньо готує універсальну; окремий FL-hero після сегментованого трафіку.
+- Класичні відгуки — нема звідки чесно; Discovery Scenarios + гарантія.
+- Advertorial/listicle — контент-задача серпня разом з LinkedIn-прогрівом.
+- Email Experience і Report Page — наступний спринт (позначені в твоєму аудиті як remaining).
+

@@ -9,15 +9,15 @@ export function CostOfInaction() {
               Every month without a diagnosis is a month you're paying for it anyway.
             </h2>
             <p className="mb-6" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
-              The average business running paid ads loses <strong style={{ color: '#f5f5f5' }}>$3,800–$6,200 per month</strong> to a single fixable funnel gap. Not traffic. Not the economy. A specific, diagnosable, fixable process problem.
+              If you're already spending money on ads, you're already paying for the problem. The only question is whether you know where your marketing is leaking.
             </p>
             <p className="mb-8" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
-              The question isn't whether the bottleneck exists. It's whether you want to know what it is.
+              In cases like this, a single hidden bottleneck in your funnel usually costs between <strong style={{ color: '#f5f5f5' }}>$3,800–$6,200 per month</strong> in missed revenue. Not because of traffic quality, but because of how leads are handled.
             </p>
             <a href="/diagnostic" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
               onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-              Run My Diagnostic — $4.99
+              See Where Your Money Is Leaking — $4.99
             </a>
           </div>
 
@@ -25,7 +25,7 @@ export function CostOfInaction() {
             {/* Inaction table */}
             <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#2a2a2a', background: '#111' }}>
               <div className="px-6 py-4 border-b" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                <div className="text-xs font-semibold" style={{ color: '#a3a3a3' }}>COST OF INACTION — EXAMPLE: $4,300/mo BOTTLENECK</div>
+                <div className="text-xs font-semibold" style={{ color: '#a3a3a3' }}>COST OF INACTION — Scenario: One hidden bottleneck worth $4,300/month</div>
               </div>
               <div className="divide-y" style={{ borderColor: '#2a2a2a' }}>
                 {[

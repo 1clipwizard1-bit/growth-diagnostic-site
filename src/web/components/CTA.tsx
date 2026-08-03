@@ -9,10 +9,10 @@ export function CTA() {
           <div className="relative px-8 py-16 md:px-16 text-center">
             <div className="section-label mb-6 text-center">Get Started</div>
             <h2 className="font-black tracking-tight mb-4 mx-auto max-w-3xl" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', color: '#f5f5f5' }}>
-              Find out what's really stopping your business from scaling.
+              Stop guessing. Find the cause.
             </h2>
             <p className="text-lg mb-10 mx-auto max-w-xl" style={{ color: '#a3a3a3' }}>
-              Complete 12 questions. Receive a structured PDF report. Know exactly which bottleneck to fix — and what it's costing you not to.
+              Complete 18 questions. Receive a structured PDF report. Know exactly which bottleneck to fix — and what it's costing you not to.
             </p>
 
             {/* Price block */}
@@ -27,14 +27,14 @@ export function CTA() {
                 style={{ background: '#f97316', color: '#09090b' }}
                 onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(249,115,22,0.3)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                Run My Diagnostic Now
+                Stop Guessing. Find the Cause — $4.99
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </a>
               <div className="flex flex-wrap justify-center gap-6 text-xs" style={{ color: '#8a8a8a' }}>
                 <span>✓ Instant PDF delivery</span>
-                <span>✓ 12 questions · 7 minutes</span>
+                <span>✓ 18 questions · 7 minutes</span>
                 <span>✓ No subscription required</span>
                 <span>✓ Industry-calibrated benchmarks</span>
               </div>

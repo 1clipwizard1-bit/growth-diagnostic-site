@@ -15,22 +15,28 @@ const N8N_WEBHOOK_URL = 'https://learning11b.app.n8n.cloud/webhook/34e63fac-0d56
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface FormData {
-  // Step 1
+  // Step 1: Context
+  name: string;
+  website: string;
+  // Step 2: Profile
   businessType: string;
   leadSource: string;
   adSpend: string;
   exactAdSpend: string;
-  // Step 2
+  // Step 3: Seasonality
+  isSeasonal: string;
+  seasonStatus: string;
+  // Step 4: Funnel Metrics
   monthlyLeads: string;
   callsBooked: string;
   callsCompleted: string;
   customersClosed: string;
-  // Step 3
+  // Step 5: Unit Economics
   dealSize: string;
   profitMargin: string;
   salesCycle: string;
   totalRevenue: string;
-  // Step 4
+  // Step 6: Performance
   responseTime: string;
   trackingQuality: string;
   followUpSystem: string;
@@ -38,7 +44,9 @@ interface FormData {
 }
 
 const initial: FormData = {
+  name: '', website: '',
   businessType: '', leadSource: '', adSpend: '', exactAdSpend: '',
+  isSeasonal: '', seasonStatus: '',
   monthlyLeads: '', callsBooked: '', callsCompleted: '', customersClosed: '',
   dealSize: '', profitMargin: '', salesCycle: '', totalRevenue: '',
   responseTime: '', trackingQuality: '', followUpSystem: '', email: '',
@@ -132,12 +140,12 @@ function NumberInput({ value, onChange, placeholder, helper, error, optional }: 
 // ─── Progress Bar ─────────────────────────────────────────────────────────────
 function ProgressBar({ step, total }: { step: number; total: number }) {
   const pct = ((step - 1) / (total - 1)) * 100;
-  const labels = ['Business Profile', 'Funnel Metrics', 'Unit Economics', 'Performance'];
+  const labels = ['Context', 'Profile', 'Seasonality', 'Funnel', 'Economics', 'Performance'];
   return (
     <div className="mb-10">
       <div className="flex justify-between mb-3">
         {labels.map((label, i) => (
-          <div key={label} className="flex flex-col items-center gap-1" style={{ width: '25%' }}>
+          <div key={label} className="flex flex-col items-center gap-1" style={{ width: `${100 / total}%` }}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
               style={{
                 background: i + 1 < step ? '#f97316' : i + 1 === step ? '#f97316' : '#1c1c1c',
@@ -163,7 +171,55 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
   );
 }
 
-// ─── Step 1 ───────────────────────────────────────────────────────────────────
+// ─── Step 1: Context ─────────────────────────────────────────────────────────
+function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border p-5 bg-[#161616]" style={{ borderColor: '#2a2a2a' }}>
+        <p className="text-sm font-semibold mb-2" style={{ color: '#f97316' }}>Let's start with your business.</p>
+        <p className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+          Your name gives us the connection. Your website gives us the context. Together they make the diagnosis specific to you — not an industry average.
+        </p>
+      </div>
+
+      <div>
+        <Label required helper="Your full name or how we should address you">Full Name</Label>
+        <input
+          type="text"
+          value={data.name}
+          onChange={e => onChange('name', e.target.value)}
+          placeholder="John Doe"
+          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+          style={{
+            background: '#161616', color: '#f5f5f5',
+            borderColor: errors.name ? '#f87171' : data.name ? '#f97316' : '#2a2a2a',
+            boxShadow: errors.name ? '0 0 0 1px rgba(248,113,113,0.25)' : data.name ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          }}
+        />
+        {errors.name && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.name}</div>}
+      </div>
+
+      <div>
+        <Label required helper="Website URL or social media profile link (LinkedIn / Facebook)">Website / Social Profile</Label>
+        <input
+          type="text"
+          value={data.website}
+          onChange={e => onChange('website', e.target.value)}
+          placeholder="www.company.com or linkedin.com/in/..."
+          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+          style={{
+            background: '#161616', color: '#f5f5f5',
+            borderColor: errors.website ? '#f87171' : data.website ? '#f97316' : '#2a2a2a',
+            boxShadow: errors.website ? '0 0 0 1px rgba(248,113,113,0.25)' : data.website ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          }}
+        />
+        {errors.website && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{errors.website}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 2: Profile ─────────────────────────────────────────────────────────
 const businessTypeTooltips: Record<string, string[]> = {
   local: ['Plumbing', 'HVAC', 'Roofing', 'Cleaning', 'Dental', 'Auto Repair', 'Landscaping', 'Electrical'],
   agency: ['Marketing Agency', 'SEO Agency', 'Design Studio', 'PR Firm', 'Web Dev', 'Consulting'],
@@ -172,7 +228,7 @@ const businessTypeTooltips: Record<string, string[]> = {
   other: ['E-commerce', 'SaaS', 'Real Estate', 'Finance', 'Legal Services', 'Retail'],
 };
 
-function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   const [tooltip, setTooltip] = useState(false);
 
   return (
@@ -395,8 +451,54 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
   );
 }
 
-// ─── Step 2 ───────────────────────────────────────────────────────────────────
-function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+// ─── Step 3: Seasonality ─────────────────────────────────────────────────────
+function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border p-4 bg-[#161616]" style={{ borderColor: '#2a2a2a' }}>
+        <div className="text-xs font-semibold mb-1" style={{ color: '#f97316' }}>WHY THIS MATTERS</div>
+        <div className="text-xs" style={{ color: '#a3a3a3' }}>
+          This helps us avoid confusing seasonal demand with funnel performance.
+        </div>
+      </div>
+
+      <div>
+        <Label required helper="Does your sales volume or lead count change significantly depending on the time of year?">Is your business seasonal?</Label>
+        <Select
+          value={data.isSeasonal}
+          onChange={v => onChange('isSeasonal', v)}
+          placeholder="Select option"
+          error={errors.isSeasonal}
+          options={[
+            { value: 'yes', label: 'Yes' },
+            { value: 'somewhat', label: 'Somewhat' },
+            { value: 'no', label: 'No' },
+            { value: 'not-sure', label: 'Not sure' },
+          ]}
+        />
+      </div>
+
+      <div>
+        <Label required helper="Which seasonal period is your business in right now?">Right now, are you entering:</Label>
+        <Select
+          value={data.seasonStatus}
+          onChange={v => onChange('seasonStatus', v)}
+          placeholder="Select period"
+          error={errors.seasonStatus}
+          options={[
+            { value: 'busy', label: 'Busy season' },
+            { value: 'slow', label: 'Slow season' },
+            { value: 'normal', label: 'Normal season' },
+            { value: 'not-sure', label: 'Not sure' },
+          ]}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 4: Funnel Metrics ──────────────────────────────────────────────────
+function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   const isOther = data.businessType === 'other';
 
   const fields: { key: keyof FormData; label: string; helper: string; placeholder: string }[] = isOther ? [
@@ -458,8 +560,8 @@ function Step2({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
   );
 }
 
-// ─── Step 3 ───────────────────────────────────────────────────────────────────
-function Step3({
+// ─── Step 5: Unit Economics ──────────────────────────────────────────────────
+function Step5({
   data, onChange, errors, revenueConfirmed, onRevenueConfirm
 }: {
   data: FormData;
@@ -565,8 +667,8 @@ function Step3({
       );
 }
 
-// ─── Step 4 ───────────────────────────────────────────────────────────────────
-function Step4({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
+// ─── Step 6: Performance ──────────────────────────────────────────────────────
+function Step6({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
@@ -774,23 +876,36 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
         </>
       ) : (
         <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Diagnostic submitted!</h2>
+          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Good call. Your diagnostic is running.</h2>
           <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
-          <p className="text-sm mb-10" style={{ color: '#8f8f8f' }}>
+          <p className="text-sm mb-8" style={{ color: '#8f8f8f' }}>
             It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
           </p>
-          <div className="rounded-xl border p-6 w-full max-w-sm text-left" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-            <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>YOUR REPORT WILL INCLUDE</div>
-            <div className="space-y-2">
-              {['Funnel analysis', 'Unit economics breakdown', 'Benchmark comparison', 'Cost of inaction', 'Bottleneck diagnosis', '90-day action plan'].map(item => (
-                <div key={item} className="flex items-center gap-2 text-sm">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
-                    <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2.5" stroke="white" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" /></svg>
+          
+          <div className="rounded-xl border p-6 w-full max-w-sm text-left mb-8" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+            <div className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#a3a3a3' }}>Analysis Progress</div>
+            <div className="space-y-4">
+              {[
+                'We validate your inputs',
+                'We benchmark them against your industry',
+                'We isolate your biggest constraint',
+                'Your report lands in your inbox'
+              ].map((item, idx) => (
+                <div key={item} className="flex items-center gap-3 text-sm">
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border" style={{ borderColor: '#2a2a2a', background: '#1c1c1c' }}>
+                    <span className="text-xs font-bold" style={{ color: '#f97316' }}>{idx + 1}</span>
                   </div>
                   <span style={{ color: '#a3a3a3' }}>{item}</span>
                 </div>
               ))}
             </div>
+          </div>
+
+          <div className="rounded-xl border p-5 w-full max-w-sm text-left" style={{ borderColor: 'rgba(249,115,22,0.15)', background: 'rgba(249,115,22,0.02)' }}>
+            <div className="font-bold text-sm mb-2" style={{ color: '#f5f5f5' }}>💡 While you wait, write down one guess:</div>
+            <p className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+              What do YOU think your biggest bottleneck is? Most owners are surprised by the answer.
+            </p>
           </div>
         </>
       )}
@@ -868,12 +983,22 @@ export default function DiagnosticForm() {
     const errs: Partial<Record<keyof FormData, string>> = {};
 
     if (step === 1) {
+      if (!data.name.trim()) errs.name = 'Please enter your name';
+      if (!data.website.trim()) errs.website = 'Please enter your website or social profile';
+    }
+
+    if (step === 2) {
       if (!data.businessType) errs.businessType = 'Please select a business type';
       if (!data.leadSource) errs.leadSource = 'Please select a lead source';
       if (!data.adSpend && !data.exactAdSpend) errs.adSpend = 'Please select a range or enter an exact amount';
     }
 
-    if (step === 2) {
+    if (step === 3) {
+      if (!data.isSeasonal) errs.isSeasonal = 'Required';
+      if (!data.seasonStatus) errs.seasonStatus = 'Required';
+    }
+
+    if (step === 4) {
       if (!data.monthlyLeads) errs.monthlyLeads = 'Required';
       if (!data.callsBooked) errs.callsBooked = 'Required';
       if (!data.callsCompleted) errs.callsCompleted = 'Required';
@@ -889,7 +1014,7 @@ export default function DiagnosticForm() {
       if (closed > completed) errs.customersClosed = 'Cannot exceed calls completed';
     }
 
-    if (step === 3) {
+    if (step === 5) {
       if (!data.dealSize) errs.dealSize = 'Required';
       if (!data.profitMargin) errs.profitMargin = 'Required';
       if (!data.salesCycle) errs.salesCycle = 'Required';
@@ -904,7 +1029,7 @@ export default function DiagnosticForm() {
       }
     }
 
-    if (step === 4) {
+    if (step === 6) {
       if (!data.responseTime) errs.responseTime = 'Required';
       if (!data.trackingQuality) errs.trackingQuality = 'Required';
       if (!data.followUpSystem) errs.followUpSystem = 'Required';
@@ -918,8 +1043,8 @@ export default function DiagnosticForm() {
 
   const handleNext = () => {
     if (!validate()) return;
-    if (step < 4) {
-      const stepNames = ['business_profile', 'funnel_metrics', 'unit_economics', 'performance'];
+    if (step < 6) {
+      const stepNames = ['context', 'business_profile', 'seasonality', 'funnel_metrics', 'unit_economics', 'performance'];
       trackEvent('quiz_step_completed', {
         step,
         step_name: stepNames[step - 1],
@@ -942,21 +1067,27 @@ export default function DiagnosticForm() {
 
     const payload = {
       // Step 1
+      name: data.name,
+      website: data.website,
+      // Step 2
       businessType: data.businessType,
       leadSource: data.leadSource,
       adSpend: data.adSpend || null,
       exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
-      // Step 2
+      // Step 3
+      isSeasonal: data.isSeasonal,
+      seasonStatus: data.seasonStatus,
+      // Step 4
       monthlyLeads: parseInt(data.monthlyLeads) || 0,
       callsBooked: parseInt(data.callsBooked) || 0,
       callsCompleted: parseInt(data.callsCompleted) || 0,
       customersClosed: parseInt(data.customersClosed) || 0,
-      // Step 3
+      // Step 5
       dealSize: parseInt(data.dealSize) || 0,
       profitMargin: data.profitMargin,
       salesCycle: data.salesCycle,
       totalRevenue: parseInt(data.totalRevenue) || null,
-      // Step 4
+      // Step 6
       responseTime: data.responseTime,
       trackingQuality: data.trackingQuality,
       followUpSystem: data.followUpSystem,
@@ -1049,25 +1180,27 @@ export default function DiagnosticForm() {
                 <span className="text-xs font-semibold" style={{ color: '#f97316', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
               </div>
               <h1 className="font-black text-3xl mb-3" style={{ color: '#f5f5f5' }}>
-                Identify your revenue leak<br />in 3 minutes
+                Identify your revenue leak<br />in 7 minutes
               </h1>
               <p className="text-sm" style={{ color: '#a3a3a3' }}>
-                Answer 13 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.
+                Answer 18 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.
               </p>
             </div>
 
             {/* Progress */}
-            <ProgressBar step={step} total={4} />
+            <ProgressBar step={step} total={6} />
 
             {/* Form card */}
             <div className="rounded-2xl border p-8" style={{ background: '#111', borderColor: '#2a2a2a' }}>
               <div className="mb-6">
                 <div className="section-label mb-1">
-                  {['Business Profile', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
+                  {['Context', 'Business Profile', 'Seasonality', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
                 </div>
                 <h2 className="font-bold text-lg" style={{ color: '#f5f5f5' }}>
                   {[
+                    'Welcome & context',
                     'Tell us about your business',
+                    'How seasonality affects you',
                     'How does your funnel perform?',
                     'What are your deal economics?',
                     'How do you handle leads?',
@@ -1077,12 +1210,14 @@ export default function DiagnosticForm() {
 
               {step === 1 && <Step1 data={data} onChange={onChange} errors={errors} />}
               {step === 2 && <Step2 data={data} onChange={onChange} errors={errors} />}
-              {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} revenueConfirmed={revenueConfirmed} onRevenueConfirm={setRevenueConfirmed} />}
+              {step === 3 && <Step3 data={data} onChange={onChange} errors={errors} />}
               {step === 4 && <Step4 data={data} onChange={onChange} errors={errors} />}
+              {step === 5 && <Step5 data={data} onChange={onChange} errors={errors} revenueConfirmed={revenueConfirmed} onRevenueConfirm={setRevenueConfirmed} />}
+              {step === 6 && <Step6 data={data} onChange={onChange} errors={errors} />}
 
               {/* Navigation */}
               <div className="mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
-                {step === 4 && data.businessType !== 'other' ? (
+                {step === 6 && data.businessType !== 'other' ? (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center mb-4">
                       {step > 1 ? (
@@ -1147,7 +1282,7 @@ export default function DiagnosticForm() {
                       onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
                       onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
                     >
-                      {step < 4 ? (
+                      {step < 6 ? (
                         <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
                       ) : (
                         <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>

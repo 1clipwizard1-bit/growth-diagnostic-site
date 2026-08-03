@@ -17,13 +17,12 @@ export function Hero() {
 
           {/* Headline */}
           <h1 className="font-black tracking-tight leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: '#f5f5f5' }}>
-            Find the Bottleneck<br />
-            <span style={{ color: '#f97316' }}>Limiting Your Growth</span>
+            Know Exactly Where Your<br />
+            <span style={{ color: '#f97316' }}>Marketing Leaks Money — in 7 Minutes</span>
           </h1>
 
           <p className="text-lg leading-relaxed mb-10 max-w-3xl" style={{ color: '#a3a3a3' }}>
-            Stop guessing why your marketing isn't scaling. Most businesses don’t have a traffic problem — they have a hidden constraint somewhere in their funnel or unit economics.
-            This diagnostic identifies the single biggest factor holding your growth back — and shows its financial impact.
+            Stop guessing why your marketing isn’t scaling. Whether you spend a few hundred or $20k/month, this 7-minute diagnostic shows where customers leak out — and what it may be costing you every month.
           </p>
 
           {/* CTA block */}
@@ -33,20 +32,21 @@ export function Hero() {
               style={{ background: '#f97316', color: '#09090b' }}
               onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
               onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              Run My Diagnostic — $4.99
+              See Where Your Money Is Leaking — $4.99
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
-            <span className="text-sm" style={{ color: '#8f8f8f' }}>PDF delivered instantly · No subscription</span>
+            <span className="text-sm" style={{ color: '#8f8f8f' }}>PDF delivered instantly · No subscription · No sales call · Refund if no bottleneck found</span>
           </div>
 
           {/* Stats row */}
           <div className="flex flex-wrap gap-8">
             {[
-              { value: '$4,300', label: 'Avg. monthly revenue leak found' },
-              { value: '7 min', label: 'Time to complete' },
-              { value: '94%', label: 'Identified a fixable bottleneck' },
+              { value: '8', label: 'growth blockers analyzed' },
+              { value: '18', label: 'questions' },
+              { value: '7 min', label: 'to complete' },
+              { value: 'Refund', label: 'if no bottleneck found' },
             ].map(stat => (
               <div key={stat.label}>
                 <div className="text-2xl font-black" style={{ color: '#f97316' }}>{stat.value}</div>
@@ -62,32 +62,32 @@ export function Hero() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="section-label mb-0.5">Diagnostic Report</div>
-                <div className="text-xs" style={{ color: '#8f8f8f' }}>Sunrise Plumbing Co. · $15k/mo ads</div>
+                <div className="text-xs" style={{ color: '#8f8f8f' }}>Sunrise Plumbing Co. · <span className="num">$15k/mo</span> ads</div>
               </div>
               <div className="px-2 py-1 rounded text-xs font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>CRITICAL</div>
             </div>
             <div className="border rounded-xl p-4 mb-4" style={{ borderColor: '#f87171', background: 'rgba(239,68,68,0.04)' }}>
               <div className="text-xs font-semibold mb-2" style={{ color: '#f87171' }}>⚠ PRIMARY BOTTLENECK DETECTED</div>
               <div className="font-bold text-base mb-1" style={{ color: '#f5f5f5' }}>Slow Lead Response Time</div>
-              <div className="text-xs" style={{ color: '#a3a3a3' }}>Avg. response: 52 min · Benchmark: &lt;15 min</div>
+              <div className="num text-xs" style={{ color: '#a3a3a3' }}>Avg. response: 52 min · Benchmark: &lt;15 min</div>
             </div>
             <div className="space-y-3">
               <div className="flex justify-between text-xs">
                 <span style={{ color: '#a3a3a3' }}>Monthly ad spend</span>
-                <span style={{ color: '#f5f5f5' }} className="font-semibold">$15,000</span>
+                <span style={{ color: '#f5f5f5' }} className="num font-semibold">$15,000</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: '#a3a3a3' }}>Est. leads/month</span>
-                <span style={{ color: '#f5f5f5' }} className="font-semibold">142</span>
+                <span style={{ color: '#f5f5f5' }} className="num font-semibold">142</span>
               </div>
               <div className="flex justify-between text-xs">
                 <span style={{ color: '#a3a3a3' }}>Current close rate</span>
-                <span style={{ color: '#f5f5f5' }} className="font-semibold">12%</span>
+                <span style={{ color: '#f5f5f5' }} className="num font-semibold">12%</span>
               </div>
               <div className="border-t pt-3" style={{ borderColor: '#2a2a2a' }}>
                 <div className="flex justify-between text-xs mb-1">
                   <span style={{ color: '#a3a3a3' }}>Missed revenue / month</span>
-                  <span className="font-black" style={{ color: '#f87171' }}>–$4,300</span>
+                  <span className="num font-bold" style={{ color: '#f87171' }}>–$4,300</span>
                 </div>
                 <div className="metric-bar">
                   <div className="metric-bar-fill-red" style={{ width: '72%' }} />

@@ -1,0 +1,218 @@
+﻿# Growth-Diagnostic.com — Фінальний звіт: ICP Research + Offer
+### Синтез двох сесій досліджень за алгоритмом 5 кроків | 2026-07-29
+
+---
+
+## 0. Контекст продукту
+
+**growth-diagnostic.com** — $4.99 AI-powered funnel diagnostic
+Модель: paid lead magnet → trust → upsell до послуг
+GTM: LinkedIn cold outreach → Florida local businesses → запуск вересень 2026
+Існуючий лендінг переробляється під цей звіт.
+
+---
+
+# ЧАСТИНА 1 — Дані по кроках фреймворку
+
+## Крок 1 — Dream Outcome (бажаний результат клієнта)
+
+**Формулювання від імені клієнта:**
+> "Я хочу нарешті ЗНАТИ, звідки приходять мої клієнти і чому їх стає то більше, то менше — без агентства, без $3,000/міс ретейнера і без чергового зливу бюджету на рекламу."
+
+Розкладка Dream Outcome:
+- **Ясність замість хаосу** — розуміти свою воронку, а не гадати
+- **Контроль** — самому бачити де тече, а не залежати від звітів агентства
+- **Передбачуваність доходу** — відрізняти сезонний спад від зламаного маркетингу
+- **Ріст без ризику** — наступний $1 в маркетинг має йти в те, що працює
+
+Ніша: FL local B2B service businesses (contractors, public adjusters, professional services). Гео: Florida, USA. Мова: EN.
+
+---
+
+## Крок 2 — Перешкоди (5 кластерів болів)
+
+### Кластер 1 — Seasonal Attribution Trap 🌊
+Не може відрізнити сезонний спад від поломки воронки. Хороші сезони маскують проблему.
+> "Started as a side hustle after hurricane Ian, and since has ebbed and flowed. I'll hit a stride and get busy, then go quiet." — ATC Painting, SW Florida
+
+### Кластер 2 — Agency & Platform Burn 🔥 (найсильніший)
+Роки і тисячі доларів на агентства/рекламу — нуль результату. Тепер скептик до всього, що пахне маркетингом.
+> "We spent over $15K on marketing agencies and got no results... This was years of trying. It was not a budget issue." — r/marketing
+> "Budgets vanish into thin air with nothing to show." — r/FacebookAds
+> "I set a daily budget of ~$240. Meta burned almost the full amount in roughly five minutes. Zero sales." — r/FacebookAds
+> "Have tried Facebook ads a few times. Not much roi to speak of." — ATC Painting
+> "I've tried Facebook, instagram, and several other platforms and don't really have any luck." — FL public adjuster
+> "Paid $40 to boost a post. Didn't benefit much." — r/smallbusiness
+
+### Кластер 3 — Invisible Local Business 👻
+Ні бюджету на агентство, ні знань самому. Відчуває себе невидимим.
+> "Been running a business for 3 years now... I feel completely invisible online unless I pay for ads." — r/smallbusiness
+> "I just want a way to say something real, right now, to people literally around me." — r/smallbusiness
+
+### Кластер 4 — Transplant Entrepreneur 🌴
+Побудував успішний бізнес у NY/NJ/Chicago → переїхав у FL → старий playbook не працює. Реферальна культура, сезонність, інший ритм.
+> "Within 3 years we achieved that 7 figure milestone... Now that we have moved to Florida I am thinking about my next venture." — r/Entrepreneur
+
+Підкріплення: $184,771 середній AGI переселенців у FL (vs ~$67K у місцевих); 500+ нових FL-бізнесів/міс від переселенців.
+
+### Кластер 5 — Referral Culture Plateau 🤝
+Живе на рефералах — виживає, але не росте. Спроби платного маркетингу провалились, повернувся до word of mouth.
+> "Most work comes from referrals and good old fashioned door knocking. Advice on marketing this thing past where it's at?" — ATC Painting
+> "Referral/word of mouth is the best way." — r/msp (у треді "Another $5K wasted")
+
+### Зведена головна біль (для лендінгу):
+> **"Я вже пробував — агентства, Facebook, буст постів. Гроші зникли, клієнтів немає. Я досі не знаю, ДЕ саме ламається — тому боюсь витратити ще хоч долар."**
+
+Головний барʼєр (для headline "even if"): **страх знову витратити гроші і нічого не отримати.**
+
+---
+
+## Крок 3 — Рішення (Біль → Рішення → Результат, 6 пар для лендінгу)
+
+| # | Біль (мовою клієнта) | Рішення growth-diagnostic | Результат |
+|---|---|---|---|
+| 1 | "Revenue ebbs and flows — busy, then quiet" | Diagnostic розділяє сезонність і поломки воронки | Знаєш, що виправляти, а що просто "серпень у Флориді" |
+| 2 | "$15K on agencies, nothing back" | Self-serve AI-аналіз без ретейнера і дзвінків з продажами | Відповідь за $4.99, а не за $3,000/міс |
+| 3 | "Budget vanishes into thin air" | Показує, ЯКИЙ етап воронки тече, ДО того як ллєш трафік | Перестаєш платити за трафік, що витікає в діру |
+| 4 | "Invisible online unless I pay" | Карта: де тебе реально знаходять клієнти і де відвалюються | Бачиш свій шлях клієнта вперше |
+| 5 | "All my work comes from referrals" | Показує, який канал додати ЗВЕРХУ рефералів першим | Ріст, а не тільки виживання на word of mouth |
+| 6 | "What worked back home doesn't work here" | Діагностика в контексті FL-ринку (сезонність, referral culture) | Playbook, адаптований під Флориду, а не під NY |
+
+**Мітки диференціації:**
+- 🔥 Унікальне: FL-специфічний контекст (ніхто на ринку не робить); ціна $4.99 (порожня цінова ніша); діагноз, а не послуга
+- ✅ Паритет: AI-аналіз, звіт-репорт
+- ⬆️ Сильніше за конкурентів: self-serve без sales call (Maggie Giele вимагає воронку в coaching)
+
+---
+
+## Крок 4 — Формат доставки
+
+- **Delivery vehicle**: self-serve web-інструмент (assessment/quiz) → AI-згенерований звіт
+- **Час**: ~10 хвилин на проходження, звіт одразу
+- **Ціна**: $4.99 one-time (не підписка)
+- **Канал залучення**: LinkedIn cold outreach (основний), пізніше ads
+- **Upsell-шлях**: звіт → консультація/послуги (природний місток: "діагноз є — хочеш, полагодимо?")
+
+**Чому $4.99 працює** (з дослідження): фільтрує нецільових краще за free, без тертя як у $50+; той хто заплатив $4.99 за діагностику — кваліфікований лід для upsell.
+
+---
+
+# ЧАСТИНА 2 — ФІНАЛЬНИЙ ОФФЕР (Крок 5)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+**ЦІЛЬОВА АУДИТОРІЯ:**
+For Florida service business owners who want to finally know where their customers come from — and why growth stalls — without hiring an agency.
+
+**ГОЛОВНА БІЛЬ:**
+"I've tried agencies, Facebook ads, boosting posts. The money's gone, the customers aren't here — and I still don't know where it breaks."
+
+**DREAM OUTCOME:**
+Clarity and control over the funnel: know exactly where customers leak out, before spending another dollar.
+
+**ГОЛОВНЕ ОБІЦЯННЯ (HEADLINE) — основний варіант:**
+> **"Find exactly where your funnel leaks in 10 minutes — even if you've already burned thousands on agencies and ads."**
+> Sub: *47% of small business marketing spend is wasted on poor attribution. For $4.99, see where yours goes.*
+
+Альтернативні headline (A/B):
+1. "Agencies charge $3,000/month to tell you what's broken. This tells you in 10 minutes for $4.99." *(anchor: retainer stats)*
+2. "Your revenue ebbs and flows. Find out how much is Florida seasonality — and how much is a broken funnel." *(Cluster 1, мова клієнта)*
+3. "Stop guessing where your customers disappear. See your funnel leak in 10 minutes." *(короткий, для ads)*
+
+**CTA:**
+> **"Run your $4.99 diagnostic"** — Get a report showing exactly where your funnel breaks. 10 minutes. No sales call. No retainer. No agency.
+
+**ГАРАНТІЯ (H2 + чекмарки):**
+H2: *"The risk is $4.99. The clarity is yours to keep."*
+- ✔ Full report is yours — no gated 'book a call to see results'
+- ✔ No subscription, no hidden upsell pressure — one-time $4.99
+- ✔ Didn't learn anything new? Reply to the email — refund, no questions
+- ✔ Built on your answers, not generic templates
+
+**ДЛЯ КОГО / НЕ ДЛЯ КОГО:**
+
+✅ This is for you if:
+- You run a service business in Florida (contracting, adjusting, professional services)
+- You've tried ads or agencies and got "not much ROI to speak of"
+- Most of your work comes from referrals — and you've hit the ceiling
+- You moved your business to Florida and the old playbook stopped working
+
+❌ Not for you if:
+- You want someone to "just do the marketing for me" — this is a diagnosis, not a done-for-you service
+- You run e-commerce or a national brand — this is built for local service businesses
+- You're looking for another course or guru framework
+- "Someday" is your timeline
+
+**КЛЮЧОВІ ДИФЕРЕНЦІАТОРИ (vs конкуренти):**
+- 🌊 Google Ads: **0 конкурентів** за 360 днів у ніші funnel audit — blue ocean
+- 🎯 Єдиний системний Meta-рекламодавець (Maggie Giele) цілиться в coaches, НЕ у FL local biz → прямих конкурентів нуль
+- 💰 Цінова ніша $4.99 порожня: free tools (незручні) ←→ $500+ consulting
+- 🌴 FL-специфіка (сезонність + referral culture + transplants) — не закрита ніким
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## Варіанти оффера під кластери (для LinkedIn outreach)
+
+Один продукт — різні кути входу. Для персоналізації cold outreach:
+
+**→ Cluster 2 (Agency Burn) — головний кут:**
+"You've spent thousands on agencies that showed you 'impressions.' For $4.99 this shows you customers — specifically, where they leak out of your funnel."
+
+**→ Cluster 1 (Seasonality):**
+"Every Florida contractor blames the slow season. Some of them actually have a broken funnel. 10 minutes to find out which one you are."
+
+**→ Cluster 5 (Referral plateau):**
+"Referrals built your business. They won't double it. Find the one channel worth adding — based on your funnel, not a guru's."
+
+**→ Cluster 4 (Transplant):**
+"What built your 7-figure business up north won't build it in Florida. See what's different — in your numbers, not in theory."
+
+**Hook-формат (запозичений у Maggie Giele, провірений 347 ads):**
+"Give me 10 minutes and I'll show you the exact stage where your funnel loses customers."
+
+---
+
+# ЧАСТИНА 3 — Довідкові дані
+
+## Language Bank (мова клієнта для копірайту)
+
+| Їхня фраза | Де використати |
+|---|---|
+| "ebbed and flowed" / "hit a stride and go quiet" | Seasonality hook |
+| "not much ROI to speak of" | Objection handler |
+| "budgets vanish into thin air" | Agency burn copy |
+| "most work comes from referrals" | Referral plateau hook |
+| "invisible online unless I pay for ads" | Value prop |
+| "advice on marketing this thing past where it's at?" | CTA framing |
+| "nothing moved the needle" | Trust block |
+
+## Цифри для копірайту (з джерелами)
+
+- **47%** маркетинг-бюджету втрачається через погану атрибуцію — [LayerFive](https://layerfive.com/blog/stop-marketing-budget-waste/)
+- Лише **16%** SMB впевнені, що використовують правильні канали — [CO Consulting](https://christopholivierconsulting.com/small-business-marketing-statistics/)
+- Ретейнер агентства для SMB: **$1,000–$3,000/міс** entry, $2,500–$6,000 типово — [ClicksGeek](https://clicksgeek.com/marketing-agency-monthly-retainer-cost/), [Darkroom](https://www.darkroomagency.com/observatory/marketing-agency-cost-2026-pricing-by-service)
+- **$184,771** — середній AGI переселенців у FL (Census/IRS migration data)
+- **~800/міс** пошуків "painters Cape Coral" (приклад невидимого попиту)
+
+## Конкурентний ландшафт (підсумок)
+
+- **funnel-audit-US**: Google 0 ads/360d (blue ocean); Meta — тільки Maggie Giele (347 ads, інший ICP)
+- **marketing-diagnostics-US**: Google 13 гравців / 5,994 ads; Meta 10 pages / 665 active — попит на категорію підтверджено
+- Дашборд: https://competitor-insights-marketing-diagnostics-us.netlify.app
+
+## Прогалини для доисследування
+
+- Alignable + FL Facebook groups: прямі "there vs here" вербатими transplants
+- Відповіді на GOLD-пост ATC Painting у групі DripJobs
+
+
+
+
+
+
+
+Консультація
+Перше — консультація має успадкувати мову діагнозу. Не "book a strategy call" (це тригер агентського болю), а щось типу "Fix the one leak your report found. One problem. One measurable number. If the number doesn't move — you'll know, because you can measure it yourself." Вимірюваність — твій головний диференціатор, винось її в оффер консультації, а не лиши імпліцитною.
+Друге — не показуй меню сервісів раніше третього кроку. Якщо лід на етапі звіту бачить "а ще ми робимо SEO, ads, web design" — діагностика миттєво перестає виглядати діагностикою і стає воронкою продажів, якою вона технічно і є. Довіра до діагноза тримається на тому, що він виглядає незалежним.
+Третє — подумай, що буде метрикою в консультації для кожного типу протікання. Якщо звіт каже "тече на етапі follow-up", то вимірювана обіцянка — response rate або booked calls, не revenue. Revenue залежить від сезону (Cluster 1), і якщо пообіцяєш його — сам потрапиш у пастку атрибуції, від якої лікуєш клієнта.
+

@@ -25,6 +25,7 @@ export function FinalCTA() {
                   'Funnel analysis',
                   'Unit economics breakdown',
                   'Benchmark comparison',
+                  'Seasonality risk check',
                   'Cost of inaction calculation',
                   'Bottleneck diagnosis',
                   '90-day action plan',
@@ -42,7 +43,7 @@ export function FinalCTA() {
                 style={{ background: '#f97316', color: '#09090b' }}
                 onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(249,115,22,0.25)'; }}
                 onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.boxShadow = 'none'; }}>
-                Run My Diagnostic Now →
+                Stop Guessing. Find the Cause — $4.99
               </a>
               <div className="text-center mt-3 text-xs" style={{ color: '#8a8a8a' }}>No subscription · Instant delivery</div>
             </div>

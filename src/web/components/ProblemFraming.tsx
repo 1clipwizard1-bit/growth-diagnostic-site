@@ -2,20 +2,26 @@ const problems = [
   {
     icon: '📣',
     wrong: 'You think: "I need more traffic"',
-    real: 'Reality: Your funnel converts at 1.2% when competitors convert at 4–6%',
+    real: 'Reality: Out of every 100 people who click your ad, one buys. For your competitors — four to six.',
     loss: '$3,800/mo lost',
   },
   {
     icon: '📞',
     wrong: 'You think: "My leads aren\'t quality"',
-    real: 'Reality: 60% of inbound leads never get a follow-up within 1 hour',
+    real: 'Reality: More than half the people who ask for a quote never hear back within the hour. They hire whoever answers first.',
     loss: '$5,100/mo lost',
   },
   {
     icon: '📊',
     wrong: 'You think: "My ads aren\'t working"',
-    real: 'Reality: Your cost-per-lead is fine. Your cost-per-close is broken',
+    real: 'Reality: You\'re not overpaying for leads. You\'re overpaying for customers — because too few leads become jobs.',
     loss: '$4,200/mo lost',
+  },
+  {
+    icon: '📅',
+    wrong: 'You think: "Ads work in season, so we pause them in summer"',
+    real: 'Reality: Most owners have never separated seasonal demand from ad performance. In peak season you pay top ad prices for customers who were coming anyway — and go quiet when clicks are cheapest.',
+    loss: 'Thousands overpaid every season',
   },
 ];
 
@@ -33,13 +39,15 @@ export function ProblemFraming() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {problems.map((p) => (
-            <div key={p.wrong} className="rounded-xl border p-6 card-hover" style={{ background: '#111', borderColor: '#2a2a2a' }}>
-              <div className="text-2xl mb-4">{p.icon}</div>
-              <div className="text-sm font-medium mb-3 line-through" style={{ color: '#8f8f8f' }}>{p.wrong}</div>
-              <div className="text-sm font-semibold mb-4" style={{ color: '#f5f5f5' }}>{p.real}</div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold" style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171' }}>
+            <div key={p.wrong} className="rounded-xl border p-6 card-hover flex flex-col justify-between" style={{ background: '#111', borderColor: '#2a2a2a' }}>
+              <div>
+                <div className="text-2xl mb-4">{p.icon}</div>
+                <div className="text-sm font-medium mb-3 line-through" style={{ color: '#8f8f8f' }}>{p.wrong}</div>
+                <div className="text-sm font-semibold mb-4" style={{ color: '#f5f5f5' }}>{p.real}</div>
+              </div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold self-start mt-2" style={{ background: 'rgba(239,68,68,0.12)', color: '#f87171' }}>
                 <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M5 1V9M5 9L2 6M5 9L8 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                 {p.loss}
               </div>
@@ -55,7 +63,7 @@ export function ProblemFraming() {
           <a href="/diagnostic" className="shrink-0 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
             onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
             onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-            Find My Bottleneck
+            Find What's Quietly Costing You Money — $4.99
           </a>
         </div>
       </div>

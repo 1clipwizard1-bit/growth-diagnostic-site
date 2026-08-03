@@ -1,13 +1,13 @@
 const steps = [
   {
     num: '01',
-    title: 'You answer 12 diagnostic questions',
-    desc: 'Covers your ad spend, funnel stages, lead volume, close rate, response time, and average deal value. Takes under 7 minutes.',
+    title: 'You answer 18 diagnostic questions',
+    desc: 'Covers your business info, seasonality, ad spend, funnel metrics, and lead capturing. Takes under 7 minutes.',
   },
   {
     num: '02',
     title: 'The system runs your funnel math',
-    desc: 'We calculate your unit economics, compare them against industry benchmarks, and identify where the largest gap exists.',
+    desc: 'We validate your numbers, compare them against industry benchmarks, and calculate your unit economics.',
   },
   {
     num: '03',
@@ -17,7 +17,7 @@ const steps = [
   {
     num: '04',
     title: 'You receive a structured PDF report',
-    desc: 'Includes your bottleneck diagnosis, the financial impact, a benchmark comparison, cost of inaction, and a clear suggested fix.',
+    desc: 'Includes your bottleneck diagnosis, the financial impact, a seasonality risk check, and a clear 90-day action plan.',
   },
 ];
 
@@ -31,9 +31,29 @@ export function ProductExplanation() {
             <h2 className="font-black tracking-tight mb-6" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5' }}>
               A structured financial analysis of your growth constraints
             </h2>
-            <p className="mb-8" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
+            <p className="mb-6" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
               The Business Growth Diagnostic is not a quiz or a generic audit. It's a systematic analysis that applies funnel economics logic to your actual numbers — then benchmarks them against your industry to quantify the exact revenue impact of your biggest gap.
             </p>
+
+            {/* Methodology flow */}
+            <div className="flex flex-wrap items-center gap-1.5 mb-6 text-[10px] sm:text-xs font-bold text-neutral-400">
+              <span>Your numbers</span>
+              <span style={{ color: '#f97316' }}>➔</span>
+              <span>Validation</span>
+              <span style={{ color: '#f97316' }}>➔</span>
+              <span>Benchmark</span>
+              <span style={{ color: '#f97316' }}>➔</span>
+              <span>Business Math</span>
+              <span style={{ color: '#f97316' }}>➔</span>
+              <span>Diagnosis</span>
+              <span style={{ color: '#f97316' }}>➔</span>
+              <span>Action Plan</span>
+            </div>
+
+            <p className="text-xs mb-8 italic" style={{ color: '#8f8f8f' }}>
+              *AI explains the findings. The business math comes first.
+            </p>
+
             <div className="rounded-xl border p-5" style={{ background: '#111', borderColor: '#2a2a2a' }}>
               <div className="text-xs font-semibold mb-3" style={{ color: '#a3a3a3' }}>8 GROWTH BLOCKERS ANALYZED</div>
               <div className="grid grid-cols-2 gap-2">

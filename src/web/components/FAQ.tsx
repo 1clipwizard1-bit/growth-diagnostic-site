@@ -2,36 +2,32 @@ import { useState } from 'react';
 
 const faqs = [
   {
-    q: 'Who is this for?',
-    a: 'This diagnostic is built for small and medium business owners who are actively running paid ads — Google, Meta, or other platforms — and spending at least $3,000/month. If you\'re spending less than that, the unit economics math may not yet be the core issue.',
+    q: 'Can 18 questions really find my bottleneck?',
+    a: '18 questions can\'t tell us everything about your business. But they can tell us where your numbers break against benchmarks — and in funnel math, the biggest break IS the bottleneck. The report shows the calculation behind the diagnosis, so you can check the logic yourself.',
   },
   {
-    q: 'What information do I need to complete the diagnostic?',
-    a: 'You\'ll need a general sense of your monthly ad spend, approximate number of leads per month, your average close rate, average deal value, and a rough estimate of your lead response time. Exact numbers aren\'t required — best estimates work fine.',
+    q: 'What if the problem isn\'t marketing?',
+    a: 'Then that\'s the answer you get. About a third of bottlenecks sit outside ad accounts — in response time, follow-up, pricing, or capacity. If your marketing is fine, the report says so and shows what\'s actually leaking.',
   },
   {
-    q: 'How is this different from a free audit or a quiz?',
-    a: 'Most audits give generic advice or a list of "things to improve." This diagnostic runs your actual funnel math, compares it against industry benchmarks, isolates the single most impactful bottleneck, and calculates the monthly revenue cost of that specific gap. It\'s financial analysis, not a checklist.',
+    q: 'My business is seasonal. Can this even measure my marketing correctly?',
+    a: 'Seasonality is exactly why most owners misread their numbers. The diagnostic separates your funnel economics from demand cycles — so you can see whether ads drive revenue or just ride the season.',
   },
   {
-    q: 'What format is the report?',
-    a: 'Your report is delivered as a structured PDF, formatted for clarity. It includes all 8 diagnostic sections: funnel analysis, unit economics, benchmark comparison, cost of inaction, bottleneck diagnosis, revenue opportunity, suggested next steps, and a 90-day action plan.',
+    q: 'I\'ve run this business for 10+ years. What can this tell me that I don\'t know?',
+    a: 'Nothing about your business, but something about your numbers. Most owners have never seen their cost-per-close or in-season vs. off-season cost-per-lead side by side against benchmarks. This doesn\'t question your experience — it runs a calculation you\'ve never had a reason to run.',
   },
   {
-    q: 'How quickly do I receive the report?',
-    a: 'The report is generated automatically and delivered instantly upon completion and payment. You\'ll have it in your inbox within minutes of finishing the 12 questions.',
+    q: 'What if my agency is already doing everything right?',
+    a: 'Then the report confirms it — with numbers you can show them. And if something\'s off, you\'ll know exactly what to ask about at the next meeting. Either way, you stop taking "it\'s performing well" on faith.',
   },
   {
-    q: 'Is the $4.99 a subscription?',
-    a: 'No. It\'s a one-time payment for your diagnostic report. There are no recurring charges, no upsell traps, and no subscription. You pay once, you get the report.',
+    q: 'I don\'t know some of my numbers. Can I still complete it?',
+    a: 'Yes. Ranges and best estimates work — the math flags where precision matters and where it doesn\'t. Not knowing your numbers is itself a data point: it usually means tracking is one of the gaps.',
   },
   {
-    q: 'What happens after I receive the report?',
-    a: 'The report includes a clear next-steps recommendation. Depending on what your bottleneck is, there may be an optional follow-on service available (automation setup, funnel optimization, tracking implementation) — but that\'s entirely your choice. The diagnostic stands alone as a complete deliverable.',
-  },
-  {
-    q: 'What if I don\'t run paid ads yet?',
-    a: 'The diagnostic is specifically built for businesses actively running paid traffic. If you\'re pre-ads, the unit economics model won\'t have enough data to produce a meaningful bottleneck analysis. We\'d recommend running at least 60 days of ad data before running the diagnostic.',
+    q: 'I\'ve been burned by agencies and lead platforms before. How is this different?',
+    a: 'It\'s $4.99, not a retainer. It\'s a report, not a pitch — no sales call unless you ask for one. And every number in it shows its math, so you verify the logic yourself. If it doesn\'t identify a quantified bottleneck, you get a refund.',
   },
 ];
 
@@ -45,7 +41,7 @@ export function FAQ() {
           <div>
             <div className="section-label mb-4">FAQ</div>
             <h2 className="font-black tracking-tight mb-4" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', color: '#f5f5f5' }}>
-              Questions
+              Before You Decide
             </h2>
             <p style={{ color: '#a3a3a3' }}>
               Everything you need to know before running your diagnostic.

@@ -15,7 +15,7 @@ export function DiagnosticPreview() {
           {/* Report header */}
           <div className="border-b px-8 py-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
             <div>
-              <div className="text-xs font-semibold mb-1" style={{ color: '#a3a3a3' }}>BUSINESS GROWTH DIAGNOSTIC · REPORT #1847</div>
+              <div className="text-xs font-semibold mb-1" style={{ color: '#a3a3a3' }}>BUSINESS GROWTH DIAGNOSTIC · Sample Report</div>
               <div className="font-bold text-lg" style={{ color: '#f5f5f5' }}>Sunrise Plumbing Co.</div>
               <div className="text-sm" style={{ color: '#8f8f8f' }}>Local Service Business · $15,000/mo ad spend · Generated March 2026</div>
             </div>
@@ -123,6 +123,19 @@ export function DiagnosticPreview() {
                       <span className="font-bold" style={{ color: row.flag ? '#f87171' : '#f5f5f5' }}>{row.value}</span>
                     </div>
                   ))}
+                </div>
+              </div>
+
+              {/* Seasonality block */}
+              <div className="section-label mb-3 mt-6">Seasonality Risk Check</div>
+              <div className="rounded-xl border p-5" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+                <div className="text-xs font-semibold mb-2" style={{ color: '#f59e0b' }}>⚠ SEASONALITY RISK DETECTED</div>
+                <p className="text-xs leading-relaxed mb-3" style={{ color: '#a3a3a3' }}>
+                  Your answers suggest seasonality may be affecting how you read your marketing numbers. This diagnostic can flag the risk, but a full seasonality adjustment requires historical monthly data.
+                </p>
+                <div className="text-xs p-2 rounded" style={{ background: '#1c1c1c', color: '#f5f5f5' }}>
+                  <span className="font-semibold text-orange-400">Next Step: </span>
+                  Before increasing or cutting ad spend, compare this period against the same period last year.
                 </div>
               </div>
             </div>

@@ -4,52 +4,52 @@ const CheckIcon = () => (
 
 const items = [
   {
-    title: 'Funnel Analysis',
+    title: '1. What is really happening in your funnel',
     desc: 'Full breakdown of every stage in your funnel — from impression to close — with conversion rate at each step and where the biggest drop-off occurs.',
     iconPath: 'M9 2L3 5V9C3 12.3 5.7 15.4 9 16C12.3 15.4 15 12.3 15 9V5L9 2Z',
     iconType: 'path',
   },
   {
-    title: 'Unit Economics Breakdown',
+    title: '2. Where the money is leaking',
     desc: 'Your CPL, cost-per-close, ROAS, margin per deal, and LTV vs. CAC ratio — calculated from your actual inputs, not industry averages.',
     iconPath: 'rects',
     iconType: 'rects',
   },
   {
-    title: 'Benchmark Comparison',
+    title: '3. Which of your assumptions was wrong',
     desc: 'Your metrics scored against real industry benchmarks. See exactly where you rank and by how much — not as a percentage, but in dollars.',
     iconPath: 'circle-clock',
     iconType: 'circle-clock',
   },
   {
-    title: 'Cost of Inaction Calculation',
+    title: '4. Seasonality Risk Check',
+    desc: 'Checks whether seasonal demand cycles are masking funnel leaks or vice versa — based on your local market conditions.',
+    iconPath: 'circle-clock',
+    iconType: 'circle-clock',
+  },
+  {
+    title: '5. Cost of Inaction Calculation',
     desc: 'The projected revenue lost at 1, 3, 6, and 12 months if the bottleneck is not addressed. Hard numbers, not theoretical.',
     iconPath: 'M3 9H15M3 5H11M3 13H9',
     iconType: 'lines',
   },
   {
-    title: 'Bottleneck Diagnosis',
+    title: '6. Bottleneck Diagnosis',
     desc: 'The single biggest constraint in your growth system, ranked by financial impact — with a clear explanation of why it\'s costing you revenue.',
     iconPath: 'M9 2L14 12H4L9 2Z',
     iconType: 'triangle',
   },
   {
-    title: 'Revenue Opportunity Estimate',
+    title: '7. Revenue Opportunity Estimate',
     desc: 'If this bottleneck were fixed, this is the estimated monthly revenue gain — modeled from your specific funnel inputs and benchmark data.',
     iconPath: 'arrow-circle',
     iconType: 'arrow-circle',
   },
   {
-    title: '90-Day Action Plan',
+    title: '8. 90-Day Action Plan',
     desc: 'A prioritized, week-by-week action plan to address the bottleneck — with specific tactics and implementation sequence.',
     iconPath: 'M4 9L7.5 12.5L14 6',
     iconType: 'check',
-  },
-  {
-    title: 'Structured PDF Report',
-    desc: 'Everything delivered as a clean, professionally formatted PDF you can share with your team, media buyer, or implementation partner.',
-    iconPath: 'doc',
-    iconType: 'doc',
   },
 ];
 

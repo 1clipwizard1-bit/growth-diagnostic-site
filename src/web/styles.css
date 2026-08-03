@@ -32,8 +32,8 @@
 }
 
 @theme {
-  --font-sans: 'Inter Variable', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
 }
 
 @theme inline {
@@ -62,25 +62,34 @@
 }
 
 :root {
+  /* Spec Design Tokens */
+  --bg: #0a0a0a;          /* page background */
+  --bg2: #111111;         /* nested surfaces, inline fix-boxes */
+  --card: #141414;        /* cards, panels */
+  --border: #262626;      /* all borders, dividers */
+  --orange: #f97316;      /* primary accent, CTAs, highlights, checkmarks */
+  --orange-dark: #ea580c; /* CTA hover */
+  --red: #ef4444;         /* negative numbers, warnings, CRITICAL tags */
+  --text: #fafafa;        /* headings, primary text */
+  --muted: #a3a3a3;       /* secondary text, labels */
+
+  /* Tailwind mappings */
   --radius: 0.625rem;
-  --background: #0a0a0a;
-  --foreground: #f5f5f5;
-  --card: #161616;
-  --card-foreground: #f5f5f5;
-  --popover: #161616;
-  --popover-foreground: #f5f5f5;
-  --primary: #f97316;
-  --primary-foreground: #ffffff;
-  --secondary: #1c1c1c;
-  --secondary-foreground: #f5f5f5;
-  --muted: #1c1c1c;
-  --muted-foreground: #a3a3a3;
-  --accent: #f97316;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --border: #2a2a2a;
-  --input: #1c1c1c;
-  --ring: #f97316;
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card-foreground: var(--text);
+  --popover: var(--card);
+  --popover-foreground: var(--text);
+  --primary: var(--orange);
+  --primary-foreground: var(--text);
+  --secondary: var(--bg2);
+  --secondary-foreground: var(--text);
+  --muted-foreground: var(--muted);
+  --accent: var(--orange);
+  --accent-foreground: var(--text);
+  --destructive: var(--red);
+  --input: var(--bg2);
+  --ring: var(--orange);
 }
 
 @layer base {
@@ -88,29 +97,162 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--bg);
+    background-image: linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+    background-size: 64px 64px;
+    color: var(--text);
     font-family: var(--font-sans);
+  }
+  h1 {
+    font-size: clamp(36px, 4.6vw, 58px);
+    font-weight: 800;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+  h2 {
+    font-size: clamp(24px, 3vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    font-family: var(--font-sans);
+  }
+  strong {
+    color: var(--text);
   }
 }
 
 @layer utilities {
-  /* Readout accent — ONLY inside diagnostic/report card UI, on values the card
-     presents as measurements ($15,000, 142, 12%, 52 min, –$4,300).
-     Deliberately NOT used for landing-page copy, headline stats or prose numbers:
-     mono everywhere makes the page read as a developer tool / analytics dashboard
-     instead of a business page. It is an accent, not the page's voice. */
   .num {
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.02em;
   }
   .section-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1rem;
     text-transform: uppercase;
-    color: #f97316;
+    color: var(--muted);
   }
+  
+  /* Animations */
+  @keyframes pulse-orange {
+    0%, 100% { opacity: 0.4; transform: scale(0.9); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background-color: var(--orange);
+    animation: pulse-orange 2s infinite ease-in-out;
+  }
+
+  /* Badge pill */
+  .badge-premium {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background-color: var(--bg2);
+  }
+
+  /* Custom Cards */
+  .card-premium {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    position: relative;
+    overflow: hidden;
+  }
+  .card-premium-featured {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    position: relative;
+  }
+  .card-premium-featured::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, rgba(249,115,22,.35), transparent 40%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* Primary Button */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: var(--orange);
+    color: #0a0a0a;
+    font-weight: 700;
+    font-size: 18px;
+    padding: 12px 32px;
+    border-radius: 10px;
+    box-shadow: 0 8px 32px rgba(249,115,22,.35);
+    transition: all 0.2s ease-in-out;
+  }
+  .btn-primary:hover {
+    background-color: var(--orange-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(249,115,22,.45);
+  }
+
+  /* Price Badge */
+  .price-badge {
+    background: rgba(0,0,0,.18);
+    border-radius: 6px;
+    padding: 2px 6px;
+    font-size: 0.85em;
+    font-family: var(--font-mono);
+    margin-left: 8px;
+    color: #0a0a0a;
+  }
+
+  /* Warning Block */
+  .warning-block {
+    border: 1px solid rgba(239,68,68,.4);
+    background: rgba(239,68,68,.04);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .warning-block-label {
+    color: var(--red);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  /* Progress Bar */
+  .progress-bar-container {
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--red), var(--orange));
+    border-radius: 3px;
+    transition: width 0.3s ease-out;
+  }
+
   .glow-orange {
     box-shadow: 0 0 40px rgba(249, 115, 22, 0.15);
   }
@@ -140,22 +282,6 @@
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
-  }
-  .metric-bar {
-    height: 6px;
-    border-radius: 3px;
-    background: #2a2a2a;
-    overflow: hidden;
-  }
-  .metric-bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: #f97316;
-  }
-  .metric-bar-fill-red {
-    height: 100%;
-    border-radius: 3px;
-    background: #ef4444;
   }
 }
 

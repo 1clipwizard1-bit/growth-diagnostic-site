@@ -35,15 +35,15 @@ export function FAQ() {
   const [open, setOpen] = useState<number | null>(null);
 
   return (
-    <section id="faq" className="py-24 border-t" style={{ borderColor: '#1a1a1a', background: '#0d0d0d' }}>
+    <section id="faq" className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-3 gap-16">
           <div>
-            <div className="section-label mb-4">FAQ</div>
-            <h2 className="font-black tracking-tight mb-4" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', color: '#f5f5f5' }}>
+            <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>FAQ</div>
+            <h2 className="mb-4">
               Before You Decide
             </h2>
-            <p style={{ color: '#a3a3a3' }}>
+            <p style={{ color: 'var(--muted)' }}>
               Everything you need to know before running your diagnostic.
             </p>
           </div>
@@ -53,21 +53,21 @@ export function FAQ() {
               <div
                 key={i}
                 className="rounded-xl border overflow-hidden"
-                style={{ borderColor: open === i ? 'rgba(249,115,22,0.3)' : '#2a2a2a', background: open === i ? 'rgba(249,115,22,0.04)' : '#111' }}
+                style={{ borderColor: open === i ? 'rgba(249,115,22,0.3)' : 'var(--border)', background: open === i ? 'rgba(249,115,22,0.04)' : 'var(--card)' }}
               >
                 <button
-                  className="w-full text-left px-6 py-5 flex items-center justify-between gap-4"
+                  className="w-full text-left px-6 py-5 flex items-center justify-between gap-4 animate-fade-in"
                   onClick={() => setOpen(open === i ? null : i)}
                 >
-                  <span className="font-semibold text-sm" style={{ color: '#f5f5f5' }}>{faq.q}</span>
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ background: '#1c1c1c', transform: open === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>
+                  <span className="font-semibold text-sm" style={{ color: 'var(--text)' }}>{faq.q}</span>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 transition-transform" style={{ background: 'var(--bg2)', transform: open === i ? 'rotate(45deg)' : 'rotate(0deg)' }}>
                     <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                      <path d="M6 2V10M2 6H10" stroke="#a3a3a3" strokeWidth="1.5" strokeLinecap="round"/>
+                      <path d="M6 2V10M2 6H10" stroke="var(--orange)" strokeWidth="1.5" strokeLinecap="round"/>
                     </svg>
                   </div>
                 </button>
                 {open === i && (
-                  <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: '#a3a3a3' }}>
+                  <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
                     {faq.a}
                   </div>
                 )}

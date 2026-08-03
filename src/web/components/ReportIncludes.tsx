@@ -120,35 +120,35 @@ function ItemIcon({ type, path }: { type: string; path: string }) {
 
 export function ReportIncludes() {
   return (
-    <section id="report" className="py-24 border-t" style={{ borderColor: '#1a1a1a', background: '#0d0d0d' }}>
+    <section id="report" className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-16">
           <div>
-            <div className="section-label mb-4">What's Included</div>
-            <h2 className="font-black tracking-tight" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5' }}>
+            <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>What's Included</div>
+            <h2>
               Your report includes 8 sections.<br />
-              <span style={{ color: '#a3a3a3' }}>All built around your actual numbers.</span>
+              <span style={{ color: 'var(--muted)' }}>All built around your actual numbers.</span>
             </h2>
           </div>
-          <div className="shrink-0 px-6 py-4 rounded-xl border text-center" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-            <div className="text-3xl font-black mb-0.5" style={{ color: '#f97316' }}>$4.99</div>
-            <div className="text-xs" style={{ color: '#8f8f8f' }}>One-time · PDF delivered instantly</div>
+          <div className="shrink-0 px-6 py-4 rounded-xl border text-center" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+            <div className="text-3xl font-black mb-0.5 num" style={{ color: 'var(--orange)' }}>$4.99</div>
+            <div className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>One-time · PDF delivered instantly</div>
           </div>
         </div>
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {items.map((item) => (
-            <div key={item.title} className="rounded-xl border p-5 card-hover" style={{ background: '#111', borderColor: '#2a2a2a' }}>
+            <div key={item.title} className="card-premium p-5">
               <div className="w-9 h-9 rounded-lg flex items-center justify-center mb-4" style={{ background: 'rgba(249,115,22,0.1)' }}>
                 <ItemIcon type={item.iconType} path={item.iconPath} />
               </div>
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
+                <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--orange)' }}>
                   <CheckIcon />
                 </div>
-                <div className="font-bold text-sm" style={{ color: '#f5f5f5' }}>{item.title}</div>
+                <div className="font-bold text-sm" style={{ color: 'var(--text)' }}>{item.title}</div>
               </div>
-              <div className="text-xs leading-relaxed" style={{ color: '#949494' }}>{item.desc}</div>
+              <div className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>{item.desc}</div>
             </div>
           ))}
         </div>

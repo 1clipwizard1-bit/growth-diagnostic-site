@@ -56,13 +56,13 @@ const initial: FormData = {
 function SmartTooltip({ items }: { items: string[] }) {
   return (
     <div className="absolute left-0 top-full mt-2 z-50 rounded-xl border p-3 w-72 shadow-2xl"
-      style={{ background: '#1c1c1c', borderColor: '#3a3a3a' }}>
-      <div className="text-xs font-semibold mb-2" style={{ color: '#f97316' }}>EXAMPLES</div>
+      style={{ background: 'var(--card)', borderColor: 'var(--border)' }}>
+      <div className="text-xs font-semibold mb-2" style={{ color: 'var(--orange)' }}>EXAMPLES</div>
       <div className="grid grid-cols-2 gap-1.5">
         {items.map(item => (
           <div key={item} className="flex items-center gap-1.5 text-xs px-2 py-1 rounded-lg"
-            style={{ background: '#2a2a2a', color: '#a3a3a3' }}>
-            <div className="w-1 h-1 rounded-full shrink-0" style={{ background: '#f97316' }} />
+            style={{ background: 'var(--bg2)', color: 'var(--muted)' }}>
+            <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--orange)' }} />
             {item}
           </div>
         ))}
@@ -75,11 +75,11 @@ function SmartTooltip({ items }: { items: string[] }) {
 function Label({ children, required, helper }: { children: React.ReactNode; required?: boolean; helper?: string }) {
   return (
     <div className="mb-2">
-      <label className="font-semibold text-sm flex items-center gap-1" style={{ color: '#f5f5f5' }}>
+      <label className="font-semibold text-sm flex items-center gap-1" style={{ color: 'var(--text)' }}>
         {children}
-        {required && <span style={{ color: '#f97316' }}>*</span>}
+        {required && <span style={{ color: 'var(--orange)' }}>*</span>}
       </label>
-      {helper && <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{helper}</div>}
+      {helper && <div className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{helper}</div>}
     </div>
   );
 }
@@ -97,17 +97,17 @@ function Select({ value, onChange, options, placeholder, error, disabled }: {
         disabled={disabled}
         className="w-full px-4 py-3 rounded-xl border text-sm appearance-none outline-none transition-all"
         style={{
-          background: '#161616', color: value ? '#f5f5f5' : '#8a8a8a',
-          borderColor: error ? '#f87171' : value ? '#f97316' : '#2a2a2a',
-          boxShadow: error ? '0 0 0 1px rgba(248,113,113,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          background: 'var(--bg2)', color: value ? 'var(--text)' : 'var(--muted)',
+          borderColor: error ? 'var(--red)' : value ? 'var(--orange)' : 'var(--border)',
+          boxShadow: error ? '0 0 0 1px rgba(239,68,68,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
           opacity: disabled ? 0.4 : 1,
           cursor: disabled ? 'not-allowed' : 'pointer',
         }}
       >
-        <option value="" disabled style={{ color: '#8a8a8a' }}>{placeholder}</option>
+        <option value="" disabled style={{ color: 'var(--muted)' }}>{placeholder}</option>
         {options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
       </select>
-      {error && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{error}</div>}
+      {error && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{error}</div>}
     </div>
   );
 }
@@ -126,13 +126,13 @@ function NumberInput({ value, onChange, placeholder, helper, error, optional }: 
         min="0"
         className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
         style={{
-          background: '#161616', color: '#f5f5f5',
-          borderColor: error ? '#f87171' : value ? '#f97316' : '#2a2a2a',
-          boxShadow: error ? '0 0 0 1px rgba(248,113,113,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          background: 'var(--bg2)', color: 'var(--text)',
+          borderColor: error ? 'var(--red)' : value ? 'var(--orange)' : 'var(--border)',
+          boxShadow: error ? '0 0 0 1px rgba(239,68,68,0.25)' : value ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
         }}
       />
-      {helper && <div className="text-xs mt-1" style={{ color: '#8a8a8a' }}>{helper}</div>}
-      {error && <div className="text-xs mt-1" style={{ color: '#f87171' }}>{error}</div>}
+      {helper && <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>{helper}</div>}
+      {error && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{error}</div>}
     </div>
   );
 }
@@ -148,22 +148,22 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
           <div key={label} className="flex flex-col items-center gap-1" style={{ width: `${100 / total}%` }}>
             <div className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold transition-all"
               style={{
-                background: i + 1 < step ? '#f97316' : i + 1 === step ? '#f97316' : '#1c1c1c',
-                color: i + 1 <= step ? '#fff' : '#8a8a8a',
-                border: `2px solid ${i + 1 <= step ? '#f97316' : '#2a2a2a'}`,
+                background: i + 1 < step ? 'var(--orange)' : i + 1 === step ? 'var(--orange)' : 'var(--bg2)',
+                color: i + 1 <= step ? '#0a0a0a' : 'var(--muted)',
+                border: `2px solid ${i + 1 <= step ? 'var(--orange)' : 'var(--border)'}`,
               }}>
               {i + 1 < step
-                ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                ? <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="#0a0a0a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 : i + 1}
             </div>
-            <span className="text-xs text-center hidden sm:block" style={{ color: i + 1 === step ? '#f97316' : '#8a8a8a' }}>{label}</span>
+            <span className="text-xs text-center hidden sm:block" style={{ color: i + 1 === step ? 'var(--orange)' : 'var(--muted)' }}>{label}</span>
           </div>
         ))}
       </div>
-      <div className="h-1 rounded-full" style={{ background: '#1c1c1c' }}>
-        <div className="h-full rounded-full transition-all duration-500" style={{ background: '#f97316', width: `${pct}%` }} />
+      <div className="h-[5px] rounded-full" style={{ background: 'var(--border)' }}>
+        <div className="h-full rounded-full transition-all duration-500" style={{ background: 'linear-gradient(90deg, var(--orange) 0%, var(--orange-dark) 100%)', width: `${pct}%` }} />
       </div>
-      <div className="flex justify-between mt-2 text-xs" style={{ color: '#8a8a8a' }}>
+      <div className="flex justify-between mt-2 text-xs" style={{ color: 'var(--muted)' }}>
         <span>Step {step} of {total}</span>
         <span>Approximate answers are fine</span>
       </div>
@@ -814,16 +814,16 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
   const isOther = businessType === 'other';
 
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
+    <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
       <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
         style={{
           background: isOther ? 'rgba(249,115,22,0.1)' : 'rgba(34,197,94,0.1)',
-          border: `2px solid ${isOther ? '#f97316' : '#22c55e'}`,
+          border: `2px solid ${isOther ? 'var(--orange)' : '#22c55e'}`,
         }}>
         {isOther ? (
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-            <path d="M16 6C10.477 6 6 10.477 6 16s4.477 10 10 10 10-4.477 10-10S21.523 6 16 6z" stroke="#f97316" strokeWidth="2" />
-            <path d="M16 11v6M16 22v1" stroke="#f97316" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M16 6C10.477 6 6 10.477 6 16s4.477 10 10 10 10-4.477 10-10S21.523 6 16 6z" stroke="var(--orange)" strokeWidth="2" />
+            <path d="M16 11v6M16 22v1" stroke="var(--orange)" strokeWidth="2.5" strokeLinecap="round" />
           </svg>
         ) : (
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M6 16L13 23L26 10" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -832,15 +832,15 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
 
       {isOther ? (
         <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Bespoke Audit Initiated!</h2>
-          <p className="text-sm mb-1" style={{ color: '#a3a3a3' }}>
+          <h2 className="font-black text-2xl mb-3" style={{ color: 'var(--text)' }}>Bespoke Audit Initiated!</h2>
+          <p className="text-sm mb-1" style={{ color: 'var(--muted)' }}>
             We've detected a custom business model (E-commerce / SaaS / Product).
           </p>
-          <p className="text-sm mb-8" style={{ color: '#8f8f8f' }}>
-            Because your model is non-standard, your data has been flagged for a <span style={{ color: '#f5f5f5' }}>Senior Strategic Review.</span>
+          <p className="text-sm mb-8" style={{ color: 'var(--muted)' }}>
+            Because your model is non-standard, your data has been flagged for a <span style={{ color: 'var(--text)', fontWeight: 'bold' }}>Senior Strategic Review.</span>
           </p>
-          <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.05)' }}>
-            <div className="text-xs font-semibold mb-3" style={{ color: '#f97316' }}>WHAT'S INCLUDED IN YOUR CUSTOM AUDIT</div>
+          <div className="rounded-xl border p-5 w-full max-w-sm text-left mb-8" style={{ borderColor: 'rgba(249,115,22,0.3)', background: 'rgba(249,115,22,0.04)' }}>
+            <div className="text-xs font-semibold mb-3" style={{ color: 'var(--orange)' }}>WHAT'S INCLUDED IN YOUR CUSTOM AUDIT</div>
             <div className="space-y-3">
               {[
                 { icon: '🗺️', text: 'Manual funnel topology mapping' },
@@ -850,40 +850,37 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
               ].map(item => (
                 <div key={item.text} className="flex items-center gap-3 text-sm">
                   <span style={{ fontSize: '14px' }}>{item.icon}</span>
-                  <span style={{ color: '#a3a3a3' }}>{item.text}</span>
+                  <span style={{ color: 'var(--muted)' }}>{item.text}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="w-full max-w-sm bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 mb-8 text-left">
-            <div className="text-xs font-bold text-[#f5f5f5] mb-2 uppercase tracking-wider">Recommended Next Step</div>
-            <p className="text-sm text-[#a3a3a3] mb-5">
+          <div className="w-full max-w-sm bg-neutral-900 border border-neutral-800 rounded-xl p-6 mb-8 text-left" style={{ background: 'var(--bg2)', borderColor: 'var(--border)' }}>
+            <div className="text-xs font-bold text-neutral-200 mb-2 uppercase tracking-wider" style={{ color: 'var(--text)' }}>Recommended Next Step</div>
+            <p className="text-sm text-neutral-400 mb-5" style={{ color: 'var(--muted)' }}>
               Since your model is unique, a quick 15-min chat ensures our custom audit is 100% accurate to your specific operations.
             </p>
-            <a href="#" className="flex items-center justify-center gap-2 w-full py-3 rounded-lg font-bold text-sm transition-all"
-              style={{ background: '#f97316', color: '#09090b' }}
-              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-              onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
+            <a href="#" className="btn-primary w-full text-center flex items-center justify-center gap-2">
               Book 15-min Calibration Call
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </a>
           </div>
 
-          <div className="text-xs px-4 py-2 rounded-full" style={{ background: '#161616', color: '#8a8a8a', border: '1px solid #2a2a2a' }}>
+          <div className="text-xs px-4 py-2 rounded-full border" style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}>
             ✓ No charge — custom senior analysis is free
           </div>
         </>
       ) : (
         <>
-          <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Good call. Your diagnostic is running.</h2>
-          <p className="text-sm mb-2" style={{ color: '#a3a3a3' }}>Your Business Growth Diagnostic report is being generated.</p>
-          <p className="text-sm mb-8" style={{ color: '#8f8f8f' }}>
-            It will be sent to <span className="font-semibold" style={{ color: '#f5f5f5' }}>{email}</span> within a few minutes.
+          <h2 className="font-black text-2xl mb-3" style={{ color: 'var(--text)' }}>Good call. Your diagnostic is running.</h2>
+          <p className="text-sm mb-2" style={{ color: 'var(--muted)' }}>Your Business Growth Diagnostic report is being generated.</p>
+          <p className="text-sm mb-8" style={{ color: 'var(--muted)' }}>
+            It will be sent to <span className="font-semibold" style={{ color: 'var(--text)' }}>{email}</span> within a few minutes.
           </p>
           
-          <div className="rounded-xl border p-6 w-full max-w-sm text-left mb-8" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-            <div className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: '#a3a3a3' }}>Analysis Progress</div>
+          <div className="rounded-xl border p-6 w-full max-w-sm text-left mb-8" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+            <div className="text-xs font-semibold mb-4 uppercase tracking-wider" style={{ color: 'var(--muted)' }}>Analysis Progress</div>
             <div className="space-y-4">
               {[
                 'We validate your inputs',
@@ -892,27 +889,27 @@ function SuccessScreen({ email, businessType }: { email: string; businessType: s
                 'Your report lands in your inbox'
               ].map((item, idx) => (
                 <div key={item} className="flex items-center gap-3 text-sm">
-                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border" style={{ borderColor: '#2a2a2a', background: '#1c1c1c' }}>
-                    <span className="text-xs font-bold" style={{ color: '#f97316' }}>{idx + 1}</span>
+                  <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 border" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
+                    <span className="text-xs font-bold num" style={{ color: 'var(--orange)' }}>{idx + 1}</span>
                   </div>
-                  <span style={{ color: '#a3a3a3' }}>{item}</span>
+                  <span style={{ color: 'var(--muted)' }}>{item}</span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="rounded-xl border p-5 w-full max-w-sm text-left" style={{ borderColor: 'rgba(249,115,22,0.15)', background: 'rgba(249,115,22,0.02)' }}>
-            <div className="font-bold text-sm mb-2" style={{ color: '#f5f5f5' }}>💡 While you wait, write down one guess:</div>
-            <p className="text-xs leading-relaxed" style={{ color: '#a3a3a3' }}>
+            <div className="font-bold text-sm mb-2" style={{ color: 'var(--text)' }}>💡 While you wait, write down one guess:</div>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
               What do YOU think your biggest bottleneck is? Most owners are surprised by the answer.
             </p>
           </div>
         </>
       )}
 
-      <Link href="/" className="mt-8 text-sm transition-colors" style={{ color: '#8a8a8a' }}
-        onMouseOver={e => e.currentTarget.style.color = '#a3a3a3'}
-        onMouseOut={e => e.currentTarget.style.color = '#8a8a8a'}>
+      <Link href="/" className="mt-8 text-sm transition-colors" style={{ color: 'var(--muted)' }}
+        onMouseOver={e => e.currentTarget.style.color = 'var(--text)'}
+        onMouseOut={e => e.currentTarget.style.color = 'var(--muted)'}>
         ← Back to homepage
       </Link>
     </div>
@@ -1150,21 +1147,21 @@ export default function DiagnosticForm() {
   };
 
   return (
-    <div style={{ background: '#0a0a0a', minHeight: '100vh' }}>
+    <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
       {/* Nav */}
-      <nav className="border-b" style={{ background: 'rgba(10,10,10,0.95)', borderColor: '#1a1a1a' }}>
+      <nav className="border-b" style={{ background: 'rgba(10,10,10,0.95)', borderColor: 'var(--border)' }}>
         <div className="max-w-2xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: '#f97316' }}>
+            <div className="w-7 h-7 rounded flex items-center justify-center" style={{ background: 'var(--orange)' }}>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="white" fillOpacity="0.9" />
-                <path d="M8 5L11 7V9L8 11L5 9V7L8 5Z" fill="white" />
+                <path d="M8 2L14 6V10L8 14L2 10V6L8 2Z" fill="#0a0a0a" />
+                <path d="M8 5L11 7V9L8 11L5 9V7L8 5Z" fill="#0a0a0a" />
               </svg>
             </div>
-            <span className="font-bold text-sm" style={{ color: '#f5f5f5' }}>GrowthDiagnostic</span>
+            <span className="font-bold text-sm" style={{ color: 'var(--text)' }}>GrowthDiagnostic</span>
           </Link>
-          <div className="flex items-center gap-2 text-xs" style={{ color: '#8a8a8a' }}>
-            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="#8a8a8a" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="#8a8a8a" strokeWidth="1.2" strokeLinecap="round" /></svg>
+          <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--muted)' }}>
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><rect x="1" y="5" width="10" height="7" rx="1.5" stroke="var(--muted)" strokeWidth="1.2" /><path d="M3.5 5V3.5a2.5 2.5 0 015 0V5" stroke="var(--muted)" strokeWidth="1.2" strokeLinecap="round" /></svg>
             Secure & Confidential
           </div>
         </div>
@@ -1174,15 +1171,15 @@ export default function DiagnosticForm() {
         {status === 'form' && (
           <>
             {/* Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f97316' }} />
-                <span className="text-xs font-semibold" style={{ color: '#f97316', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
+            <div className="text-center mb-10 animate-fade-in">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--orange)' }} />
+                <span className="text-xs font-semibold" style={{ color: 'var(--orange)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
               </div>
-              <h1 className="font-black text-3xl mb-3" style={{ color: '#f5f5f5' }}>
+              <h1 className="mb-3">
                 Identify your revenue leak<br />in 7 minutes
               </h1>
-              <p className="text-sm" style={{ color: '#a3a3a3' }}>
+              <p className="text-sm" style={{ color: 'var(--muted)' }}>
                 Answer 18 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.
               </p>
             </div>
@@ -1191,12 +1188,12 @@ export default function DiagnosticForm() {
             <ProgressBar step={step} total={6} />
 
             {/* Form card */}
-            <div className="rounded-2xl border p-8" style={{ background: '#111', borderColor: '#2a2a2a' }}>
+            <div className="card-premium p-8 animate-fade-up">
               <div className="mb-6">
-                <div className="section-label mb-1">
+                <div className="section-label mb-1" style={{ color: 'var(--muted)' }}>
                   {['Context', 'Business Profile', 'Seasonality', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
                 </div>
-                <h2 className="font-bold text-lg" style={{ color: '#f5f5f5' }}>
+                <h2 className="font-bold text-lg" style={{ color: 'var(--text)' }}>
                   {[
                     'Welcome & context',
                     'Tell us about your business',
@@ -1216,7 +1213,7 @@ export default function DiagnosticForm() {
               {step === 6 && <Step6 data={data} onChange={onChange} errors={errors} />}
 
               {/* Navigation */}
-              <div className="mt-8 pt-6 border-t" style={{ borderColor: '#2a2a2a' }}>
+              <div className="mt-8 pt-6 border-t animate-fade-in" style={{ borderColor: 'var(--border)' }}>
                 {step === 6 && data.businessType !== 'other' ? (
                   <div className="space-y-4">
                     <div className="flex justify-between items-center mb-4">
@@ -1224,15 +1221,15 @@ export default function DiagnosticForm() {
                         <button
                           type="button"
                           onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                          style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
-                          onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
-                          onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                          className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all border"
+                          style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}
+                          onMouseOver={e => e.currentTarget.style.borderColor = 'var(--muted)'}
+                          onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border)'}
                         >
                           ← Back
                         </button>
                       ) : <div />}
-                      <span className="text-xs text-right" style={{ color: '#8a8a8a' }}>
+                      <span className="text-xs text-right" style={{ color: 'var(--muted)' }}>
                         🔒 Secured by PayPal
                       </span>
                     </div>
@@ -1260,15 +1257,15 @@ export default function DiagnosticForm() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     {step > 1 ? (
                       <button
                         type="button"
                         onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all"
-                        style={{ background: '#1c1c1c', color: '#a3a3a3', border: '1px solid #2a2a2a' }}
-                        onMouseOver={e => e.currentTarget.style.borderColor = '#3a3a3a'}
-                        onMouseOut={e => e.currentTarget.style.borderColor = '#2a2a2a'}
+                        className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all border"
+                        style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}
+                        onMouseOver={e => e.currentTarget.style.borderColor = 'var(--muted)'}
+                        onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border)'}
                       >
                         ← Back
                       </button>
@@ -1277,15 +1274,12 @@ export default function DiagnosticForm() {
                     <button
                       type="button"
                       onClick={handleNext}
-                      className="flex items-center gap-2 px-6 py-2.5 rounded-lg text-sm font-bold transition-all"
-                      style={{ background: '#f97316', color: '#09090b' }}
-                      onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                      onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                      className="btn-primary"
                     >
                       {step < 6 ? (
-                        <>Continue <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                        <>Continue <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
                       ) : (
-                        <>Request Custom Analysis <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                        <>Request Custom Analysis <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
                       )}
                     </button>
                   </div>
@@ -1294,7 +1288,7 @@ export default function DiagnosticForm() {
             </div>
 
             {/* Trust signals */}
-            <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: '#7c7c7c' }}>
+            <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: 'var(--muted)' }}>
               <span>🔒 Confidential</span>
               <span>⚡ Report delivered instantly</span>
               <span>📄 Structured PDF</span>
@@ -1311,21 +1305,18 @@ export default function DiagnosticForm() {
         )}
         {status === 'success' && <SuccessScreen email={data.email} businessType={data.businessType} />}
         {status === 'error' && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="flex flex-col items-center justify-center py-16 text-center animate-fade-in">
             <div className="w-20 h-20 rounded-full flex items-center justify-center mb-8"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid #f87171' }}>
+              style={{ background: 'rgba(239,68,68,0.1)', border: '2px solid var(--red)' }}>
               <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="#f87171" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M16 10V18M16 22V23M8 28H24L30 16L24 4H8L2 16L8 28Z" stroke="var(--red)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
               </svg>
             </div>
-            <h2 className="font-black text-2xl mb-3" style={{ color: '#f5f5f5' }}>Submission failed</h2>
-            <p className="text-sm mb-8 max-w-sm" style={{ color: '#a3a3a3' }}>{submitError}</p>
+            <h2 className="font-black text-2xl mb-3" style={{ color: 'var(--text)' }}>Submission failed</h2>
+            <p className="text-sm mb-8 max-w-sm" style={{ color: 'var(--muted)' }}>{submitError}</p>
             <button
               onClick={() => { setStatus('form'); setSubmitError(''); }}
-              className="px-6 py-3 rounded-lg text-sm font-bold transition-all"
-              style={{ background: '#f97316', color: '#09090b' }}
-              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-              onMouseOut={e => e.currentTarget.style.background = '#f97316'}
+              className="btn-primary"
             >
               ← Try Again
             </button>

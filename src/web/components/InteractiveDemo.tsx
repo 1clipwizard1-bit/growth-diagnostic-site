@@ -59,20 +59,20 @@ export function InteractiveDemo() {
   const data = selected ? industryData[selected] : null;
 
   return (
-    <section className="py-24 border-t" style={{ borderColor: '#1a1a1a' }}>
+    <section className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-start">
           <div>
-            <div className="section-label mb-4">Mini Diagnostic Preview</div>
-            <h2 className="font-black tracking-tight mb-4" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', color: '#f5f5f5' }}>
+            <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>Mini Diagnostic Preview</div>
+            <h2 className="mb-4">
               What's the most common bottleneck in your industry?
             </h2>
-            <p className="mb-8" style={{ color: '#a3a3a3' }}>
+            <p className="mb-8" style={{ color: 'var(--muted)' }}>
               Select your business type to see the top 3 revenue killers in your industry — then run the full diagnostic to find out which one is costing you the most.
             </p>
 
             <div className="space-y-3 mb-6">
-              <label className="block text-sm font-semibold mb-2" style={{ color: '#f5f5f5' }}>Select your business type:</label>
+              <label className="block text-sm font-semibold mb-2" style={{ color: 'var(--text)' }}>Select your business type:</label>
               {[
                 { key: 'local', label: 'Local Service Business', desc: 'Plumbing, HVAC, cleaning, contractors…' },
                 { key: 'agency', label: 'Consulting / Agency', desc: 'Marketing, design, B2B services…' },
@@ -85,19 +85,19 @@ export function InteractiveDemo() {
                   onClick={() => { setSelected(opt.key); setRevealed(false); setTimeout(() => setRevealed(true), 100); }}
                   className="w-full text-left px-4 py-3 rounded-xl border transition-all"
                   style={{
-                    borderColor: selected === opt.key ? '#f97316' : '#2a2a2a',
-                    background: selected === opt.key ? 'rgba(249,115,22,0.08)' : '#111',
+                    borderColor: selected === opt.key ? 'var(--orange)' : 'var(--border)',
+                    background: selected === opt.key ? 'rgba(249,115,22,0.08)' : 'var(--card)',
                     boxShadow: selected === opt.key ? '0 0 16px rgba(249,115,22,0.12)' : 'none',
                   }}
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-sm" style={{ color: selected === opt.key ? '#f97316' : '#f5f5f5' }}>{opt.label}</div>
-                      <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{opt.desc}</div>
+                      <div className="font-semibold text-sm" style={{ color: selected === opt.key ? 'var(--orange)' : 'var(--text)' }}>{opt.label}</div>
+                      <div className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{opt.desc}</div>
                     </div>
                     {selected === opt.key && (
-                      <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: '#f97316' }}>
-                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center shrink-0" style={{ background: 'var(--orange)' }}>
+                        <svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M2 5L4.5 7.5L8 3" stroke="#0a0a0a" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
                       </div>
                     )}
                   </div>
@@ -109,40 +109,40 @@ export function InteractiveDemo() {
           {/* Results */}
           <div>
             {!data ? (
-              <div className="rounded-2xl border p-8 flex flex-col items-center justify-center text-center min-h-80" style={{ borderColor: '#2a2a2a', background: '#111', borderStyle: 'dashed' }}>
-                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: '#1c1c1c' }}>
-                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="#8f8f8f" strokeWidth="1.5"/><path d="M10 7V10M10 13V13.5" stroke="#8f8f8f" strokeWidth="1.5" strokeLinecap="round"/></svg>
+              <div className="rounded-2xl border p-8 flex flex-col items-center justify-center text-center min-h-80" style={{ borderColor: 'var(--border)', background: 'var(--card)', borderStyle: 'dashed' }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4" style={{ background: 'var(--bg2)' }}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="var(--muted)" strokeWidth="1.5"/><path d="M10 7V10M10 13V13.5" stroke="var(--muted)" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </div>
-                <div className="font-semibold mb-2" style={{ color: '#a3a3a3' }}>Select your business type</div>
-                <div className="text-sm" style={{ color: '#8a8a8a' }}>We'll show you the most common bottlenecks in your industry</div>
+                <div className="font-semibold mb-2" style={{ color: 'var(--muted)' }}>Select your business type</div>
+                <div className="text-sm" style={{ color: 'var(--muted)' }}>We'll show you the most common bottlenecks in your industry</div>
               </div>
             ) : (
               <div className={revealed ? 'animate-fade-up' : 'opacity-0'}>
-                <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#2a2a2a', background: '#111' }}>
-                  <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+                <div className="card-premium">
+                  <div className="px-6 py-4 border-b flex items-center justify-between" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
                     <div>
-                      <div className="text-xs font-semibold mb-0.5" style={{ color: '#a3a3a3' }}>INDUSTRY ANALYSIS</div>
-                      <div className="font-bold" style={{ color: '#f5f5f5' }}>{data.name}</div>
+                      <div className="text-xs font-semibold mb-0.5" style={{ color: 'var(--muted)' }}>INDUSTRY ANALYSIS</div>
+                      <div className="font-bold" style={{ color: 'var(--text)' }}>{data.name}</div>
                     </div>
                     <div className="text-right">
-                      <div className="text-xs mb-0.5" style={{ color: '#8f8f8f' }}>Avg. monthly leak</div>
-                      <div className="font-black text-xl" style={{ color: '#f87171' }}>{data.avgLeak}</div>
+                      <div className="text-xs mb-0.5" style={{ color: 'var(--muted)' }}>Avg. monthly leak</div>
+                      <div className="font-black text-xl num" style={{ color: 'var(--red)' }}>{data.avgLeak}</div>
                     </div>
                   </div>
 
                   <div className="p-6">
-                    <div className="text-xs font-semibold mb-4" style={{ color: '#a3a3a3' }}>TOP 3 REVENUE KILLERS IN THIS INDUSTRY</div>
+                    <div className="text-xs font-semibold mb-4" style={{ color: 'var(--muted)' }}>TOP 3 REVENUE KILLERS IN THIS INDUSTRY</div>
                     <div className="space-y-4">
                       {data.bottlenecks.map((b, i) => (
-                        <div key={b.rank} className="rounded-xl border p-4" style={{ borderColor: i === 0 ? 'rgba(239,68,68,0.3)' : '#2a2a2a', background: i === 0 ? 'rgba(239,68,68,0.04)' : '#161616' }}>
+                        <div key={b.rank} className="rounded-xl border p-4" style={{ borderColor: i === 0 ? 'rgba(239,68,68,0.4)' : 'var(--border)', background: i === 0 ? 'rgba(239,68,68,0.04)' : 'var(--bg2)' }}>
                           <div className="flex items-start gap-3">
-                            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black" style={{ background: i === 0 ? '#ef4444' : '#2a2a2a', color: i === 0 ? '#fff' : '#8f8f8f' }}>
+                            <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-xs font-black" style={{ background: i === 0 ? 'var(--red)' : 'var(--border)', color: i === 0 ? '#fafafa' : 'var(--muted)' }}>
                               {b.rank}
                             </div>
                             <div className="flex-1 min-w-0">
-                              <div className="font-semibold text-sm mb-1" style={{ color: i === 0 ? '#f5f5f5' : '#a3a3a3' }}>{b.title}</div>
-                              <div className="text-xs leading-relaxed mb-2" style={{ color: '#949494' }}>{b.desc}</div>
-                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171' }}>
+                              <div className="font-semibold text-sm mb-1" style={{ color: i === 0 ? 'var(--text)' : 'var(--muted)' }}>{b.title}</div>
+                              <div className="text-xs leading-relaxed mb-2" style={{ color: 'var(--muted)' }}>{b.desc}</div>
+                              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(239,68,68,0.1)', color: 'var(--red)' }}>
                                 {b.impact}
                               </div>
                             </div>
@@ -151,12 +151,11 @@ export function InteractiveDemo() {
                       ))}
                     </div>
 
-                    <div className="mt-6 rounded-xl border p-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                      <div className="text-xs mb-3" style={{ color: '#949494' }}>This is industry-level data. The full diagnostic identifies <span className="font-semibold" style={{ color: '#f97316' }}>your specific bottleneck</span> based on your actual numbers.</div>
-                      <a href="/diagnostic" className="block w-full text-center py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
-                        onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-                        onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-                        Run My Full Diagnostic — $4.99
+                    <div className="mt-6 rounded-xl border p-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+                      <div className="text-xs mb-3" style={{ color: 'var(--muted)' }}>This is industry-level data. The full diagnostic identifies <span className="font-semibold" style={{ color: 'var(--orange)' }}>your specific bottleneck</span> based on your actual numbers.</div>
+                      <a href="/diagnostic" className="btn-primary w-full">
+                        See Where Your Money Is Leaking
+                        <span className="price-badge">$4.99</span>
                       </a>
                     </div>
                   </div>

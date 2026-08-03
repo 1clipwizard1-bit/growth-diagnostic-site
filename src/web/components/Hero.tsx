@@ -1,47 +1,61 @@
 export function Hero() {
   return (
-    <section className="relative pt-40 pb-24 overflow-hidden hero-glow">
+    <section className="relative pt-28 pb-20 overflow-hidden hero-glow">
       {/* Grid background */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
-        backgroundSize: '60px 60px'
+        backgroundImage: 'linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px)',
+        backgroundSize: '64px 64px'
       }} />
 
       <div className="max-w-6xl mx-auto px-6 relative">
         <div className="max-w-3xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-8" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-            <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#f97316' }} />
-            <span className="section-label">Business Growth Diagnostic</span>
+          <div className="badge-premium mb-8">
+            <div className="pulse-dot" />
+            <span className="section-label" style={{ color: 'var(--orange)' }}>Business Growth Diagnostic</span>
           </div>
 
           {/* Headline */}
-          <h1 className="font-black tracking-tight leading-none mb-6" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', color: '#f5f5f5' }}>
+          <h1 className="mb-6 max-w-2xl">
             Know Exactly Where Your Marketing<br />
-            <span style={{ color: '#f97316' }}>Leaks Money — in 7 Minutes</span>
+            <span style={{ color: 'var(--orange)' }}>Leaks Money</span> — in 7 Minutes
           </h1>
 
-          <p className="text-lg leading-relaxed mb-10 max-w-3xl" style={{ color: '#a3a3a3' }}>
-            Stop guessing why your marketing isn’t scaling. Whether you spend a few hundred or $20k/month, this 7-minute diagnostic shows where customers leak out — and what it may be costing you every month.
+          <p className="text-lg leading-relaxed mb-10 max-w-3xl" style={{ color: 'var(--muted)' }}>
+            Stop guessing why your marketing isn’t scaling. Whether you spend a few hundred or <strong>$20k/month</strong>, this <strong>7-minute diagnostic</strong> shows where customers leak out — and what it may be costing you every month.
           </p>
 
           {/* CTA block */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-12">
-            <a href="/diagnostic"
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-lg font-bold text-base transition-all"
-              style={{ background: '#f97316', color: '#09090b' }}
-              onMouseOver={e => { e.currentTarget.style.background = '#ea6c0a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-              onMouseOut={e => { e.currentTarget.style.background = '#f97316'; e.currentTarget.style.transform = 'translateY(0)'; }}>
-              See Where Your Money Is Leaking — $4.99
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <div className="mb-10">
+            <a href="/diagnostic" className="btn-primary">
+              See Where Your Money Is Leaking
+              <span className="price-badge">$4.99</span>
+              <svg className="ml-1" width="16" height="16" viewBox="0 0 16 16" fill="none">
                 <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </a>
-            <span className="text-sm" style={{ color: '#8f8f8f' }}>PDF delivered instantly · No subscription · No sales call · Refund if no bottleneck found</span>
+
+            {/* Risk reversal */}
+            <div className="mt-4 text-sm font-bold" style={{ color: 'var(--text)' }}>
+              Refund if no bottleneck found. No subscription. No sales call.
+            </div>
+
+            {/* Trust row */}
+            <div className="flex flex-wrap gap-6 mt-6 text-[13px] items-center" style={{ color: 'var(--muted)' }}>
+              <div className="flex items-center gap-1.5">
+                <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> PDF delivered instantly
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> Works from $500 to $20k/mo ad spend
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> 7 minutes, 18 questions
+              </div>
+            </div>
           </div>
 
           {/* Stats row */}
-          <div className="flex flex-wrap gap-8">
+          <div className="flex flex-wrap gap-8 border-t pt-8" style={{ borderColor: 'var(--border)' }}>
             {[
               { value: '8', label: 'growth blockers analyzed' },
               { value: '18', label: 'questions' },
@@ -49,8 +63,8 @@ export function Hero() {
               { value: 'Refund', label: 'if no bottleneck found' },
             ].map(stat => (
               <div key={stat.label}>
-                <div className="text-2xl font-black" style={{ color: '#f97316' }}>{stat.value}</div>
-                <div className="text-xs mt-0.5" style={{ color: '#8f8f8f' }}>{stat.label}</div>
+                <div className="text-2xl font-bold num" style={{ color: 'var(--orange)' }}>{stat.value}</div>
+                <div className="text-[11px] font-bold uppercase tracking-wider mt-0.5" style={{ color: 'var(--muted)' }}>{stat.label}</div>
               </div>
             ))}
           </div>
@@ -58,44 +72,50 @@ export function Hero() {
 
         {/* Hero card — mock report preview */}
         <div className="absolute right-0 top-0 bottom-0 hidden xl:flex items-center pr-6" style={{ width: '380px' }}>
-          <div className="w-full rounded-2xl border p-6 glow-orange" style={{ background: '#111', borderColor: '#2a2a2a' }}>
+          <div className="w-full card-premium-featured p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
                 <div className="section-label mb-0.5">Diagnostic Report</div>
-                <div className="text-xs" style={{ color: '#8f8f8f' }}>Sunrise Plumbing Co. · <span className="num">$15k/mo</span> ads</div>
+                <div className="text-xs" style={{ color: 'var(--muted)' }}>Sunrise Plumbing Co. · <span className="num">$15k/mo</span> ads</div>
               </div>
-              <div className="px-2 py-1 rounded text-xs font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171' }}>CRITICAL</div>
+              <div className="px-2 py-1 rounded text-xs font-bold" style={{ background: 'rgba(239,68,68,0.15)', color: 'var(--red)' }}>CRITICAL</div>
             </div>
-            <div className="border rounded-xl p-4 mb-4" style={{ borderColor: '#f87171', background: 'rgba(239,68,68,0.04)' }}>
-              <div className="text-xs font-semibold mb-2" style={{ color: '#f87171' }}>⚠ PRIMARY BOTTLENECK DETECTED</div>
-              <div className="font-bold text-base mb-1" style={{ color: '#f5f5f5' }}>Slow Lead Response Time</div>
-              <div className="num text-xs" style={{ color: '#a3a3a3' }}>Avg. response: 52 min · Benchmark: &lt;15 min</div>
+            
+            {/* Warning block */}
+            <div className="warning-block mb-4">
+              <div className="warning-block-label">⚠ PRIMARY BOTTLENECK DETECTED</div>
+              <div className="font-bold text-base mb-1" style={{ color: 'var(--text)' }}>Slow Lead Response Time</div>
+              <div className="num text-xs" style={{ color: 'var(--muted)' }}>Avg. response: 52 min · Benchmark: &lt;15 min</div>
             </div>
+
             <div className="space-y-3">
-              <div className="flex justify-between text-xs">
-                <span style={{ color: '#a3a3a3' }}>Monthly ad spend</span>
-                <span style={{ color: '#f5f5f5' }} className="num font-semibold">$15,000</span>
+              <div className="flex justify-between text-xs border-b pb-1.5" style={{ borderColor: 'var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Monthly ad spend</span>
+                <span style={{ color: 'var(--text)' }} className="num font-semibold">$15,000</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span style={{ color: '#a3a3a3' }}>Est. leads/month</span>
-                <span style={{ color: '#f5f5f5' }} className="num font-semibold">142</span>
+              <div className="flex justify-between text-xs border-b pb-1.5" style={{ borderColor: 'var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Est. leads/month</span>
+                <span style={{ color: 'var(--text)' }} className="num font-semibold">142</span>
               </div>
-              <div className="flex justify-between text-xs">
-                <span style={{ color: '#a3a3a3' }}>Current close rate</span>
-                <span style={{ color: '#f5f5f5' }} className="num font-semibold">12%</span>
+              <div className="flex justify-between text-xs border-b pb-1.5" style={{ borderColor: 'var(--border)' }}>
+                <span style={{ color: 'var(--muted)' }}>Current close rate</span>
+                <span style={{ color: 'var(--text)' }} className="num font-semibold">12%</span>
               </div>
-              <div className="border-t pt-3" style={{ borderColor: '#2a2a2a' }}>
+              <div className="pt-1.5">
                 <div className="flex justify-between text-xs mb-1">
-                  <span style={{ color: '#a3a3a3' }}>Missed revenue / month</span>
-                  <span className="num font-bold" style={{ color: '#f87171' }}>–$4,300</span>
+                  <span style={{ color: 'var(--muted)' }}>Missed revenue / month</span>
+                  <span className="num font-bold" style={{ color: 'var(--red)' }}>–$4,300</span>
                 </div>
-                <div className="metric-bar">
-                  <div className="metric-bar-fill-red" style={{ width: '72%' }} />
+                {/* Progress/Metric Bar */}
+                <div className="progress-bar-container">
+                  <div className="progress-bar-fill" style={{ width: '72%', background: 'var(--red)' }} />
                 </div>
               </div>
             </div>
-            <div className="mt-4 text-xs rounded-lg p-3" style={{ background: '#1c1c1c', color: '#a3a3a3' }}>
-              <span className="font-semibold" style={{ color: '#f97316' }}>Fix: </span>
+            
+            {/* Fix/Tip box */}
+            <div className="mt-4 text-xs rounded-lg p-3" style={{ background: 'var(--bg2)', color: 'var(--text)' }}>
+              <span className="font-semibold" style={{ color: 'var(--orange)' }}>Fix: </span>
               Instant lead routing + automated SMS follow-up within 2 min
             </div>
           </div>

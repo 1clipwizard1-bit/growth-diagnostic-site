@@ -1,33 +1,32 @@
 export function CostOfInaction() {
   return (
-    <section className="py-24 border-t" style={{ borderColor: '#1a1a1a' }}>
+    <section className="py-24 border-t" style={{ borderColor: 'var(--border)', background: 'var(--bg)' }}>
       <div className="max-w-6xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div>
-            <div className="section-label mb-4">The Math You're Not Doing</div>
-            <h2 className="font-black tracking-tight mb-6" style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', color: '#f5f5f5' }}>
+            <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>The Math You're Not Doing</div>
+            <h2 className="mb-6">
               Every month without a diagnosis is a month you're paying for it anyway.
             </h2>
-            <p className="mb-6" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
+            <p className="mb-6" style={{ color: 'var(--muted)', lineHeight: '1.8' }}>
               If you're already spending money on ads, you're already paying for the problem. The only question is whether you know where your marketing is leaking.
             </p>
-            <p className="mb-8" style={{ color: '#a3a3a3', lineHeight: '1.8' }}>
-              In cases like this, a single hidden bottleneck in your funnel usually costs between <strong style={{ color: '#f5f5f5' }}>$3,800–$6,200 per month</strong> in missed revenue. Not because of traffic quality, but because of how leads are handled.
+            <p className="mb-8" style={{ color: 'var(--muted)', lineHeight: '1.8' }}>
+              In cases like this, a single hidden bottleneck in your funnel usually costs between <strong style={{ color: 'var(--text)' }}>$3,800–$6,200 per month</strong> in missed revenue. Not because of traffic quality, but because of how leads are handled.
             </p>
-            <a href="/diagnostic" className="inline-flex items-center gap-2 px-6 py-3 rounded-lg font-bold text-sm transition-all" style={{ background: '#f97316', color: '#09090b' }}
-              onMouseOver={e => e.currentTarget.style.background = '#ea6c0a'}
-              onMouseOut={e => e.currentTarget.style.background = '#f97316'}>
-              See Where Your Money Is Leaking — $4.99
+            <a href="/diagnostic" className="btn-primary">
+              See Where Your Money Is Leaking
+              <span className="price-badge">$4.99</span>
             </a>
           </div>
 
           <div className="space-y-4">
             {/* Inaction table */}
-            <div className="rounded-2xl border overflow-hidden" style={{ borderColor: '#2a2a2a', background: '#111' }}>
-              <div className="px-6 py-4 border-b" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
-                <div className="text-xs font-semibold" style={{ color: '#a3a3a3' }}>COST OF INACTION — Scenario: One hidden bottleneck worth $4,300/month</div>
+            <div className="rounded-2xl border overflow-hidden" style={{ borderColor: 'var(--border)', background: 'var(--card)' }}>
+              <div className="px-6 py-4 border-b" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+                <div className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>COST OF INACTION — Scenario: One hidden bottleneck worth $4,300/month</div>
               </div>
-              <div className="divide-y" style={{ borderColor: '#2a2a2a' }}>
+              <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
                 {[
                   { period: 'This month', loss: '$4,300', context: 'You could recover this with 1 fix' },
                   { period: '3 months', loss: '$12,900', context: 'Enough to hire a part-time person' },
@@ -36,22 +35,22 @@ export function CostOfInaction() {
                 ].map((row, i) => (
                   <div key={row.period} className="px-6 py-4 flex items-center justify-between" style={{ background: i === 3 ? 'rgba(239,68,68,0.04)' : 'transparent' }}>
                     <div>
-                      <div className="font-semibold text-sm" style={{ color: i === 3 ? '#f5f5f5' : '#a3a3a3' }}>{row.period}</div>
-                      <div className="text-xs" style={{ color: '#8a8a8a' }}>{row.context}</div>
+                      <div className="font-semibold text-sm" style={{ color: i === 3 ? 'var(--text)' : 'var(--muted)' }}>{row.period}</div>
+                      <div className="text-xs mt-0.5" style={{ color: 'var(--muted)' }}>{row.context}</div>
                     </div>
-                    <div className="text-xl font-black" style={{ color: i === 3 ? '#f87171' : '#8f8f8f' }}>{row.loss}</div>
+                    <div className="text-xl font-bold num" style={{ color: 'var(--red)' }}>–{row.loss}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="rounded-xl border p-5 flex gap-4" style={{ borderColor: '#2a2a2a', background: '#161616' }}>
+            <div className="rounded-xl border p-5 flex gap-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
               <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 9L8 12L13 6" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
               <div>
-                <div className="font-bold text-sm mb-1" style={{ color: '#f5f5f5' }}>The diagnostic costs $4.99.</div>
-                <div className="text-xs" style={{ color: '#a3a3a3' }}>If you're spending more than $3,000/month on ads, the ROI of knowing your biggest bottleneck is immediate. The cost of not knowing is compounding daily.</div>
+                <div className="font-bold text-sm mb-1" style={{ color: 'var(--text)' }}>The diagnostic costs $4.99.</div>
+                <div className="text-xs" style={{ color: 'var(--muted)' }}>If you're spending more than $3,000/month on ads, the ROI of knowing your biggest bottleneck is immediate. The cost of not knowing is compounding daily.</div>
               </div>
             </div>
           </div>

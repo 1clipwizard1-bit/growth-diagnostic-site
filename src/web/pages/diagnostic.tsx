@@ -175,15 +175,26 @@ function ProgressBar({ step, total }: { step: number; total: number }) {
 function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof FormData, v: string) => void; errors: Partial<Record<keyof FormData, string>> }) {
   return (
     <div className="space-y-6">
-      <div className="rounded-xl border p-5 bg-[var(--bg2)]" style={{ borderColor: 'var(--border)' }}>
-        <p className="text-sm font-semibold mb-2" style={{ color: 'var(--orange)' }}>Let's start with your business.</p>
-        <p className="text-xs leading-relaxed" style={{ color: 'var(--muted)' }}>
-          Your name gives us the connection. Your website gives us the context. Together they make the diagnosis specific to you — not an industry average.
-        </p>
+      <div>
+        <Label required helper="Your diagnostic report will be sent here">Email Address</Label>
+        <input
+          type="email"
+          value={data.email}
+          onChange={e => onChange('email', e.target.value)}
+          placeholder="you@company.com"
+          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+          style={{
+            background: 'var(--bg2)', color: 'var(--text)',
+            borderColor: errors.email ? 'var(--red)' : data.email ? 'var(--orange)' : 'var(--border)',
+            boxShadow: errors.email ? '0 0 0 1px rgba(248,113,113,0.25)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          }}
+        />
+        {errors.email && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.email}</div>}
+        <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>🔒 Confidential. Used only to deliver your report.</div>
       </div>
 
       <div>
-        <Label required helper="Your full name or how we should address you">Full Name</Label>
+        <Label helper="Your full name or how we should address you (Optional)">Full Name</Label>
         <input
           type="text"
           value={data.name}
@@ -200,7 +211,7 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
       </div>
 
       <div>
-        <Label required helper="Website URL or social media profile link (LinkedIn / Facebook)">Website / Social Profile</Label>
+        <Label helper="Website URL or social media profile link (LinkedIn / Facebook) (Optional)">Website / Social Profile</Label>
         <input
           type="text"
           value={data.website}
@@ -712,24 +723,6 @@ function Step6({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           ]}
         />
       </div>
-
-      <div>
-        <Label required helper="Your diagnostic report will be sent here">Email Address</Label>
-        <input
-          type="email"
-          value={data.email}
-          onChange={e => onChange('email', e.target.value)}
-          placeholder="you@company.com"
-          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
-          style={{
-            background: 'var(--bg2)', color: 'var(--text)',
-            borderColor: errors.email ? 'var(--red)' : data.email ? 'var(--orange)' : 'var(--border)',
-            boxShadow: errors.email ? '0 0 0 1px rgba(248,113,113,0.25)' : data.email ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
-          }}
-        />
-        {errors.email && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.email}</div>}
-        <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>🔒 Confidential. Used only to deliver your report.</div>
-      </div>
     </div>
   );
 }
@@ -980,8 +973,8 @@ export default function DiagnosticForm() {
     const errs: Partial<Record<keyof FormData, string>> = {};
 
     if (step === 1) {
-      if (!data.name.trim()) errs.name = 'Please enter your name';
-      if (!data.website.trim()) errs.website = 'Please enter your website or social profile';
+      if (!data.email) errs.email = 'Email is required';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errs.email = 'Please enter a valid email';
     }
 
     if (step === 2) {
@@ -1030,8 +1023,6 @@ export default function DiagnosticForm() {
       if (!data.responseTime) errs.responseTime = 'Required';
       if (!data.trackingQuality) errs.trackingQuality = 'Required';
       if (!data.followUpSystem) errs.followUpSystem = 'Required';
-      if (!data.email) errs.email = 'Email is required';
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) errs.email = 'Please enter a valid email';
     }
 
     setErrors(errs);
@@ -1189,13 +1180,15 @@ export default function DiagnosticForm() {
 
             {/* Form card */}
             <div className="card-premium p-8 animate-fade-up">
-              <div className="mb-6">
-                <div className="section-label mb-1" style={{ color: 'var(--muted)' }}>
-                  {['Context', 'Business Profile', 'Seasonality', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
-                </div>
+              <div className={`mb-6 ${step === 1 ? 'text-center' : ''}`}>
+                {step > 1 && (
+                  <div className="section-label mb-1" style={{ color: 'var(--muted)' }}>
+                    {['Context', 'Business Profile', 'Seasonality', 'Funnel Metrics', 'Unit Economics', 'Performance & Capture'][step - 1]}
+                  </div>
+                )}
                 <h2 className="font-bold text-lg" style={{ color: 'var(--text)' }}>
                   {[
-                    'Welcome & context',
+                    'Welcome',
                     'Tell us about your business',
                     'How seasonality affects you',
                     'How does your funnel perform?',

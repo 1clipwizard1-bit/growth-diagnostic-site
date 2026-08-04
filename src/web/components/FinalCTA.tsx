@@ -6,7 +6,7 @@ export function FinalCTA() {
           <div className="max-w-xl">
             <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>Final Word</div>
             <h2 className="mb-6">
-              You already know something's off.<br />
+              You know something's leaking.<br />
               <span style={{ color: 'var(--muted)' }}>Now find out exactly what it is.</span>
             </h2>
             <p style={{ color: 'var(--muted)', lineHeight: '1.8' }}>

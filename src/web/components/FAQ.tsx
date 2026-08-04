@@ -10,8 +10,8 @@ const faqs = [
     a: 'Then that\'s the answer you get. About a third of bottlenecks sit outside ad accounts — in response time, follow-up, pricing, or capacity. If your marketing is fine, the report says so and shows what\'s actually leaking.',
   },
   {
-    q: 'My business is seasonal. Can this even measure my marketing correctly?',
-    a: 'Seasonality is exactly why most owners misread their numbers. The diagnostic separates your funnel economics from demand cycles — so you can see whether ads drive revenue or just ride the season.',
+    q: 'My business is seasonal. Can this still measure my marketing correctly?',
+    a: 'Yes — as long as seasonality is treated as context, not ignored.\n\nThe diagnostic flags where seasonal demand may be distorting your numbers. A full seasonality analysis requires historical monthly data, but if seasonality appears to be a major factor, we can help you review past leads, revenue, ad spend, and close rates — then build a strategy for both peak season and slower months.',
   },
   {
     q: 'I\'ve run this business for 10+ years. What can this tell me that I don\'t know?',
@@ -67,7 +67,7 @@ export function FAQ() {
                   </div>
                 </button>
                 {open === i && (
-                  <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: 'var(--muted)' }}>
+                  <div className="px-6 pb-5 text-sm leading-relaxed" style={{ color: 'var(--muted)', whiteSpace: 'pre-line' }}>
                     {faq.a}
                   </div>
                 )}

@@ -6,16 +6,16 @@ export function CostOfInaction() {
           <div>
             <div className="section-label mb-4" style={{ color: 'var(--muted)' }}>The Math You're Not Doing</div>
             <h2 className="mb-6">
-              Every month without a diagnosis is a month you're paying for it anyway.
+              Before you spend more, find out where the money is going.
             </h2>
             <p className="mb-6" style={{ color: 'var(--muted)', lineHeight: '1.8' }}>
-              If you're already spending money on ads, you're already paying for the problem. The only question is whether you know where your marketing is leaking.
+              If customers are dropping off somewhere in your journey, more traffic may only make the leak more expensive. The diagnostic shows where to look first — and what that leak may be costing you.
             </p>
             <p className="mb-8" style={{ color: 'var(--muted)', lineHeight: '1.8' }}>
-              In cases like this, a single hidden bottleneck in your funnel usually costs between <strong style={{ color: 'var(--text)' }}>$3,800–$6,200 per month</strong> in missed revenue. Not because of traffic quality, but because of how leads are handled.
+              In this example, one missed stage in the customer journey represents <strong style={{ color: 'var(--text)' }}>$4,300/month</strong> in lost revenue.
             </p>
             <a href="/diagnostic" className="btn-primary">
-              See Where Your Money Is Leaking
+              See Where Customers Drop Off
               <span className="price-badge">$4.99</span>
             </a>
           </div>

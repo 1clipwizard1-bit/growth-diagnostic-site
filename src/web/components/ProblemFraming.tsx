@@ -2,7 +2,7 @@ const problems = [
   {
     icon: '📣',
     wrong: 'You think: "I need more traffic"',
-    real: 'Reality: Maybe. Or maybe the traffic is fine — but customers drop off before they book, buy, or show up.',
+    real: 'Reality: Maybe the traffic is fine — but customers drop off before they book, buy, or show up.',
     loss: 'More spend goes into the same broken path.',
   },
   {

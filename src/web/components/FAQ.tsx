@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: 'I\'ve been burned by agencies and lead platforms before. How is this different?',
-    a: 'It\'s $4.99, not a retainer. It\'s a report, not a pitch — no sales call unless you ask for one. And every number in it shows its math, so you verify the logic yourself. If it doesn\'t identify a quantified bottleneck, you get a refund.',
+    a: 'It\'s $4.99, not a retainer. It\'s a report, not a pitch. No one calls you unless you choose to book a call.',
   },
 ];
 

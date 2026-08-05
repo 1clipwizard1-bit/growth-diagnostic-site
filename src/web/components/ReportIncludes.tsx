@@ -23,7 +23,7 @@ const items = [
   },
   {
     title: '4. Seasonality Risk Check',
-    desc: 'Checks whether seasonal demand cycles are masking funnel leaks or vice versa — based on your local market conditions.',
+    desc: 'Evaluates potential seasonality risks based on your business profile and provides a framework to identify if demand cycles are masking funnel leaks.',
     iconPath: 'circle-clock',
     iconType: 'circle-clock',
   },

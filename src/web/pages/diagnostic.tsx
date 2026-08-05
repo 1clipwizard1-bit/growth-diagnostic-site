@@ -176,6 +176,23 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
   return (
     <div className="space-y-6">
       <div>
+        <Label helper="Your full name or how we should address you (Optional)">Full Name</Label>
+        <input
+          type="text"
+          value={data.name}
+          onChange={e => onChange('name', e.target.value)}
+          placeholder="John Doe"
+          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
+          style={{
+            background: 'var(--bg2)', color: 'var(--text)',
+            borderColor: errors.name ? 'var(--red)' : data.name ? 'var(--orange)' : 'var(--border)',
+            boxShadow: errors.name ? '0 0 0 1px rgba(248,113,113,0.25)' : data.name ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
+          }}
+        />
+        {errors.name && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.name}</div>}
+      </div>
+
+      <div>
         <Label required helper="Your diagnostic report will be sent here">Email Address</Label>
         <input
           type="email"
@@ -191,23 +208,6 @@ function Step1({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         />
         {errors.email && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.email}</div>}
         <div className="text-xs mt-1" style={{ color: 'var(--muted)' }}>🔒 Confidential. Used only to deliver your report.</div>
-      </div>
-
-      <div>
-        <Label helper="Your full name or how we should address you (Optional)">Full Name</Label>
-        <input
-          type="text"
-          value={data.name}
-          onChange={e => onChange('name', e.target.value)}
-          placeholder="John Doe"
-          className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-all"
-          style={{
-            background: 'var(--bg2)', color: 'var(--text)',
-            borderColor: errors.name ? 'var(--red)' : data.name ? 'var(--orange)' : 'var(--border)',
-            boxShadow: errors.name ? '0 0 0 1px rgba(248,113,113,0.25)' : data.name ? '0 0 0 1px rgba(249,115,22,0.15)' : 'none',
-          }}
-        />
-        {errors.name && <div className="text-xs mt-1" style={{ color: 'var(--red)' }}>{errors.name}</div>}
       </div>
 
       <div>
@@ -1167,8 +1167,9 @@ export default function DiagnosticForm() {
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--orange)' }} />
                 <span className="text-xs font-semibold" style={{ color: 'var(--orange)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
               </div>
-              <h1 className="mb-3">
-                Identify your revenue leak<br />in 7 minutes
+              <h1 className="mb-3 text-[clamp(22px,5.5vw,42px)] font-extrabold leading-tight">
+                <span className="block whitespace-nowrap">Identify your revenue leak</span>
+                <span className="block mt-1">in 7 minutes</span>
               </h1>
               <p className="text-sm" style={{ color: 'var(--muted)' }}>
                 Answer 18 questions. Get a structured PDF report showing your biggest growth bottleneck and how much it's costing you.

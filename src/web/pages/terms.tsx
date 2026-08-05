@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "wouter";
 import { Nav } from "../components/Nav";
 import { Footer } from "../components/Footer";
 
@@ -146,11 +147,17 @@ export default function TermsPage() {
           <Section title="7. Contact">
             <p>For questions:</p>
             <div
-              className="mt-4 p-4 rounded-xl"
+              className="mt-4 p-4 rounded-xl space-y-2"
               style={{ background: "#0a0a0a", border: "1px solid var(--border)" }}
             >
               <p style={{ color: "var(--muted)" }}>
                 Email: <span style={{ color: "var(--orange)" }}>[your-email]</span>
+              </p>
+              <p style={{ color: "var(--muted)" }}>
+                Or use our online form:{" "}
+                <Link href="/contact" className="transition-colors hover:underline" style={{ color: "var(--orange)", fontWeight: 600 }}>
+                  Contact Form
+                </Link>
               </p>
             </div>
           </Section>

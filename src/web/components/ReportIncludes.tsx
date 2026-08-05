@@ -23,7 +23,7 @@ const items = [
   },
   {
     title: '4. Seasonality Risk Check',
-    desc: 'Evaluates potential seasonality risks based on your business profile and provides a framework to identify if demand cycles are masking funnel leaks.',
+    desc: 'Flags whether seasonal demand may be distorting how you read your funnel numbers — so you don\'t scale or cut ad spend based on a seasonal illusion.',
     iconPath: 'circle-clock',
     iconType: 'circle-clock',
   },

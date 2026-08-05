@@ -1229,6 +1229,11 @@ export default function DiagnosticForm() {
                     </div>
 
                     <div className="w-full max-w-sm mx-auto">
+                      {/* Order summary — price transparency at point of payment */}
+                      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
+                        <span className="text-sm" style={{ color: 'var(--muted)' }}>Growth Diagnostic Report</span>
+                        <span className="text-sm font-bold num" style={{ color: 'var(--text)' }}>$4.99</span>
+                      </div>
                       <PayPalButtonContainer
                         data={data}
                         validate={validate}
@@ -1248,6 +1253,31 @@ export default function DiagnosticForm() {
                           setIsCheckoutConfirming(false);
                         }}
                       />
+
+                      {/* Accepted payment methods — trust signals */}
+                      <div className="flex flex-col items-center gap-2 mt-4">
+                        <div className="flex items-center gap-2">
+                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
+                            <span style={{ color: '#1A1F71', fontWeight: 800, fontSize: '11px', fontStyle: 'italic', letterSpacing: '0.02em' }}>VISA</span>
+                          </div>
+                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
+                            <div className="flex items-center">
+                              <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#EB001B' }} />
+                              <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#F79E1B', marginLeft: -6, opacity: 0.9 }} />
+                            </div>
+                          </div>
+                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#1F72CD' }}>
+                            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '9px', letterSpacing: '0.03em' }}>AMEX</span>
+                          </div>
+                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
+                            <span style={{ color: '#231F20', fontWeight: 800, fontSize: '8px' }}>DISC<span style={{ color: '#F76E20' }}>O</span>VER</span>
+                          </div>
+                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
+                            <span style={{ fontWeight: 800, fontSize: '9px', fontStyle: 'italic' }}><span style={{ color: '#003087' }}>Pay</span><span style={{ color: '#009CDE' }}>Pal</span></span>
+                          </div>
+                        </div>
+                        <div className="text-[11px]" style={{ color: 'var(--muted)' }}>🔒 Secure SSL checkout · All major cards accepted</div>
+                      </div>
                     </div>
                   </div>
                 ) : (
@@ -1349,7 +1379,7 @@ function PayPalButtonContainer({ data, validate, onStartPayment, onSuccessPaymen
     }
 
     const script = document.createElement('script');
-    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD`;
+    script.src = `https://www.paypal.com/sdk/js?client-id=${clientId}&currency=USD&disable-funding=paylater`;
     script.async = true;
     script.onload = () => {
       setPaypalLoaded(true);

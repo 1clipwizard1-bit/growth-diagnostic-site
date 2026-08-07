@@ -1,4 +1,6 @@
 const data = $json;
+const computed = data.computed_audit || {};
+const seasonalityRisk = data.seasonality_risk === true || data.seasonality_risk === "true" || (computed.input && (computed.input.is_seasonal === true || computed.input.is_seasonal === "true"));
 
 // -------------------------
 // Helpers
@@ -59,8 +61,19 @@ function polishNarrativeText(value) {
     .replace(/speed_to_lead/gi, "speed-to-lead");
 }
 
+function cleanAIText(value) {
+  let t = polishNarrativeText(value);
+  if (seasonalityRisk) {
+    t = t
+      .replace(/ads are the problem/gi, "conversion bottlenecks are key (with seasonality context)")
+      .replace(/demand is down/gi, "demand is experiencing a seasonal cycle")
+      .replace(/marketing is down/gi, "demand is experiencing a seasonal cycle");
+  }
+  return t;
+}
+
 function safeHighlight(value, phrases) {
-  let escaped = esc(polishNarrativeText(String(value || "")));
+  let escaped = esc(cleanAIText(String(value || "")));
   (phrases || []).forEach(function(phrase) {
     const re = new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
     escaped = escaped.replace(re, '<strong style="color:#d9363e;font-weight:700">$&</strong>');
@@ -124,7 +137,7 @@ function clamp(value, min, max) {
 function renderList(items) {
   if (!Array.isArray(items) || items.length === 0) return '<p class="muted">No items available.</p>';
   return "<ul>" + items.map(function(item) {
-    return "<li>" + esc(polishNarrativeText(item)) + "</li>";
+    return "<li>" + esc(cleanAIText(item)) + "</li>";
   }).join("") + "</ul>";
 }
 
@@ -335,7 +348,6 @@ const score             = hasValidScore ? rawScoreValue : 0;
 const primaryBottleneck = toPremiumBottleneckLabel(data.primary_bottleneck || "");
 const dataConfidence    = data.data_confidence || "";
 
-const computed = data.computed_audit || {};
 const ai       = data.ai_report || {};
 
 const metrics                = computed.metrics || {};
@@ -592,17 +604,17 @@ const _confidence     = esc(dataConfidence);
 const _scoreInterp    = esc(scoreInterpretation);
 const _confNote       = esc(confidenceNote);
 const _keyFindingText = esc(keyFindingText);
-const _bCtx           = esc(polishNarrativeText(executiveSummary.business_context || ""));
-const _bAssess        = esc(polishNarrativeText(executiveSummary.overall_assessment || ""));
+const _bCtx           = esc(cleanAIText(executiveSummary.business_context || ""));
+const _bAssess        = esc(cleanAIText(executiveSummary.overall_assessment || ""));
 const _bPrimary = (function() {
   const raw = executiveSummary.primary_bottleneck || "";
   // if it's a snake_case key (contains underscore) → format via label helper
   // if it's an AI-generated sentence → preserve as plain text
-  return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(polishNarrativeText(raw));
+  return raw.includes("_") ? esc(toPremiumBottleneckLabel(raw)) : esc(cleanAIText(raw));
 })();
 const _bWhy           = safeHighlight(executiveSummary.why_it_matters || "", ["negative net profit", "financial bleeding", "losing profit"]);
 const _bnName         = esc(toPremiumBottleneckLabel(bottleneckAnalysis.bottleneck_name || data.primary_bottleneck || "Primary Conversion Constraint"));
-const _bnImpact       = esc(polishNarrativeText(bottleneckAnalysis.business_impact || ""));
+const _bnImpact       = esc(cleanAIText(bottleneckAnalysis.business_impact || ""));
 const _symptoms       = renderList(bottleneckAnalysis.symptoms);
 const _evidence       = renderList(bottleneckAnalysis.evidence);
 // Inject pricing insight when ROAS is below benchmark but conversion exists (funnel works, economics don't)
@@ -621,7 +633,7 @@ const _rootCausesRaw = (function() {
   return causes;
 })();
 const _rootCauses     = renderList(_rootCausesRaw);
-const _bmSummary      = esc(polishNarrativeText(benchmarkAnalysis.summary || ""));
+const _bmSummary      = esc(cleanAIText(benchmarkAnalysis.summary || ""));
 const _gapCards       = renderGapCardsFromStructured(gaps);
 
 const isReadyToScale = String(data.primary_bottleneck || "") === "ready_to_scale";
@@ -630,13 +642,17 @@ const _urgency        = esc(costOfInactionAI.urgency_statement || "");
 const _lossVal        = isReadyToScale ? "0 (Optimized)" : esc(monthlyValueAtRiskDisplay);
 const _adSpend        = isReadyToScale ? "Ready to Grow" : esc(adSpendAtRiskDisplay);
 const _lossChannel    = esc(primaryLossChannel);
-const _explanation    = esc(polishNarrativeText(costOfInactionAI.explanation || ""));
+const _explanation    = esc(cleanAIText(costOfInactionAI.explanation || ""));
 const _next7          = renderList(actionPlan.next_7_days);
 const _next30         = renderList(actionPlan.next_30_days);
-const _next90         = renderList(actionPlan.next_90_days);
-const _bestMove       = esc(polishNarrativeText(strategicRecommendation.best_next_move || ""));
-const _whyFirst       = esc(polishNarrativeText(strategicRecommendation.why_this_first || ""));
-const _notYet         = esc(polishNarrativeText(strategicRecommendation.what_not_to_do_yet || ""));
+const next90Items = Array.isArray(actionPlan.next_90_days) ? actionPlan.next_90_days.slice() : [];
+if (seasonalityRisk) {
+  next90Items.push("Validate seasonality: Compare monthly ad spend, leads, booked jobs, close rate, and revenue against the same months last year.");
+}
+const _next90         = renderList(next90Items);
+const _bestMove       = esc(cleanAIText(strategicRecommendation.best_next_move || ""));
+const _whyFirst       = esc(cleanAIText(strategicRecommendation.why_this_first || ""));
+const _notYet         = esc(cleanAIText(strategicRecommendation.what_not_to_do_yet || ""));
 const _engagement     = esc(recommendedEngagementText);
 const _outcome        = esc(expectedOutcomeText);
 const _implText1      = esc(implementationOpportunityText1);
@@ -644,6 +660,24 @@ const _implText2      = esc(implementationOpportunityText2);
 const _implText3      = esc(implementationOpportunityText3);
 const _methodology    = esc(methodologyNote);
 const _lossValueShort = displayMoney(monthlyLossNumber, "ok");
+
+const seasonalityBlockHtml = seasonalityRisk
+  ? "    <div class=\"section\">\n" +
+    "      <div class=\"section-title\">Seasonality Risk Check</div>\n" +
+    "      <div class=\"card warning-zone\" style=\"background: #fffbeb; border-color: #fcd34d;\">\n" +
+    "        <div style=\"font-size: 13.5px; font-weight: bold; color: #b45309; margin-bottom: 8px;\">&#9888; SEASONALITY RISK DETECTED</div>\n" +
+    "        <p style=\"font-size: 13.5px; line-height: 1.62; color: #451a03;\">" +
+    "          Your business may be seasonal, which can affect how current marketing numbers should be interpreted." +
+    "        </p>\n" +
+    "        <p style=\"font-size: 13.5px; line-height: 1.62; color: #451a03; margin-top: 8px;\">" +
+    "          This report can flag potential funnel leaks, but a full seasonal analysis requires historical monthly data." +
+    "        </p>\n" +
+    "        <div style=\"margin-top: 12px; padding: 10px 12px; background: rgba(251, 191, 36, 0.1); border-radius: 6px; font-size: 13px; color: #78350f; font-weight: 600;\">" +
+    "          Before increasing or cutting ad spend, compare this period with the same period last year." +
+    "        </div>\n" +
+    "      </div>\n" +
+    "    </div>\n"
+  : "";
 
 // -------------------------
 // Conditional: three states — active loss (> 0), growth ceiling (=== 0), insufficient data (null)
@@ -654,7 +688,7 @@ const hasInsufficientData = monthlyLossNumber === null;
 const _sectionTitleFinancial = isReadyToScale
   ? "Financial Upside: Ready for Scale"
   : hasActiveLoss
-  ? "Financial Bleeding: The Cost of Inaction"
+  ? (seasonalityRisk ? "Financial Bleeding: Current-Period Estimate" : "Financial Bleeding: The Cost of Inaction")
   : hasZeroLoss
     ? "Growth Ceiling Detected: The Cost of Underperformance"
     : "Revenue Impact: Insufficient Data to Quantify";
@@ -662,7 +696,7 @@ const _sectionTitleFinancial = isReadyToScale
 const _inactionBannerHeading = isReadyToScale
   ? "SCALABILITY CONFIRMED"
   : hasActiveLoss
-  ? "ESTIMATED MONTHLY PROFIT LOSS"
+  ? (seasonalityRisk ? "ESTIMATED CURRENT-PERIOD PROFIT LOSS" : "ESTIMATED MONTHLY PROFIT LOSS")
   : hasZeroLoss
     ? "ESTIMATED GROWTH CEILING IMPACT"
     : "REVENUE IMPACT — DATA INCOMPLETE";
@@ -691,12 +725,12 @@ const _ctaLossColor   = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ff7a7a" :
 const _ctaLossSublabel = isReadyToScale
   ? "Your funnel is highly optimized. Priority is to safely scale ad spend and expand into new channels."
   : hasActiveLoss
-  ? "Estimated monthly profit loss while the bottleneck remains unfixed"
+  ? (seasonalityRisk ? "Estimated current-period profit loss while the bottleneck remains unfixed" : "Estimated monthly profit loss while the bottleneck remains unfixed")
   : hasZeroLoss
     ? "Estimated monthly growth opportunity being left on the table"
     : "Complete funnel data required for full financial impact modelling";
 
-const _ctaLossAmountDisplay = isReadyToScale ? "SCALE NOW" : _lossValueShort + " / mo";
+const _ctaLossAmountDisplay = isReadyToScale ? "SCALE NOW" : _lossValueShort + (seasonalityRisk ? " (current-period estimate)" : " / mo");
 
 const stopActionBoxHtml = isReadyToScale
   ? "        <h3>What To Do Next</h3>\n" +
@@ -746,9 +780,9 @@ const subscoresHtml =
   renderSubscoreCard("Tracking Readiness",  trackingScore,                                          "Reliability of measurement, attribution, and feedback-loop visibility.");
 
 const computedReferenceHtml =
-  "<h3>Computed Reference</h3><p>Missed gross profit: <strong>" +
+  "<h3>Computed Reference</h3><p>" + (seasonalityRisk ? "Missed gross profit (current-period estimate)" : "Missed gross profit") + ": <strong>" +
   esc(displayMoney(missedGrossProfitRaw, fieldStatus.estimated_missed_gross_profit_per_month)) +
-  "</strong> &nbsp;&middot;&nbsp; Missed revenue: <strong>" +
+  "</strong> &nbsp;&middot;&nbsp; " + (seasonalityRisk ? "Missed revenue (current-period estimate)" : "Missed revenue") + ": <strong>" +
   esc(displayMoney(missedRevenueRaw, fieldStatus.estimated_missed_revenue_per_month)) +
   "</strong></p></div>";
 
@@ -969,11 +1003,13 @@ const html = "<!doctype html>\n" +
 "      </div>\n" +
 "      " + stopLossHtml + "\n" +
 "      <div class=\"loss-grid\">\n" +
-"        <div class=\"loss-card\"><div class=\"loss-label\">Monthly Revenue at Risk</div><div class=\"loss-value hero\">" + _lossVal + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">" + (seasonalityRisk ? "Current-Period Revenue at Risk" : "Monthly Revenue at Risk") + "</div><div class=\"loss-value hero\">" + _lossVal + "</div></div>\n" +
 "        <div class=\"loss-card\"><div class=\"loss-label\">Ad Spend at Risk</div><div class=\"loss-value\">" + _adSpend + "</div></div>\n" +
 "        <div class=\"loss-card\"><div class=\"loss-label\">Primary Leak Point</div><div class=\"loss-value small\">" + _lossChannel + "</div></div>\n" +
 "      </div>\n" +
 "    </div>\n" +
+"\n" +
+"    " + seasonalityBlockHtml + "\n" +
 "\n" +
 "    " + customExecutiveSummaryHtml + "\n" +
 "\n" +

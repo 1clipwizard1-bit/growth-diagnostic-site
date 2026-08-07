@@ -40,7 +40,8 @@ const requiredBoolOrNull = [
   "has_email_followups",
   "has_sms_whatsapp",
   "retargeting_running",
-  "subscription"
+  "subscription",
+  "is_seasonal"
 ];
 
 const requiredStrings = [
@@ -52,7 +53,10 @@ const requiredStrings = [
   "retention_notes",
   "budget_constraint",
   "team_size",
-  "priority"
+  "priority",
+  "current_period",
+  "analysis_level",
+  "seasonality_confidence"
 ];
 
 for (const key of requiredNumericOrNull) {
@@ -86,6 +90,20 @@ if (typeof j.gross_margin === "number" && j.gross_margin > 1) {
 
 if (typeof j.repeat_purchase_rate === "number" && j.repeat_purchase_rate > 1) {
   warnings.push("repeat_purchase_rate > 1; expected decimal like 0.17");
+}
+
+// Seasonality semantic guards
+if (j.current_period && !['busy', 'slow', 'normal', 'not-sure'].includes(j.current_period)) {
+  errors.push(`Invalid current_period value: ${j.current_period}`);
+}
+if (j.analysis_level && !['context_only', 'full'].includes(j.analysis_level)) {
+  errors.push(`Invalid analysis_level value: ${j.analysis_level}`);
+}
+if (j.is_seasonal === false && (j.current_period === 'busy' || j.current_period === 'slow')) {
+  warnings.push(`Contradiction: is_seasonal is false but current_period is '${j.current_period}'`);
+}
+if (j.is_seasonal === false || j.current_period === 'not-sure' || j.seasonality_confidence === 'low') {
+  j.seasonality_confidence = 'low';
 }
 
 // Old aliases should not survive past Canonical Fields

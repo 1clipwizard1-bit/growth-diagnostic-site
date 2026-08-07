@@ -215,5 +215,9 @@ return items.map((item) => {
 
   item.json.benchmark_confidence = resolution.confidence;
 
+  const isSeasonal = input.is_seasonal === true || 
+                     (input.seasonality && input.seasonality.is_seasonal === true);
+  item.json.seasonality_risk = isSeasonal;
+
   return item;
 });

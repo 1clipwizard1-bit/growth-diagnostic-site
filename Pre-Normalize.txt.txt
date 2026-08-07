@@ -173,6 +173,31 @@ function mapFollowUpFlags(v) {
   return { has_email_followups: null, has_sms_whatsapp: null };
 }
 
+function mapIsSeasonal(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (['no', 'false', '0'].includes(s)) return false;
+  return true;
+}
+
+function mapCurrentPeriod(v) {
+  const s = String(v || '').trim().toLowerCase();
+  if (['busy', 'slow', 'normal'].includes(s)) return s;
+  return 'slow';
+}
+
+function mapAnalysisLevel(v) {
+  const s = String(v || '').trim().toLowerCase();
+  return s || 'context_only';
+}
+
+function determineSeasonalityConfidence(rawIsSeasonal, rawSeasonStatus) {
+  const sSeasonal = String(rawIsSeasonal || '').trim().toLowerCase();
+  const sStatus = String(rawSeasonStatus || '').trim().toLowerCase();
+  if (sSeasonal === 'not-sure' || sStatus === 'not-sure') return 'low';
+  if (!rawIsSeasonal || !rawSeasonStatus) return 'low';
+  return 'high';
+}
+
 // ─── Main ────────────────────────────────────────────────────────────────────
 
 const root = items[0].json;
@@ -198,7 +223,16 @@ const normalizedMargin    = mapProfitMargin(pick(j.profitMargin, bp.gross_margin
 const normalizedSalesCycle = mapSalesCycleDays(pick(j.salesCycle, bp.sales_cycle_days, j.sales_cycle_days));
 const normalizedResponseTime = mapResponseMinutes(pick(j.responseTime, fur.response_time_minutes, j.response_time_minutes));
 
+const rawIsSeasonal = pick(j?.seasonality?.is_seasonal, j.isSeasonal, j.is_seasonal);
+const rawSeasonStatus = pick(j?.seasonality?.current_period, j.seasonStatus, j.current_period);
+
 const parsed = {
+  seasonality: {
+    is_seasonal: mapIsSeasonal(rawIsSeasonal),
+    current_period: mapCurrentPeriod(rawSeasonStatus),
+    analysis_level: mapAnalysisLevel(pick(j?.seasonality?.analysis_level, j.analysis_level)),
+    seasonality_confidence: determineSeasonalityConfidence(rawIsSeasonal, rawSeasonStatus)
+  },
   business_profile: {
     industry: parseText(
       pick(normalizedIndustry, bp.industry, j.industry), ""

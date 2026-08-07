@@ -155,6 +155,12 @@ const budgetConstraint = firstDefined(pick("budget_constraint", "budget constrai
 const teamSize = firstDefined(pick("team_size", "team size")) || "";
 const priority = firstDefined(pick("priority")) || "";
 
+const isSeasonal = boolOrNull(firstDefined(pick("is_seasonal", "is seasonal")));
+const currentPeriod = firstDefined(pick("current_period", "current period")) || "slow";
+const analysisLevel = firstDefined(pick("analysis_level", "analysis level")) || "context_only";
+const seasonalityConfidence = firstDefined(pick("seasonality_confidence", "seasonality confidence")) || "high";
+const seasonalityRisk = boolOrNull(firstDefined(pick("seasonality_risk", "seasonality risk"))) || false;
+
 // -------------------------
 // Benchmark input from Benchmark Resolver ONLY
 // Canonical shape: data.benchmarks.{profile,meta,confidence}
@@ -1072,7 +1078,12 @@ return [
         retention_notes: retentionNotes,
         budget_constraint: budgetConstraint,
         team_size: teamSize,
-        priority
+        priority,
+        is_seasonal: isSeasonal,
+        current_period: currentPeriod,
+        analysis_level: analysisLevel,
+        seasonality_confidence: seasonalityConfidence,
+        seasonality_risk: seasonalityRisk
       },
       metrics: metricsOutput,
       benchmarks: benchmarkOutput,
@@ -1083,7 +1094,8 @@ return [
         data_confidence: dataConfidence,
         primary_bottleneck: primaryBottleneck,
         primary_bottleneck_status: primaryBottleneck === "insufficient_data" ? "insufficient_data" : "ok",
-        secondary_risks: secondaryRisks.slice(0, 3)
+        secondary_risks: secondaryRisks.slice(0, 3),
+        seasonality_flag: isSeasonal
       },
       cost_of_inaction: costOfInactionOutput,
       value_at_risk: valueAtRiskOutput,
@@ -1126,7 +1138,12 @@ return [
         retention_notes: retentionNotes,
         budget_constraint: budgetConstraint,
         team_size: teamSize,
-        priority
+        priority,
+        is_seasonal: isSeasonal,
+        current_period: currentPeriod,
+        analysis_level: analysisLevel,
+        seasonality_confidence: seasonalityConfidence,
+        seasonality_risk: seasonalityRisk
       }
     }
   }

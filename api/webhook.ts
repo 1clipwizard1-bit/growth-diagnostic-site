@@ -53,6 +53,9 @@ export default async function handler(req: any, res: any) {
       leadSource: metadata.leadSource,
       adSpend: metadata.adSpend === 'null' ? null : metadata.adSpend,
       exactAdSpend: metadata.exactAdSpend && metadata.exactAdSpend !== 'null' ? parseInt(metadata.exactAdSpend, 10) : null,
+      // Step 3 (Seasonality)
+      isSeasonal: metadata.isSeasonal || null,
+      seasonStatus: metadata.seasonStatus || null,
       // Step 2
       monthlyLeads: parseInt(metadata.monthlyLeads || '0', 10),
       callsBooked: parseInt(metadata.callsBooked || '0', 10),

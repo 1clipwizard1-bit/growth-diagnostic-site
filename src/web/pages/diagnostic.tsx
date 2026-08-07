@@ -477,7 +477,14 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
         <Label required helper="Does your sales volume or lead count change significantly depending on the time of year?">Is your business seasonal?</Label>
         <Select
           value={data.isSeasonal}
-          onChange={v => onChange('isSeasonal', v)}
+          onChange={v => {
+            onChange('isSeasonal', v);
+            if (v === 'no') {
+              onChange('seasonStatus', 'normal');
+            } else if (data.seasonStatus === 'normal') {
+              onChange('seasonStatus', '');
+            }
+          }}
           placeholder="Select option"
           error={errors.isSeasonal}
           options={[
@@ -496,6 +503,7 @@ function Step3({ data, onChange, errors }: { data: FormData; onChange: (k: keyof
           onChange={v => onChange('seasonStatus', v)}
           placeholder="Select period"
           error={errors.seasonStatus}
+          disabled={data.isSeasonal === 'no'}
           options={[
             { value: 'busy', label: 'Busy season' },
             { value: 'slow', label: 'Slow season' },
@@ -985,7 +993,7 @@ export default function DiagnosticForm() {
 
     if (step === 3) {
       if (!data.isSeasonal) errs.isSeasonal = 'Required';
-      if (!data.seasonStatus) errs.seasonStatus = 'Required';
+      if (data.isSeasonal !== 'no' && !data.seasonStatus) errs.seasonStatus = 'Required';
     }
 
     if (step === 4) {

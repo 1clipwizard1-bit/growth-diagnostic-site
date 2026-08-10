@@ -216,8 +216,10 @@ return items.map((item) => {
 
   item.json.benchmark_confidence = resolution.confidence;
 
-  const isSeasonal = input.is_seasonal === true || 
-                     (input.seasonality && input.seasonality.is_seasonal === true);
+  const rawIsSeasonal = input.is_seasonal !== undefined ? input.is_seasonal : (input.seasonality ? input.seasonality.is_seasonal : undefined);
+  const isSeasonal = rawIsSeasonal === true ||
+                     String(rawIsSeasonal ?? '').trim().toLowerCase() === 'true' ||
+                     String(rawIsSeasonal ?? '').trim().toLowerCase() === 'yes';
   item.json.seasonality_risk = isSeasonal;
 
   return item;

@@ -1434,10 +1434,13 @@ function PayPalButtonContainer({ data, validate, onStartPayment, onSuccessPaymen
             onStartPayment();
             try {
               const payload = {
+                name: data.name,
                 businessType: data.businessType,
                 leadSource: data.leadSource,
                 adSpend: data.adSpend || null,
                 exactAdSpend: data.exactAdSpend ? parseInt(data.exactAdSpend) : null,
+                isSeasonal: data.isSeasonal,
+                seasonStatus: data.seasonStatus,
                 monthlyLeads: parseInt(data.monthlyLeads) || 0,
                 callsBooked: parseInt(data.callsBooked) || 0,
                 callsCompleted: parseInt(data.callsCompleted) || 0,

@@ -78,6 +78,14 @@ export default async function handler(req: any, res: any) {
       body: JSON.stringify({
         source: reportUrl,
         sandbox: false,
+        format: 'A4',
+        use_print: true,
+        header: {
+          source: '<div style="font-size: 8px; font-family: Helvetica, Arial, sans-serif; text-align: right; width: 100%; padding: 0 14mm; color: #6b7a99; letter-spacing: 0.5px;">CONFIDENTIAL &bull; GROWTH BOTTLENECK AUDIT</div>'
+        },
+        footer: {
+          source: '<div style="font-size: 8px; font-family: Helvetica, Arial, sans-serif; text-align: right; width: 100%; padding: 0 14mm; color: #6b7a99;">Page {{page}} of {{total}}</div>'
+        }
       }),
     });
 

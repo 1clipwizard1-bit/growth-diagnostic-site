@@ -38,8 +38,9 @@ function resolveIndustryKey(input) {
     'industry_resolved',
     'business_category',
     'business_type',
+    'businessType',
     'niche'
-  ]);
+  ]) || (input.business_profile && input.business_profile.industry);
 
   const industry = normalizeString(rawIndustry);
 
@@ -199,7 +200,7 @@ return items.map((item) => {
     lead_to_booked_rate:      profile.lead_to_booked_rate,
     booked_to_completed_rate: profile.booked_to_completed_rate,
     completed_to_close_rate:  profile.completed_to_close_rate,
-    lead_to_close_rate:       profile.lead_to_close_rate,
+    lead_to_close_rate:       (profile.lead_to_booked_rate !== null && profile.booked_to_completed_rate !== null && profile.completed_to_close_rate !== null) ? profile.lead_to_booked_rate * profile.booked_to_completed_rate * profile.completed_to_close_rate : profile.lead_to_close_rate,
     roas:                     profile.roas,
     cpl:                      profile.cpl,
     response_time_minutes:    profile.response_time_minutes,

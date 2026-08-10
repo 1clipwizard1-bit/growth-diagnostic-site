@@ -223,7 +223,7 @@ function renderGapCardsFromStructured(gaps) {
       }
     }
 
-    const arrowSymbol = rawDiff !== null ? (rawDiff >= 0 ? "▲ " : "▼ ") : "";
+    const arrowSymbol = rawDiff !== null ? (isPositive ? "▲ " : "▼ ") : "";
     const arrowClass = isPositive ? "gap-arrow-up" : "gap-arrow-down";
 
     return {
@@ -348,6 +348,8 @@ const score             = hasValidScore ? rawScoreValue : 0;
 const primaryBottleneck = toPremiumBottleneckLabel(data.primary_bottleneck || "");
 const dataConfidence    = data.data_confidence || "";
 
+const _businessName     = data.name ? String(data.name).trim() : "";
+
 const ai       = data.ai_report || {};
 
 const metrics                = computed.metrics || {};
@@ -400,11 +402,15 @@ const ltvCacClass      = healthClass(ltvCacStatus);
 const ltvCacBar        = (ltvCacRatioRaw !== null) ? Math.min(100, (ltvCacRatioRaw / ltvCacBenchmark) * 100) : 0;
 
 // NEW: Stop Loss Warning Logic
-const needsStopLoss = (metrics.roas !== null && metrics.roas < 1.0) || (ltvCacRatioRaw !== null && ltvCacRatioRaw < 1.3);
+const needsStopLoss =
+  (metrics.roas !== null && metrics.roas < 1.0) ||
+  (metrics.gross_profit_roas !== null && metrics.gross_profit_roas < 1.0) ||
+  (metrics.net_profit_after_ads !== null && metrics.net_profit_after_ads < 0) ||
+  (ltvCacRatioRaw !== null && ltvCacRatioRaw < 1.3);
 const stopLossHtml = needsStopLoss 
   ? "<div class=\"micro-callout stop-loss\">" +
     "<div style=\"text-align:center;\"><strong>!!! WARNING: FINANCIAL BLEEDING DETECTED !!!</strong></div>" +
-    "Your current unit economics are unsustainable. Every dollar spent on ads is returning less than its acquisition cost. " +
+    "Your current unit economics are unsustainable. Every ad dollar is returning less profit than it costs to acquire a customer. " +
     "<strong>Do not increase your advertising budget</strong> until the conversion bottlenecks identified below are corrected." +
     "</div>"
   : "";
@@ -417,7 +423,7 @@ const keyFindingText = String(data.primary_bottleneck || "") === "insufficient_d
       ? "Current data suggests strong overall performance. Further growth requires scaling of tracking infrastructure to maintain visibility as volume increases."
       : "Establishing reliable data tracking is the critical first step. Without correct attribution, marketing spend cannot be optimized for profit.")
   : String(data.primary_bottleneck || "") === "economics_efficiency"
-    ? "The Money Leak: Your current sales process is killing your ad profit. Correcting this is the fastest way to immediate revenue without increasing budget."
+    ? "The Money Leak: Your deal economics — not your sales process — are draining ad profit. Your funnel converts, but each deal earns too little for what it costs to win."
     : String(data.primary_bottleneck || "") === "ready_to_scale"
       ? "Scaling Opportunity: Your funnel is highly optimized and beating industry benchmarks. You are cleared to safely scale budget and expand acquisition channels."
       : "Conversion Bottleneck: This constraint is directly blocking your ability to turn demand into booked revenue and profit.";
@@ -450,10 +456,10 @@ const customExecutiveSummaryHtml = String(data.primary_bottleneck || "") === "ec
     "<div class=\"section\">" +
     "<div class=\"section-title\">Executive Summary: The Profit Leak</div>" +
     "<div class=\"card accent\">" +
-    "<p>Your current growth is not limited by a traffic problem. It is limited by a <strong>monetization problem</strong>. Your sales process is currently leaking profit that should be staying in the business.</p>" +
-    "<p style=\"margin-top:12px;\">Right now, your ROAS is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(num(metrics.roas, 2)) + "x</strong>. This is materially below the industry benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
-    "<p style=\"margin-top:12px;\">This means you are generating demand, but your current funnel economics are failing to convert that spend into healthy returns. In simple terms: <strong>Your ad spend is being wasted on a leaky funnel.</strong></p>" +
-    "<p style=\"margin-top:12px;\">Correcting this profit leak is the fastest path to growth. You don't need more traffic; you need to stop losing the profit you already have.</p>" +
+    "<p>Your growth is not limited by a traffic problem &mdash; and, based on your numbers, not by a conversion problem either. Your funnel converts at or above industry benchmarks. The leak is in your unit economics: every closed deal brings in less profit than it should for what you pay to acquire it.</p>" +
+    "<p style=\"margin-top:12px;\">Right now your ROAS is <strong class=\"health-weak\" style=\"font-size: 1.25em;\">" + esc(num(metrics.roas, 2)) + "x</strong> against an industry benchmark of <strong>" + esc(num(benchmarkProfile.roas, 2)) + "x</strong>.</p>" +
+    "<p style=\"margin-top:12px;\">With your current deal size and cost per lead, you are paying <strong>" + esc(money(metrics.cac)) + "</strong> to acquire a customer worth <strong>" + esc(money(metrics.avg_deal_size)) + "</strong> in revenue &mdash; the math leaves too little margin after ad spend.</p>" +
+    "<p style=\"margin-top:12px;\">Fixing this is a pricing and offer-economics exercise, not a \"more leads\" exercise: raising average deal value, improving margin, or lowering acquisition cost. Correcting it is the fastest path to profit without spending a single extra dollar on ads.</p>" +
     "</div>" +
     "</div>"
   )
@@ -600,7 +606,11 @@ const _scalingReadiness = (function() {
 const _scoreStatus    = esc(_scalingReadiness);
 const _healthClass    = healthClass(_scoreStatus);
 const _bottleneck     = esc(primaryBottleneck);
-const _confidence     = esc(dataConfidence);
+const _confidence     = (function(conf) {
+  if (!conf) return "";
+  const s = String(conf).trim().toLowerCase();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+})(dataConfidence);
 const _scoreInterp    = esc(scoreInterpretation);
 const _confNote       = esc(confidenceNote);
 const _keyFindingText = esc(keyFindingText);
@@ -623,9 +633,10 @@ const _rootCausesRaw = (function() {
     ? bottleneckAnalysis.likely_root_causes.slice()
     : [];
   const conversionRaw = numberOrNull(metrics.lead_to_close_rate);
-  const hasConversion = conversionRaw !== null && conversionRaw > 0;
-  const roasLow = _roasRaw !== null && _roasRaw < _roasBenchmark;
-  if (roasLow && hasConversion) {
+  const bmLeadToCloseRaw = numberOrNull(benchmarkProfile.lead_to_close_rate);
+  const roasLow = _roasRaw !== null && _roasBenchmark !== null && _roasRaw < _roasBenchmark * 0.8;
+  const funnelWorks = conversionRaw !== null && bmLeadToCloseRaw !== null && conversionRaw >= bmLeadToCloseRaw * 0.85;
+  if (roasLow && funnelWorks) {
     const pricingHint = "Pricing is not optimized for your current CAC — your funnel converts, but the deal economics do not support a profitable return on ad spend at current price points.";
     const alreadyHas = causes.some(function(c) { return String(c).toLowerCase().includes("pricing"); });
     if (!alreadyHas) causes.push(pricingHint);
@@ -634,11 +645,11 @@ const _rootCausesRaw = (function() {
 })();
 const _rootCauses     = renderList(_rootCausesRaw);
 const _bmSummary      = esc(cleanAIText(benchmarkAnalysis.summary || ""));
-const _gapCards       = renderGapCardsFromStructured(gaps);
+const _gapCards       = renderGapCardsFromStructured(gaps, data.primary_bottleneck);
 
 const isReadyToScale = String(data.primary_bottleneck || "") === "ready_to_scale";
 const _lossDisplay    = isReadyToScale ? "" : esc(monthlyLossDisplay);
-const _urgency        = esc(costOfInactionAI.urgency_statement || "");
+const _urgency        = esc(cleanAIText(costOfInactionAI.urgency_statement || ""));
 const _lossVal        = isReadyToScale ? "0 (Optimized)" : esc(monthlyValueAtRiskDisplay);
 const _adSpend        = isReadyToScale ? "Ready to Grow" : esc(adSpendAtRiskDisplay);
 const _lossChannel    = esc(primaryLossChannel);
@@ -661,19 +672,22 @@ const _implText3      = esc(implementationOpportunityText3);
 const _methodology    = esc(methodologyNote);
 const _lossValueShort = displayMoney(monthlyLossNumber, "ok");
 
+const _ctaLossAmountDisplay = isReadyToScale ? "SCALE NOW" : _lossValueShort;
+const _ctaLossAmountSuffix = isReadyToScale ? "" : (seasonalityRisk ? "current-period estimate" : "per month");
+
 const seasonalityBlockHtml = seasonalityRisk
   ? "    <div class=\"section\">\n" +
-    "      <div class=\"section-title\">Seasonality Risk Check</div>\n" +
+    "      <div class=\"section-title\">Seasonality Check</div>\n" +
     "      <div class=\"card warning-zone\" style=\"background: #fffbeb; border-color: #fcd34d;\">\n" +
-    "        <div style=\"font-size: 13.5px; font-weight: bold; color: #b45309; margin-bottom: 8px;\">&#9888; SEASONALITY RISK DETECTED</div>\n" +
+    "        <div style=\"font-size: 13.5px; font-weight: bold; color: #b45309; margin-bottom: 8px;\">&#9888; SEASONALITY FLAG</div>\n" +
     "        <p style=\"font-size: 13.5px; line-height: 1.62; color: #451a03;\">" +
-    "          Your business may be seasonal, which can affect how current marketing numbers should be interpreted." +
+    "          Demand in your niche moves in cycles — so a \"bad\" month may be a normal seasonal dip, while a \"good\" month can hide a leak that peak demand is covering." +
     "        </p>\n" +
     "        <p style=\"font-size: 13.5px; line-height: 1.62; color: #451a03; margin-top: 8px;\">" +
-    "          This report can flag potential funnel leaks, but a full seasonal analysis requires historical monthly data." +
+    "          This report diagnoses your funnel as it performs right now; separating seasonal swing from structural leaks requires 12+ months of your data. Before scaling or cutting ad spend, compare this period with the same period last year — not with last month." +
     "        </p>\n" +
     "        <div style=\"margin-top: 12px; padding: 10px 12px; background: rgba(251, 191, 36, 0.1); border-radius: 6px; font-size: 13px; color: #78350f; font-weight: 600;\">" +
-    "          Before increasing or cutting ad spend, compare this period with the same period last year." +
+    "          Need a season-adjusted plan (off-season demand + in-season scaling)? Reply to the email that delivered this report." +
     "        </div>\n" +
     "      </div>\n" +
     "    </div>\n"
@@ -684,9 +698,12 @@ const seasonalityBlockHtml = seasonalityRisk
 const hasActiveLoss      = monthlyLossNumber !== null && monthlyLossNumber > 0;
 const hasZeroLoss        = monthlyLossNumber !== null && monthlyLossNumber === 0;
 const hasInsufficientData = monthlyLossNumber === null;
+const isSmallLoss        = hasActiveLoss && metrics.revenue !== null && metrics.revenue > 0 && (monthlyLossNumber < metrics.revenue * 0.05);
 
 const _sectionTitleFinancial = isReadyToScale
   ? "Financial Upside: Ready for Scale"
+  : isSmallLoss
+  ? "Optimization Opportunity: Recoverable Profit"
   : hasActiveLoss
   ? (seasonalityRisk ? "Financial Bleeding: Current-Period Estimate" : "Financial Bleeding: The Cost of Inaction")
   : hasZeroLoss
@@ -695,6 +712,8 @@ const _sectionTitleFinancial = isReadyToScale
 
 const _inactionBannerHeading = isReadyToScale
   ? "SCALABILITY CONFIRMED"
+  : isSmallLoss
+  ? "ESTIMATED RECOVERABLE PROFIT / MONTH"
   : hasActiveLoss
   ? (seasonalityRisk ? "ESTIMATED CURRENT-PERIOD PROFIT LOSS" : "ESTIMATED MONTHLY PROFIT LOSS")
   : hasZeroLoss
@@ -703,40 +722,50 @@ const _inactionBannerHeading = isReadyToScale
 
 const _headerStatusLabel = isReadyToScale
   ? "&#10003; READY TO SCALE"
+  : isSmallLoss
+  ? "&#9650; OPTIMIZATION OPPORTUNITY"
   : hasActiveLoss
   ? "&#9888; LOSS DETECTED"
   : hasZeroLoss
     ? "&#9650; GROWTH CEILING DETECTED"
     : "&#8212; AWAITING DATA";
 
-const _headerStatusColor = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+const _headerStatusColor = isReadyToScale ? "#22c55e" : isSmallLoss ? "#fbbf24" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
 
 const _ctaConfirmedLabel = isReadyToScale
   ? "&#10003; Ready for Scale"
+  : isSmallLoss
+  ? "Optimization Opportunity"
   : hasActiveLoss
-  ? "&#9888; Revenue Bleeding Confirmed"
+  ? "&#9888; Profit Bleeding Confirmed"
   : hasZeroLoss
     ? "&#9650; Growth Ceiling Confirmed"
     : "&#8505; Diagnostic Complete";
 
-const _ctaBorderColor = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ef4444" : hasZeroLoss ? "#f59e0b" : "#1a5fff";
-const _ctaLossColor   = isReadyToScale ? "#22c55e" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
+const _ctaBorderColor = isReadyToScale ? "#22c55e" : isSmallLoss ? "#f59e0b" : hasActiveLoss ? "#ef4444" : hasZeroLoss ? "#f59e0b" : "#1a5fff";
+const _ctaLossColor   = isReadyToScale ? "#22c55e" : isSmallLoss ? "#fbbf24" : hasActiveLoss ? "#ff7a7a" : hasZeroLoss ? "#fbbf24" : "#7eb3ff";
 
 const _ctaLossSublabel = isReadyToScale
   ? "Your funnel is highly optimized. Priority is to safely scale ad spend and expand into new channels."
+  : isSmallLoss
+  ? "Estimated monthly profit optimization opportunity before broader scaling"
   : hasActiveLoss
   ? (seasonalityRisk ? "Estimated current-period profit loss while the bottleneck remains unfixed" : "Estimated monthly profit loss while the bottleneck remains unfixed")
   : hasZeroLoss
     ? "Estimated monthly growth opportunity being left on the table"
     : "Complete funnel data required for full financial impact modelling";
 
-const _ctaLossAmountDisplay = isReadyToScale ? "SCALE NOW" : _lossValueShort + (seasonalityRisk ? " (current-period estimate)" : " / mo");
-
 const stopActionBoxHtml = isReadyToScale
   ? "        <h3>What To Do Next</h3>\n" +
     "        <div class=\"stop-action-box\" style=\"background: #f0fdf4; border-color: #86efac;\">\n" +
     "          <div class=\"stop-action-label\" style=\"color: #166534;\">&#10003; Green Light for Growth</div>\n" +
     "          <div class=\"stop-action-text\" style=\"color: #166534;\">INCREASE YOUR AD SPEND. Your funnel is ready to handle more volume. You should actively expand your marketing budget and explore new channels to capture more market share.</div>\n" +
+    "        </div>\n"
+  : isSmallLoss
+  ? "        <h3>What To Do Next</h3>\n" +
+    "        <div class=\"stop-action-box\" style=\"background: #fffbeb; border-color: #fcd34d;\">\n" +
+    "          <div class=\"stop-action-label\" style=\"color: #b45309;\">&#9650; Optimization Recommended</div>\n" +
+    "          <div class=\"stop-action-text\" style=\"color: #b45309;\">Optimize your conversion rates before scaling further. While your current loss is small, fixing these gaps will ensure highly profitable growth as volume increases.</div>\n" +
     "        </div>\n"
   : "        <h3>What Not To Do Yet</h3>\n" +
     "        <div class=\"stop-action-box\">\n" +
@@ -751,8 +780,8 @@ const _ctaHeadlineV2 = isReadyToScale
   : "          This report shows you <em>where</em> the money is going.<br>\n" +
     "          I'll walk you through exactly how to stop it &mdash; using your current assets, no complex rebuilds.\n";
 
-const _ctaButtonText = isReadyToScale ? "Schedule Scaling Strategy Call" : "Stop the Bleeding";
-const _ctaButtonColor = isReadyToScale ? "#22c55e" : "#ef4444";
+const _ctaButtonText = isReadyToScale ? "Schedule Scaling Strategy Call" : isSmallLoss ? "Claim the Upside" : "Stop the Bleeding";
+const _ctaButtonColor = isReadyToScale ? "#22c55e" : isSmallLoss ? "#f59e0b" : "#ef4444";
 
 // -------------------------
 // Score / subscore logic
@@ -784,20 +813,53 @@ const computedReferenceHtml =
   esc(displayMoney(missedGrossProfitRaw, fieldStatus.estimated_missed_gross_profit_per_month)) +
   "</strong> &nbsp;&middot;&nbsp; " + (seasonalityRisk ? "Missed revenue (current-period estimate)" : "Missed revenue") + ": <strong>" +
   esc(displayMoney(missedRevenueRaw, fieldStatus.estimated_missed_revenue_per_month)) +
-  "</strong></p></div>";
+  "</strong>" +
+  (ltvCacRatioRaw !== null ? " &nbsp;&middot;&nbsp; " + esc(ltvLabel) + "/" + esc(cacLabel) + " (LTV:CAC): <strong>" + _ltvCac + "x</strong> (Target: " + _ltvCacTarget + "x)" : "") +
+  "</p>" +
+  (missedGrossProfitRaw !== null ? "<p style=\"margin-top: 6px; font-size: 12px; color: #6b7a99;\">Linear Projections (Gross Profit Leak): 3 Months: <strong>" + esc(money(missedGrossProfitRaw * 3)) + "</strong> &nbsp;&middot;&nbsp; 6 Months: <strong>" + esc(money(missedGrossProfitRaw * 6)) + "</strong> &nbsp;&middot;&nbsp; 12 Months: <strong>" + esc(money(missedGrossProfitRaw * 12)) + "</strong> (linear estimate)</p>" : "");
 
-const whatGoodLooksLikeHtml =
-  "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\"><li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li><li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li><li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li><li>Response Time: under 15 minutes</li><li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li></ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>";
+const whatGoodLooksLikeHtml = hasBenchmarks
+  ? "<div class=\"good-box\"><div class=\"good-label\">Performance Standards</div><p class=\"good-text\">Typical high-performing " + _industry + " " + (data.offer_type === "service" ? "funnels" : "systems") + " are expected to meet or exceed the following benchmarks:</p><ul class=\"good-list\">" +
+    (benchmarkProfile.lead_to_booked_rate !== null ? "<li>Lead-to-Booked Rate: " + esc(num(benchmarkProfile.lead_to_booked_rate * 100, 0)) + "&ndash;" + esc(num(benchmarkProfile.lead_to_booked_rate * 150, 0)) + "%</li>" : "") +
+    (benchmarkProfile.booked_to_completed_rate !== null ? "<li>Booked-to-Completed Rate: " + esc(num(benchmarkProfile.booked_to_completed_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.booked_to_completed_rate * 1.2) * 100, 0)) + "%</li>" : "") +
+    (benchmarkProfile.completed_to_close_rate !== null ? "<li>Completed-to-Close Rate: " + esc(num(benchmarkProfile.completed_to_close_rate * 100, 0)) + "&ndash;" + esc(num(Math.min(1, benchmarkProfile.completed_to_close_rate * 1.5) * 100, 0)) + "%</li>" : "") +
+    (benchmarkProfile.response_time_minutes !== null ? "<li>Response Time: under " + esc(num(benchmarkProfile.response_time_minutes, 0)) + " minutes</li>" : "") +
+    (benchmarkProfile.roas !== null ? "<li>ROAS: " + esc(num(benchmarkProfile.roas, 1, "")) + "&ndash;" + esc(num(benchmarkProfile.roas * 1.8, 1, "")) + "&times;</li>" : "") +
+    "</ul><p class=\"good-text\">At these levels, marketing spend typically produces more predictable revenue growth and more profitable scaling.</p></div>"
+  : "";
+
+const benchmarkIndustryDisplay = (function(ind) {
+  const map = {
+    'local':          'Local Service Business',
+    'local_service':  'Local Service Business',
+    'home_services':  'Local Service Business',
+    'home_service':   'Local Service Business',
+    'local_services': 'Local Service Business',
+    'agency':         'Agency / Consulting',
+    'agency_services':'Agency / Consulting',
+    'coaching':       'Coaching / Education',
+    'coaching_consulting': 'Coaching / Consulting',
+    'clinic':         'Clinic / Medical',
+    'other':          'Other Business',
+  };
+  return map[String(ind).toLowerCase().trim()] || ind || 'Service Business';
+})(benchmarkIndustry);
+
+const benchmarkConfidenceDisplay = (function(conf) {
+  if (!conf) return "";
+  const s = String(conf).trim().toLowerCase();
+  return s.charAt(0).toUpperCase() + s.slice(1);
+})(benchmarkConfidence);
 
 const benchmarkAuthorityHtml =
   "<div class=\"section\">" +
   "<div class=\"section-title\">Benchmark Reference</div>" +
   "<div class=\"card\">" +
   "<div class=\"grid-2\">" +
-  "<div><h3>Industry Benchmark</h3><p>" + esc(displayText(benchmarkIndustry, benchmarkIndustry ? "ok" : "insufficient_data")) + "</p></div>" +
+  "<div><h3>Industry Benchmark</h3><p>" + esc(displayText(benchmarkIndustryDisplay, benchmarkIndustryDisplay ? "ok" : "insufficient_data")) + "</p></div>" +
   "<div><h3>Benchmark Version</h3><p>"  + esc(displayText(benchmarkVersion,  benchmarkVersion  ? "ok" : "insufficient_data")) + "</p></div>" +
   "</div>" +
-  "<div style=\"margin-top:12px;\"><h3>Confidence</h3><p>" + esc(displayText(benchmarkConfidence, benchmarkConfidence ? "ok" : "insufficient_data")) + "</p></div>" +
+  "<div style=\"margin-top:12px;\"><h3>Confidence</h3><p>" + esc(displayText(benchmarkConfidenceDisplay, benchmarkConfidenceDisplay ? "ok" : "insufficient_data")) + "</p></div>" +
   "</div>" +
   "</div>";
 
@@ -835,9 +897,9 @@ const html = "<!doctype html>\n" +
 "    .header .sub { font-family: Arial, Helvetica, sans-serif; font-size: 13px; color: #a8b8d8; }\n" +
 "\n" +
 "    .score-strip { display: grid; grid-template-columns: repeat(4, 1fr); background: #162248; border-top: 1px solid #263a6e; width: 100%; }\n" +
-"    .score-cell { min-width: 0; padding: 22px 20px 20px; border-right: 1px solid #263a6e; border: 1px solid #263a6e; position: relative; }\n" +
+"    .score-cell { min-width: 0; padding: 22px 20px 20px; border: 1px solid #263a6e; border-right: none; position: relative; }\n" +
 "    .score-cell::after { content: ''; display: block; height: 3px; border-radius: 2px; margin-top: 14px; background: rgba(126,179,255,0.18); }\n" +
-"    .score-cell:last-child { border-right: none; }\n" +
+"    .score-cell:last-child { border-right: 1px solid #263a6e; }\n" +
 "    .score-label { font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #7eb3ff; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }\n" +
 "    .score-value { font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.2; white-space: nowrap; }\n" +
 "    .score-value.small { font-size: 15px; line-height: 1.35; }\n" +
@@ -965,7 +1027,7 @@ const html = "<!doctype html>\n" +
 "    .stop-action-text { font-size: 14px; font-weight: 700; color: #ffffff; line-height: 1.45; }\n" +
 "    .subscore-card.score-critical { border-color: #fca5a5; background: #fff5f5; }\n" +
 "    .subscore-card.score-critical .subscore-value { color: #d9363e; }\n" +
-"    .cta-box-v2 { margin-top: 20px; background: linear-gradient(135deg, #0d1b3e 0%, #1a1f2e 100%); color: #ffffff; border-radius: 12px; padding: 40px 36px; text-align: center; border: 2px solid #ef4444; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
+"    .cta-box-v2 { margin-top: 24px; background: linear-gradient(135deg, #0d1b3e 0%, #1a1f2e 100%); color: #ffffff; border-radius: 0; padding: 40px 48px; text-align: center; border: none; border-left: 6px solid #ef4444; page-break-inside: avoid; -webkit-print-color-adjust: exact; print-color-adjust: exact; }\n" +
 "    .cta-bleeding-label { font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 900; letter-spacing: 2.5px; text-transform: uppercase; color: #ef4444; margin-bottom: 16px; }\n" +
 "    .cta-loss-amount { font-size: 42px; font-weight: 900; color: #ff7a7a; line-height: 1.1; margin-bottom: 10px; font-family: Arial, Helvetica, sans-serif; }\n" +
 "    .cta-loss-sublabel { font-size: 13px; color: rgba(255,255,255,0.7); margin-bottom: 24px; }\n" +
@@ -981,11 +1043,12 @@ const html = "<!doctype html>\n" +
 "  <div class=\"header\">\n" +
 "    <div class=\"eyebrow\">Growth Bottleneck & Revenue Leakage Audit</div>\n" +
 "    <h1>Financial Impact Report</h1>\n" +
+(_businessName ? "    <p class=\"sub\" style=\"font-size:15px;margin-bottom:12px;color:#ffffff;\">Prepared for: " + esc(_businessName) + "</p>\n" : "") +
 "    <p class=\"sub\">Current Status as of " + _date + ": <span style=\"color:" + _headerStatusColor + ";font-weight:700;letter-spacing:0.5px;\">" + _headerStatusLabel + "</span> &nbsp;&middot;&nbsp; Industry: " + _industry + "</p>\n" +
 "  </div>\n" +
 "\n" +
 "  <div class=\"score-strip\">\n" +
-"    <div class=\"score-cell\"><div class=\"score-label\">Revenue Leakage</div><div class=\"score-value health-weak\">" + _lossValueShort + "</div></div>\n" +
+"    <div class=\"score-cell\"><div class=\"score-label\">Monthly Profit Leak</div><div class=\"score-value health-weak\">" + _lossValueShort + "</div></div>\n" +
 "    <div class=\"score-cell\"><div class=\"score-label\">Scaling Readiness</div><div class=\"score-value " + _healthClass + "\">" + _scoreStatus + "</div></div>\n" +
 "    <div class=\"score-cell\"><div class=\"score-label\">Primary Constraint</div><div class=\"score-value small\">" + _bottleneck + "</div></div>\n" +
 "    <div class=\"score-cell\"><div class=\"score-label\">Data Confidence</div><div class=\"score-value small\">" + _confidence + "</div></div>\n" +
@@ -1003,7 +1066,7 @@ const html = "<!doctype html>\n" +
 "      </div>\n" +
 "      " + stopLossHtml + "\n" +
 "      <div class=\"loss-grid\">\n" +
-"        <div class=\"loss-card\"><div class=\"loss-label\">" + (seasonalityRisk ? "Current-Period Revenue at Risk" : "Monthly Revenue at Risk") + "</div><div class=\"loss-value hero\">" + _lossVal + "</div></div>\n" +
+"        <div class=\"loss-card\"><div class=\"loss-label\">" + (seasonalityRisk ? "Current-Period Gross Profit at Risk" : "Monthly Gross Profit at Risk") + "</div><div class=\"loss-value hero\">" + _lossVal + "</div></div>\n" +
 "        <div class=\"loss-card\"><div class=\"loss-label\">Ad Spend at Risk</div><div class=\"loss-value\">" + _adSpend + "</div></div>\n" +
 "        <div class=\"loss-card\"><div class=\"loss-label\">Primary Leak Point</div><div class=\"loss-value small\">" + _lossChannel + "</div></div>\n" +
 "      </div>\n" +
@@ -1072,16 +1135,16 @@ const html = "<!doctype html>\n" +
 "        <h3>Audit Explanation</h3>\n" +
 "        <p class=\"inaction-explain\">" + _explanation + "</p>\n" +
 "        " + computedReferenceHtml + "\n" +
-"        " + (score >= 85 || String(data.primary_bottleneck || "") === "insufficient_data"
+"      </div>\n" +
+"      " + (score >= 85 || String(data.primary_bottleneck || "") === "insufficient_data"
   ? "<div class=\"micro-callout\">Maintaining data quality and expanding tracking infrastructure will ensure current performance advantages are sustained as ad spend and lead volume increase.</div>"
   : hasZeroLoss
     ? "<div class=\"micro-callout\">No active profit loss is detected — but your funnel is operating below its scaling potential. The constraints identified above are not costing you money today; they are preventing you from safely increasing volume and revenue tomorrow.</div>"
   : "<div class=\"micro-callout\">Delaying correction increases wasted spend, keeps conversion efficiency suppressed, and makes future scaling more expensive.</div>") + "\n" +
-"        " + methodologyClarifierHtml + "\n" +
-"      </div>\n" +
+"      " + methodologyClarifierHtml + "\n" +
 "    </div>\n" +
 "\n" +
-"    <div class=\"section\">\n" +
+"    <div class=\"section\" style=\"page-break-before: always;\">\n" +
 "      <div class=\"section-title\">Recommended Next Move</div>\n" +
 "      <div class=\"section-intro\">The implementation path below prioritizes the highest-leverage correction before broader scaling.</div>\n" +
 "      <div class=\"action-grid\">\n" +
@@ -1097,30 +1160,29 @@ const html = "<!doctype html>\n" +
 "        <div class=\"outcome-box\"><div class=\"offer-label\">Expected Outcome</div><div class=\"offer-text\">" + _outcome + "</div></div>\n" +
 "      </div>\n" +
 "    </div>\n" +
+"  </div><!-- close body padding -->\n" +
 "\n" +
-"    <div class=\"section\">\n" +
-"      <div class=\"cta-box-v2\" style=\"border-left-color:" + _ctaBorderColor + ";\">\n" +
-"        <div class=\"cta-bleeding-label\" style=\"color:" + _ctaLossColor + ";\">" + _ctaConfirmedLabel + "</div>\n" +
-"        <div class=\"cta-loss-amount\" style=\"color:" + _ctaLossColor + ";\">" + _ctaLossAmountDisplay + "</div>\n" +
-"        <div class=\"cta-loss-sublabel\">" + _ctaLossSublabel + "</div>\n" +
-"        <div class=\"cta-headline-v2\">\n" +
-"          " + _ctaHeadlineV2 +
-"        </div>\n" +
-"        <div>\n" +
-"          <a href=\"https://cal.com/eugene-igs/15min\" class=\"button-cta-v2\" style=\"background-color:" + _ctaButtonColor + "; border-color: #ffffff;\">&#128680;&nbsp; " + _ctaButtonText + "</a>\n" +
-"        </div>\n" +
-"        <div class=\"cta-scarcity\">\n" +
-"          &#9889; I only run 5 of these strategy audits per week. My next available slot for a 1-on-1 walkthrough is [Date].\n" +
-"        </div>\n" +
-"        <div class=\"cta-subtext\">" + (isReadyToScale ? "No pitch. No fluff. Just a clear strategy session to maximize your growth." : "No pitch. No fluff. Just a clear plan to fix the leak identified above.") + "</div>\n" +
-"      </div>\n" +
+"  <div class=\"cta-box-v2\" style=\"border-left-color:" + _ctaBorderColor + ";\">\n" +
+"    <div class=\"cta-bleeding-label\" style=\"color:" + _ctaLossColor + ";\">" + _ctaConfirmedLabel + "</div>\n" +
+"    <div class=\"cta-loss-amount\" style=\"color:" + _ctaLossColor + ";\">" + _ctaLossAmountDisplay + (_ctaLossAmountSuffix ? "<div style=\"font-size: 16px; font-weight: 700; margin-top: 4px; color: " + _ctaLossColor + ";\">(" + esc(_ctaLossAmountSuffix) + ")</div>" : "") + "</div>\n" +
+"    <div class=\"cta-loss-sublabel\">" + _ctaLossSublabel + "</div>\n" +
+"    <div class=\"cta-headline-v2\">\n" +
+"      " + _ctaHeadlineV2 +
 "    </div>\n" +
+"    <div>\n" +
+"      <a href=\"https://cal.com/eugene-igs/15min\" class=\"button-cta-v2\" style=\"background-color:" + _ctaButtonColor + "; border-color: #ffffff;\">&#128680;&nbsp; " + _ctaButtonText + "</a>\n" +
+"    </div>\n" +
+"    <div class=\"cta-scarcity\">\n" +
+"      &#9889; I only run 5 of these strategy audits per week. The calendar above shows the next open slot — they typically go within 48 hours.\n" +
+"    </div>\n" +
+"    <div class=\"cta-subtext\">" + (isReadyToScale ? "No pitch. No fluff. Just a clear strategy session to maximize your growth." : "No pitch. No fluff. Just a clear plan to fix the leak identified above.") + "</div>\n" +
+"  </div>\n" +
 "\n" +
-"    <div class=\"section\">\n" +
+"  <div class=\"body\">\n" +
+"    <div class=\"section\" style=\"margin-top:0;\">\n" +
 "      <div class=\"section-title\">Audit Method</div>\n" +
 "      <div class=\"card\"><p>" + _methodology + "</p></div>\n" +
 "    </div>\n" +
-"\n" +
 "  </div>\n" +
 "\n" +
 "  <div class=\"footer\">\n" +

@@ -234,14 +234,15 @@ const leadValue = safeDivOrNull(revenue, leads);
 // -------------------------
 const LTV_MULTIPLIERS = {
   coaching_consulting: 1.3,
-  marketing_agency: 1.4,
+  agency_services: 1.4,     // aligned with Benchmark Resolver
   clinic: 1.25,
   local_services: 1.1,
   software_saas: 1.5,
   generic: 1.0
 };
 
-const industryMultiplier = LTV_MULTIPLIERS[benchmarkMeta?.industry || industry] || 1.0;
+const industryMultiplier =
+  LTV_MULTIPLIERS[benchmarkMeta?.industry_resolved] ?? LTV_MULTIPLIERS[industry] ?? 1.0;
 
 const inferredLtv = estimatedLtv !== null && estimatedLtv > 0
   ? estimatedLtv
@@ -365,162 +366,104 @@ const gaps = {
 };
 
 // -------------------------
-// Cost of Inaction (Fixed Logic)
+// Integrity Guard (C6)
 // -------------------------
+const funnelImpossible =
+  (callsBooked    !== null && leads          !== null && callsBooked    > leads) ||
+  (callsCompleted !== null && callsBooked    !== null && callsCompleted > callsBooked) ||
+  (closedDeals    !== null && callsCompleted !== null && closedDeals    > callsCompleted);
 
-let costOfInaction = {
-  estimated_missed_booked_calls_per_month: 0,
-  estimated_missed_completed_calls_per_month: 0,
-  estimated_missed_closed_deals_per_month: 0,
-  estimated_missed_revenue_per_month: 0,
-  estimated_missed_gross_profit_per_month: 0
-};
+const revenueMismatch =
+  revenue !== null && closedDeals !== null && avgDealSizeInput !== null &&
+  closedDeals > 0 && revenue < closedDeals * avgDealSizeInput * 0.5;
 
-// ----------
-// 1. Funnel Loss
-// ----------
-
-let funnelLossRevenue = 0;
-let funnelLossProfit = 0;
-let funnelMissedBooked = 0;
-let funnelMissedCompleted = 0;
-let funnelMissedClosed = 0;
-
-if (
-  leads !== null &&
-  bmLeadToBooked !== null &&
-  finalAvgDealSize !== null &&
-  grossMargin !== null &&
-  revenue !== null
-) {
-  // Use benchmark rates for ALL stages where available.
-  // CoI = "what revenue would we have if every funnel stage ran at benchmark?"
-  // Falls back to actual rate only when benchmark is unavailable for that stage.
-  const effBookedRate    = bmLeadToBooked      ?? leadToBookedRate      ?? 0;
-  const effCompletedRate = bmBookedToCompleted ?? bookedToCompletedRate ?? 0;
-  const effCloseRate     = bmCompletedToClose  ?? completedToCloseRate  ?? 0;
-
-  const targetBooked    = leads * effBookedRate;
-  const targetCompleted = targetBooked * effCompletedRate;
-  const targetClosed    = targetCompleted * effCloseRate;
-
-  const targetRevenue = targetClosed * finalAvgDealSize;
-  const targetProfit  = targetRevenue * grossMargin;
-
-  funnelMissedBooked    = Math.max(0, targetBooked    - (callsBooked    ?? 0));
-  funnelMissedCompleted = Math.max(0, targetCompleted - (callsCompleted ?? 0));
-  funnelMissedClosed    = Math.max(0, targetClosed    - (closedDeals    ?? 0));
-
-  funnelLossRevenue = Math.max(0, targetRevenue - revenue);
-  funnelLossProfit  = Math.max(0, targetProfit  - (revenue * grossMargin));
-}
-
-// ----------
-// 2. Economics Loss
-// ----------
-
-let economicsLossRevenue = 0;
-let economicsLossProfit = 0;
-
-if (
-  adSpend !== null &&
-  bmRoas !== null &&
-  grossMargin !== null &&
-  revenue !== null
-) {
-  const targetRevenue = adSpend * bmRoas;
-  const targetProfit = targetRevenue * grossMargin;
-
-  economicsLossRevenue = Math.max(0, targetRevenue - revenue);
-  economicsLossProfit = Math.max(0, targetProfit - (revenue * grossMargin));
-}
-
-// ----------
-// 3. Final selection
-// ----------
-
-const finalRevenueLoss = Math.max(funnelLossRevenue, economicsLossRevenue);
-const finalProfitLoss = Math.max(funnelLossProfit, economicsLossProfit);
-
-// ----------
-// 4. Fill internal object
-// ----------
-
-costOfInaction = {
-  estimated_missed_booked_calls_per_month: funnelMissedBooked,
-  estimated_missed_completed_calls_per_month: funnelMissedCompleted,
-  estimated_missed_closed_deals_per_month: funnelMissedClosed,
-  estimated_missed_revenue_per_month: finalRevenueLoss,
-  estimated_missed_gross_profit_per_month: finalProfitLoss
-};
-
-// ----------
-// 5. Output object
-// ----------
-
-const costOfInactionOutput = {
-  estimated_missed_booked_calls_per_month:    roundOrNull(costOfInaction.estimated_missed_booked_calls_per_month, 2),
-  estimated_missed_completed_calls_per_month: roundOrNull(costOfInaction.estimated_missed_completed_calls_per_month, 2),
-  estimated_missed_closed_deals_per_month:    roundOrNull(costOfInaction.estimated_missed_closed_deals_per_month, 2),
-  // Revenue and profit rounded to nearest $100 — eliminates ~$2 CoI vs Simulation gap,
-  // matches Impact Simulation output, and reads cleanly in executive reports
-  estimated_missed_revenue_per_month:         roundOrNull(costOfInaction.estimated_missed_revenue_per_month, -2),
-  estimated_missed_gross_profit_per_month:    roundOrNull(costOfInaction.estimated_missed_gross_profit_per_month, -2)
-};
-// -------------------------
-// Value at risk
-// -------------------------
-// Use rounded output so score-strip, CoI JSON, and value_at_risk all show the same number
-const monthlyValueAtRisk = costOfInactionOutput.estimated_missed_gross_profit_per_month;
+const integrityViolation = funnelImpossible || revenueMismatch;
 
 // -------------------------
-// Simple score
-// Only uses available benchmark comparisons
+// Scorecard categories (W4)
 // -------------------------
-const scoreParts = [];
+const trafficMetricScores = [
+  scoreAgainstBenchmark(cpl, bmCpl, 'lower_better'),
+  scoreAgainstBenchmark(roas, bmRoas, 'higher_better')
+];
+const funnelMetricScores = [
+  scoreAgainstBenchmark(leadToBookedRate, bmLeadToBooked, 'higher_better'),
+  scoreAgainstBenchmark(bookedToCompletedRate, bmBookedToCompleted, 'higher_better'),
+  scoreAgainstBenchmark(completedToCloseRate, bmCompletedToClose, 'higher_better'),
+  scoreAgainstBenchmark(leadToCloseRate, bmLeadToClose, 'higher_better')
+];
+const speedMetricScores = [
+  scoreAgainstBenchmark(responseTimeMinutes, bmResponseTime, 'lower_better')
+];
+const trackingMetricScores = [];
+const retentionMetricScores = [];
 
-if (leadToBookedRate !== null && bmLeadToBooked !== null && bmLeadToBooked > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (leadToBookedRate / bmLeadToBooked) * 100)));
-}
+const traffic_score = (() => {
+  const v = avg(trafficMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-if (bookedToCompletedRate !== null && bmBookedToCompleted !== null && bmBookedToCompleted > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (bookedToCompletedRate / bmBookedToCompleted) * 100)));
-}
+const funnel_score = (() => {
+  const v = avg(funnelMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-if (completedToCloseRate !== null && bmCompletedToClose !== null && bmCompletedToClose > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (completedToCloseRate / bmCompletedToClose) * 100)));
-}
+const speed_score = (() => {
+  const v = avg(speedMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-if (roas !== null && bmRoas !== null && bmRoas > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (roas / bmRoas) * 100)));
-}
+const tracking_score = (() => {
+  const v = avg(trackingMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-if (cpl !== null && bmCpl !== null && cpl > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (bmCpl / cpl) * 100)));
-}
+const retention_score = (() => {
+  const v = avg(retentionMetricScores);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-if (responseTimeMinutes !== null && bmResponseTime !== null && responseTimeMinutes > 0) {
-  scoreParts.push(Math.min(100, Math.max(0, (bmResponseTime / responseTimeMinutes) * 100)));
-}
+const overall_score_raw = (() => {
+  const v = avg([
+    traffic_score,
+    funnel_score,
+    speed_score,
+    tracking_score,
+    retention_score
+  ]);
+  return isNum(v) ? Math.round(v) : null;
+})();
 
-const rawAvgScore =
-  scoreParts.length > 0
-    ? scoreParts.reduce((a, b) => a + b, 0) / scoreParts.length
-    : null;
+const scoreParts = [
+  scoreAgainstBenchmark(leadToBookedRate, bmLeadToBooked, 'higher_better'),
+  scoreAgainstBenchmark(bookedToCompletedRate, bmBookedToCompleted, 'higher_better'),
+  scoreAgainstBenchmark(completedToCloseRate, bmCompletedToClose, 'higher_better'),
+  scoreAgainstBenchmark(roas, bmRoas, 'higher_better'),
+  scoreAgainstBenchmark(cpl, bmCpl, 'lower_better'),
+  scoreAgainstBenchmark(responseTimeMinutes, bmResponseTime, 'lower_better')
+].filter(isNum);
 
-// Weakest-link cap: overall score can't be more than 30 pts above the worst metric.
-// Prevents a single critical failure from being masked by perfect scores elsewhere.
-// Example: close rate at 48% → worstPart=48.5 → score capped at 78.5 → "Average"
 const worstPart = scoreParts.length > 0 ? Math.min(...scoreParts) : null;
-const score =
-  rawAvgScore !== null
-    ? roundOrNull(Math.min(rawAvgScore, worstPart + 30), 1)
-    : null;
+
+// Apply weakest-link cap to overall_score
+const overall_score =
+  overall_score_raw !== null && worstPart !== null
+    ? Math.round(Math.min(overall_score_raw, worstPart + 30))
+    : overall_score_raw;
+
+const scorecard = {
+  traffic_score,
+  funnel_score,
+  speed_score,
+  tracking_score,
+  retention_score,
+  overall_score
+};
 
 let healthLabel = "insufficient_data";
-if (score !== null) {
-  if (score >= 85) healthLabel = "strong";
-  else if (score >= 65) healthLabel = "average";
+if (overall_score !== null) {
+  if (overall_score >= 85) healthLabel = "strong";
+  else if (overall_score >= 65) healthLabel = "average";
   else healthLabel = "weak";
 }
 
@@ -536,13 +479,13 @@ const keyStatuses = [
 
 const okCount = keyStatuses.filter(s => s === "ok").length;
 const dataConfidence =
+  integrityViolation ? "low" :
   okCount >= 6 ? "high" :
   okCount >= 4 ? "medium" :
   "low";
 
 // -------------------------
-// Bottleneck logic - Variant C
-// Economics-first prioritization
+// Bottleneck logic
 // -------------------------
 let primaryBottleneck = "insufficient_data";
 
@@ -553,7 +496,7 @@ const hasBenchmarkCoverage =
   bmRoas !== null ||
   bmResponseTime !== null;
 
-if (hasBenchmarkCoverage) {
+if (!integrityViolation && hasBenchmarkCoverage) {
   const economicsConstraint =
     roas !== null &&
     bmRoas !== null &&
@@ -584,10 +527,6 @@ if (hasBenchmarkCoverage) {
     bmResponseTime > 0 &&
     responseTimeMinutes > bmResponseTime * 2;
 
-  // Priority order:
-  // 1) Funnel first (stages 1 -> 2 -> 3)
-  // 2) Then economics
-  // 3) Then speed
   if (leadBookingConstraint) {
     primaryBottleneck = "lead_to_booking_conversion";
   } else if (showRateConstraint) {
@@ -598,14 +537,111 @@ if (hasBenchmarkCoverage) {
     primaryBottleneck = "economics_efficiency";
   } else if (speedConstraint) {
     primaryBottleneck = "speed_to_lead";
-  } else if (score !== null && score >= 85) {
+  } else if (overall_score !== null && overall_score >= 85 &&
+             roas !== null && revenue !== null && grossMargin !== null) {
     primaryBottleneck = "ready_to_scale";
   }
 }
 
 // -------------------------
+// Cost of Inaction (Fixed & Dynamic Logic)
+// -------------------------
+let funnelLossRevenue = 0;
+let funnelLossProfit = 0;
+let funnelMissedBooked = 0;
+let funnelMissedCompleted = 0;
+let funnelMissedClosed = 0;
+
+let economicsLossRevenue = 0;
+let economicsLossProfit = 0;
+let coiComputed = false;
+
+if (
+  !integrityViolation &&
+  leads !== null &&
+  bmLeadToBooked !== null &&
+  finalAvgDealSize !== null &&
+  grossMargin !== null &&
+  revenue !== null
+) {
+  coiComputed = true;
+
+  // Dynamic funnel rates (C1): benchmark only on the bottleneck stage, actual downstream
+  let effBookedRate = leadToBookedRate ?? bmLeadToBooked ?? 0;
+  let effCompletedRate = bookedToCompletedRate ?? bmBookedToCompleted ?? 0;
+  let effCloseRate = completedToCloseRate ?? bmCompletedToClose ?? 0;
+
+  if (primaryBottleneck === "lead_to_booking_conversion") {
+    effBookedRate = bmLeadToBooked ?? 0;
+    effCompletedRate = bookedToCompletedRate ?? bmBookedToCompleted ?? 0;
+    effCloseRate = completedToCloseRate ?? bmCompletedToClose ?? 0;
+  } else if (primaryBottleneck === "appointment_show_rate") {
+    effBookedRate = leadToBookedRate ?? bmLeadToBooked ?? 0;
+    effCompletedRate = bmBookedToCompleted ?? 0;
+    effCloseRate = completedToCloseRate ?? bmCompletedToClose ?? 0;
+  } else if (primaryBottleneck === "sales_conversion") {
+    effBookedRate = leadToBookedRate ?? bmLeadToBooked ?? 0;
+    effCompletedRate = bookedToCompletedRate ?? bmBookedToCompleted ?? 0;
+    effCloseRate = bmCompletedToClose ?? 0;
+  } else {
+    // If not a funnel bottleneck, fallback to benchmarks for all stages
+    effBookedRate = bmLeadToBooked ?? 0;
+    effCompletedRate = bmBookedToCompleted ?? 0;
+    effCloseRate = bmCompletedToClose ?? 0;
+  }
+
+  const targetBooked    = leads * effBookedRate;
+  const targetCompleted = targetBooked * effCompletedRate;
+  const targetClosed    = targetCompleted * effCloseRate;
+
+  const targetRevenue = targetClosed * finalAvgDealSize;
+  const targetProfit  = targetRevenue * grossMargin;
+
+  funnelMissedBooked    = Math.max(0, targetBooked    - (callsBooked    ?? 0));
+  funnelMissedCompleted = Math.max(0, targetCompleted - (callsCompleted ?? 0));
+  funnelMissedClosed    = Math.max(0, targetClosed    - (closedDeals    ?? 0));
+
+  funnelLossRevenue = Math.max(0, targetRevenue - revenue);
+  funnelLossProfit  = Math.max(0, targetProfit  - (revenue * grossMargin));
+}
+
+if (
+  !integrityViolation &&
+  adSpend !== null &&
+  bmRoas !== null &&
+  grossMargin !== null &&
+  revenue !== null
+) {
+  coiComputed = true;
+
+  const targetRevenue = adSpend * bmRoas;
+  const targetProfit = targetRevenue * grossMargin;
+
+  economicsLossRevenue = Math.max(0, targetRevenue - revenue);
+  economicsLossProfit = Math.max(0, targetProfit - (revenue * grossMargin));
+}
+
+const finalRevenueLoss = coiComputed ? Math.max(funnelLossRevenue, economicsLossRevenue) : null;
+const finalProfitLoss  = coiComputed ? Math.max(funnelLossProfit,  economicsLossProfit)  : null;
+
+// Rounding helper (N1)
+function roundCoI(val) {
+  if (val === null) return null;
+  return Math.abs(val) >= 500 ? roundOrNull(val, -2) : roundOrNull(val, 0);
+}
+
+const costOfInactionOutput = {
+  estimated_missed_booked_calls_per_month:    coiComputed ? roundOrNull(funnelMissedBooked, 2) : null,
+  estimated_missed_completed_calls_per_month: coiComputed ? roundOrNull(funnelMissedCompleted, 2) : null,
+  estimated_missed_closed_deals_per_month:    coiComputed ? roundOrNull(funnelMissedClosed, 2) : null,
+  estimated_missed_revenue_per_month:         roundCoI(finalRevenueLoss),
+  estimated_missed_gross_profit_per_month:    roundCoI(finalProfitLoss)
+};
+
+const monthlyValueAtRisk = costOfInactionOutput.estimated_missed_gross_profit_per_month;
+
+// -------------------------
 // Ad Spend at Risk
-// Placed here — after primaryBottleneck is fully determined
 // -------------------------
 const AD_SPEND_AT_RISK_BOTTLENECKS = [
   "lead_to_booking_conversion",
@@ -917,129 +953,7 @@ function metricValueIfOk(metricValue, fieldStatusLocal) {
 }
 
 // ----------------------------------
-// Sources
-// ----------------------------------
-const metrics = metricsOutput; // Connecting directly to internally computed outputs
-const fieldStatusMap = fieldStatus;
-const currentBenchmarkProfile = benchmarkOutput.profile;
-
-// ----------------------------------
-// TRAFFIC
-// Safe only on metrics that actually exist
-// in compute + benchmark profile
-// ----------------------------------
-const trafficMetricScores = [
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.cpl, fieldStatusMap.cpl),
-    currentBenchmarkProfile?.cpl ?? null,
-    'lower_better'
-  ),
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.roas, fieldStatusMap.roas),
-    currentBenchmarkProfile?.roas ?? null,
-    'higher_better'
-  ),
-];
-
-// ----------------------------------
-// FUNNEL
-// ----------------------------------
-const funnelMetricScores = [
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.lead_to_booked_rate, fieldStatusMap.lead_to_booked_rate),
-    currentBenchmarkProfile?.lead_to_booked_rate ?? null,
-    'higher_better'
-  ),
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.booked_to_completed_rate, fieldStatusMap.booked_to_completed_rate),
-    currentBenchmarkProfile?.booked_to_completed_rate ?? null,
-    'higher_better'
-  ),
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.completed_to_close_rate, fieldStatusMap.completed_to_close_rate),
-    currentBenchmarkProfile?.completed_to_close_rate ?? null,
-    'higher_better'
-  ),
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.lead_to_close_rate, fieldStatusMap.lead_to_close_rate),
-    currentBenchmarkProfile?.lead_to_close_rate ?? null,
-    'higher_better'
-  ),
-];
-
-// ----------------------------------
-// SPEED
-// ----------------------------------
-const speedMetricScores = [
-  scoreAgainstBenchmark(
-    metricValueIfOk(metrics.response_time_minutes, fieldStatusMap.response_time_minutes),
-    currentBenchmarkProfile?.response_time_minutes ?? null,
-    'lower_better'
-  ),
-];
-
-// ----------------------------------
-// TRACKING
-// Not computed canonically yet
-// Keep null until benchmarked computed fields exist
-// ----------------------------------
-const trackingMetricScores = [];
-
-// ----------------------------------
-// RETENTION
-// Not benchmarked canonically yet
-// Keep null until benchmarked computed fields exist
-// ----------------------------------
-const retentionMetricScores = [];
-
-// ----------------------------------
-// Family aggregation
-// ----------------------------------
-const traffic_score = (() => {
-  const v = avg(trafficMetricScores);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-const funnel_score = (() => {
-  const v = avg(funnelMetricScores);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-const speed_score = (() => {
-  const v = avg(speedMetricScores);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-const tracking_score = (() => {
-  const v = avg(trackingMetricScores);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-const retention_score = (() => {
-  const v = avg(retentionMetricScores);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-const overall_score = (() => {
-  const v = avg([
-    traffic_score,
-    funnel_score,
-    speed_score,
-    tracking_score,
-    retention_score
-  ]);
-  return isNum(v) ? Math.round(v) : null;
-})();
-
-// Attach to local scorecard object
-const scorecard = {
-  traffic_score,
-  funnel_score,
-  speed_score,
-  tracking_score,
-  retention_score,
-  overall_score
-};
+// Scorecard aggregated above
 
 // -------------------------
 // Output
@@ -1119,13 +1033,14 @@ return [
         },
         upside_vs_benchmark: {
           additional_revenue_per_month: roundOrNull(
-            benchmarkRevenue !== null && revenue !== null ? benchmarkRevenue - revenue : null,
+            benchmarkRevenue !== null && revenue !== null ? Math.max(0, benchmarkRevenue - revenue) : null,
             2
           ),
           additional_gross_profit_per_month: roundOrNull(
-            benchmarkGrossProfit !== null && grossProfit !== null ? benchmarkGrossProfit - grossProfit : null,
+            benchmarkGrossProfit !== null && grossProfit !== null ? Math.max(0, benchmarkGrossProfit - grossProfit) : null,
             2
-          )
+          ),
+          funnel_outperforms_benchmark: benchmarkRevenue !== null && revenue !== null ? benchmarkRevenue < revenue : false
         }
       },
       meta: {

@@ -131,15 +131,17 @@ export function DiagnosticPreview() {
               </div>
 
               {/* Seasonality block */}
-              <div className="section-label mb-3 mt-6" style={{ color: 'var(--muted)' }}>Seasonality Risk Check</div>
+              <div className="section-label mb-3 mt-6" style={{ color: 'var(--muted)' }}>Seasonality Check</div>
               <div className="rounded-xl border p-5" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
-                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--orange)' }}>⚠ SEASONALITY RISK DETECTED</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: 'var(--orange)' }}>⚠ SEASONALITY FLAG</div>
                 <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--muted)' }}>
-                  Your answers suggest seasonality may be affecting how you read your marketing numbers. This diagnostic can flag the risk, but a full seasonality adjustment requires historical monthly data.
+                  Demand in your niche moves in cycles — so a "bad" month may be a normal seasonal dip, while a "good" month can hide a leak that peak demand is covering.
+                </p>
+                <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--muted)' }}>
+                  This report diagnoses your funnel as it performs right now; separating seasonal swing from structural leaks requires 12+ months of your data. Before scaling or cutting ad spend, compare this period with the same period last year — not with last month.
                 </p>
                 <div className="text-xs p-2 rounded" style={{ background: 'var(--bg)', color: 'var(--text)', border: '1px solid var(--border)' }}>
-                  <span className="font-bold" style={{ color: 'var(--orange)' }}>Next Step: </span>
-                  Before increasing or cutting ad spend, compare this period against the same period last year.
+                  Need a season-adjusted plan (off-season demand + in-season scaling)? Reply to the email that delivered this report.
                 </div>
               </div>
             </div>

@@ -177,7 +177,7 @@ function mapIsSeasonal(v) {
   if (v === true)  return true;
   if (v === false) return false;
   const s = String(v ?? '').trim().toLowerCase();
-  if (['yes', 'true', '1'].includes(s))  return true;
+  if (['yes', 'true', '1', 'somewhat'].includes(s))  return true;
   if (['no', 'false', '0'].includes(s))  return false;
   return null;   // not-sure / порожнє → не сезонний за замовчуванням, confidence=low
 }

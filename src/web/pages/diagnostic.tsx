@@ -1093,55 +1093,27 @@ export default function DiagnosticForm() {
       isCustomRequest: data.businessType === 'other',
     };
 
-    if (data.businessType === 'other') {
-      try {
-        const response = await fetch(N8N_WEBHOOK_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
+    try {
+      const response = await fetch(N8N_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...payload,
+          stripe_checkout_id: `free_${Date.now()}`,
+        }),
+      });
 
-        if (!response.ok) {
-          throw new Error(`Server error: ${response.status}`);
-        }
-
-        // Success — show analyzing UX for at least 4s
-        setTimeout(() => setStatus('success'), 4000);
-      } catch (err) {
-        console.error('Webhook error:', err);
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        setSubmitError(`Submission failed: ${message}. Please try again.`);
-        setStatus('error');
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
       }
-    } else {
-      try {
-        const response = await fetch('/api/checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
 
-        if (!response.ok) {
-          let errorMsg = `Server error: ${response.status}`;
-          try {
-            const errJson = await response.json();
-            if (errJson.error) errorMsg = errJson.error;
-          } catch {}
-          throw new Error(errorMsg);
-        }
-
-        const resData = await response.json();
-        if (resData.url) {
-          window.location.href = resData.url;
-        } else {
-          throw new Error('No checkout URL returned from server.');
-        }
-      } catch (err) {
-        console.error('Checkout error:', err);
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        setSubmitError(`Failed to initiate checkout: ${message}. Please try again.`);
-        setStatus('error');
-      }
+      // Success — show analyzing UX for at least 4s
+      setTimeout(() => setStatus('success'), 4000);
+    } catch (err) {
+      console.error('Submission error:', err);
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      setSubmitError(`Submission failed: ${message}. Please try again.`);
+      setStatus('error');
     }
   };
 
@@ -1173,7 +1145,7 @@ export default function DiagnosticForm() {
             <div className="text-center mb-10 animate-fade-in">
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border mb-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
                 <div className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--orange)' }} />
-                <span className="text-xs font-semibold" style={{ color: 'var(--orange)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>Business Growth Diagnostic</span>
+                <span className="text-xs font-semibold" style={{ color: 'var(--orange)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>100% Free Business Growth Diagnostic</span>
               </div>
               <h1 className="mb-3 text-[clamp(22px,5.5vw,42px)] font-extrabold leading-tight">
                 <span className="block whitespace-nowrap">Identify your revenue leak</span>
@@ -1216,115 +1188,42 @@ export default function DiagnosticForm() {
 
               {/* Navigation */}
               <div className="mt-8 pt-6 border-t animate-fade-in" style={{ borderColor: 'var(--border)' }}>
-                {step === 6 && data.businessType !== 'other' ? (
-                  <div className="space-y-4">
-                    <div className="flex justify-between items-center mb-4">
-                      {step > 1 ? (
-                        <button
-                          type="button"
-                          onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all border"
-                          style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}
-                          onMouseOver={e => e.currentTarget.style.borderColor = 'var(--muted)'}
-                          onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                        >
-                          ← Back
-                        </button>
-                      ) : <div />}
-                      <span className="text-xs text-right" style={{ color: 'var(--muted)' }}>
-                        🔒 Secured by PayPal
-                      </span>
-                    </div>
-
-                    <div className="w-full max-w-sm mx-auto">
-                      {/* Order summary — price transparency at point of payment */}
-                      <div className="flex items-center justify-between px-4 py-3 rounded-lg border mb-4" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
-                        <span className="text-sm" style={{ color: 'var(--muted)' }}>Growth Diagnostic Report</span>
-                        <span className="text-sm font-bold num" style={{ color: 'var(--text)' }}>$4.99</span>
-                      </div>
-                      <PayPalButtonContainer
-                        data={data}
-                        validate={validate}
-                        onStartPayment={() => {
-                          trackEvent('payment_initiated', { business_type: data.businessType });
-                          setStatus('analyzing');
-                          setIsCheckoutConfirming(true);
-                        }}
-                        onSuccessPayment={(orderId) => {
-                          trackEvent('payment_completed', { business_type: data.businessType, order_id: orderId });
-                          window.location.href = `/diagnostic?success=true&session_id=${orderId}`;
-                        }}
-                        onPaymentError={(errMessage) => {
-                          trackEvent('payment_failed', { business_type: data.businessType, error: errMessage });
-                          setSubmitError(errMessage);
-                          setStatus('error');
-                          setIsCheckoutConfirming(false);
-                        }}
-                      />
-
-                      {/* Accepted payment methods — trust signals */}
-                      <div className="flex flex-col items-center gap-2 mt-4">
-                        <div className="flex items-center gap-2">
-                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
-                            <span style={{ color: '#1A1F71', fontWeight: 800, fontSize: '11px', fontStyle: 'italic', letterSpacing: '0.02em' }}>VISA</span>
-                          </div>
-                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
-                            <div className="flex items-center">
-                              <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#EB001B' }} />
-                              <div style={{ width: 14, height: 14, borderRadius: '50%', background: '#F79E1B', marginLeft: -6, opacity: 0.9 }} />
-                            </div>
-                          </div>
-                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#1F72CD' }}>
-                            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '9px', letterSpacing: '0.03em' }}>AMEX</span>
-                          </div>
-                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
-                            <span style={{ color: '#231F20', fontWeight: 800, fontSize: '8px' }}>DISC<span style={{ color: '#F76E20' }}>O</span>VER</span>
-                          </div>
-                          <div className="h-7 w-11 rounded-md flex items-center justify-center" style={{ background: '#ffffff' }}>
-                            <span style={{ fontWeight: 800, fontSize: '9px', fontStyle: 'italic' }}><span style={{ color: '#003087' }}>Pay</span><span style={{ color: '#009CDE' }}>Pal</span></span>
-                          </div>
-                        </div>
-                        <div className="text-[11px]" style={{ color: 'var(--muted)' }}>🔒 Secure SSL checkout · All major cards accepted</div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="flex justify-between items-center">
-                    {step > 1 ? (
-                      <button
-                        type="button"
-                        onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all border"
-                        style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}
-                        onMouseOver={e => e.currentTarget.style.borderColor = 'var(--muted)'}
-                        onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border)'}
-                      >
-                        ← Back
-                      </button>
-                    ) : <div />}
-
+                <div className="flex justify-between items-center">
+                  {step > 1 ? (
                     <button
                       type="button"
-                      onClick={handleNext}
-                      className="btn-primary"
+                      onClick={() => { setStep(s => s - 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      className="px-5 py-2.5 rounded-lg text-sm font-semibold transition-all border"
+                      style={{ background: 'var(--bg2)', color: 'var(--muted)', borderColor: 'var(--border)' }}
+                      onMouseOver={e => e.currentTarget.style.borderColor = 'var(--muted)'}
+                      onMouseOut={e => e.currentTarget.style.borderColor = 'var(--border)'}
                     >
-                      {step < 6 ? (
-                        <>Continue <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-                      ) : (
-                        <>Request Custom Analysis <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
-                      )}
+                      ← Back
                     </button>
-                  </div>
-                )}
+                  ) : <div />}
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="btn-primary"
+                  >
+                    {step < 6 ? (
+                      <>Continue <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                    ) : data.businessType === 'other' ? (
+                      <>Request Custom Analysis <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                    ) : (
+                      <>Get Free Growth Report <svg className="ml-1" width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7H11M11 7L7.5 3.5M11 7L7.5 10.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg></>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
 
             {/* Trust signals */}
             <div className="flex flex-wrap justify-center gap-6 mt-6 text-xs" style={{ color: 'var(--muted)' }}>
-              <span>🔒 Confidential</span>
-              <span>⚡ Report delivered instantly</span>
-              <span>📄 Structured PDF</span>
-              <span>✓ No subscription</span>
+              <span>🔒 100% Free · No credit card required</span>
+              <span>⚡ Instant PDF delivery</span>
+              <span>📄 Confidential & Secure</span>
             </div>
           </>
         )}

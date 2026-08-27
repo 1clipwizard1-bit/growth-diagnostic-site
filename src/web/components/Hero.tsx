@@ -22,7 +22,7 @@ export function Hero() {
           {/* CTA block */}
           <a href="/diagnostic" className="btn-primary">
             See Where Your Money Is Leaking
-            <span className="price-badge">$4.99</span>
+            <span className="price-badge">FREE</span>
             <svg className="ml-1" width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M3 8H13M13 8L9 4M13 8L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -30,7 +30,7 @@ export function Hero() {
 
           {/* Risk reversal */}
           <div className="mt-4 text-sm" style={{ color: 'var(--muted)' }}>
-            <strong style={{ color: 'var(--text)' }}>Refund if no bottleneck found.</strong> No subscription. No sales call.
+            <strong style={{ color: 'var(--text)' }}>100% Free.</strong> No credit card required. No sales call.
           </div>
 
           {/* Trust row */}

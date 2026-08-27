@@ -27,7 +27,7 @@ const faqs = [
   },
   {
     q: 'I\'ve been burned by agencies and lead platforms before. How is this different?',
-    a: 'It\'s $4.99, not a retainer. It\'s a report, not a pitch. No one calls you unless you choose to book a call.',
+    a: 'It\'s 100% free, not a retainer. It\'s a report, not a pitch. No credit card required, and no one calls you unless you choose to book a call.',
   },
 ];
 

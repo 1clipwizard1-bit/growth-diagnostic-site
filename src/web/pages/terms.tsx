@@ -112,8 +112,7 @@ export default function TermsPage() {
           {/* 4 */}
           <Section title="4. Limitation of Liability">
             <p>
-              To the maximum extent permitted by law, our total liability shall not exceed the amount
-              you paid for the Service (<Highlight>$4.99</Highlight>).
+              To the maximum extent permitted by law, our total liability for any claim arising from the Service shall not exceed $100.00.
             </p>
           </Section>
 

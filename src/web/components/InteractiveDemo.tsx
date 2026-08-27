@@ -155,7 +155,7 @@ export function InteractiveDemo() {
                       <div className="text-xs mb-3" style={{ color: 'var(--muted)' }}>This is industry-level data. The full diagnostic identifies <span className="font-semibold" style={{ color: 'var(--orange)' }}>your specific bottleneck</span> based on your actual numbers.</div>
                       <a href="/diagnostic" className="btn-primary w-full">
                         See Where Your Money Is Leaking
-                        <span className="price-badge">$4.99</span>
+                        <span className="price-badge">FREE</span>
                       </a>
                     </div>
                   </div>

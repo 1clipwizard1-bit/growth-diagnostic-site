@@ -29,7 +29,7 @@ export function Nav() {
           style={{ background: 'var(--orange)', color: '#0a0a0a' }}
           onMouseOver={e => (e.currentTarget.style.background = 'var(--orange-dark)')}
           onMouseOut={e => (e.currentTarget.style.background = 'var(--orange)')}>
-          Run Diagnostic <span className="price-badge">$4.99</span>
+          Run Diagnostic <span className="price-badge">FREE</span>
         </Link>
       </div>
     </nav>

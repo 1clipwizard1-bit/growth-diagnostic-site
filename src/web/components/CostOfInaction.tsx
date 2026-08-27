@@ -16,7 +16,7 @@ export function CostOfInaction() {
             </p>
             <a href="/diagnostic" className="btn-primary">
               See Where Customers Drop Off
-              <span className="price-badge">$4.99</span>
+              <span className="price-badge">FREE</span>
             </a>
           </div>
 
@@ -49,7 +49,7 @@ export function CostOfInaction() {
                 <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M5 9L8 12L13 6" stroke="#22c55e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
               </div>
               <div>
-                <div className="font-bold text-sm mb-1" style={{ color: 'var(--text)' }}>The diagnostic costs $4.99.</div>
+                <div className="font-bold text-sm mb-1" style={{ color: 'var(--text)' }}>The diagnostic is 100% free.</div>
                 <div className="text-xs" style={{ color: 'var(--muted)' }}>If you're spending more than $3,000/month on ads, the ROI of knowing your biggest bottleneck is immediate. The cost of not knowing is compounding daily.</div>
               </div>
             </div>

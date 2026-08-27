@@ -62,7 +62,7 @@ export function ProblemFraming() {
           </div>
           <a href="/diagnostic" className="btn-primary shrink-0">
             See Where Your Money Is Leaking
-            <span className="price-badge">$4.99</span>
+            <span className="price-badge">FREE</span>
           </a>
         </div>
       </div>

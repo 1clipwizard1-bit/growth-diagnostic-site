@@ -131,8 +131,8 @@ export function ReportIncludes() {
             </h2>
           </div>
           <div className="shrink-0 px-6 py-4 rounded-xl border text-center" style={{ borderColor: 'var(--border)', background: 'var(--bg2)' }}>
-            <div className="text-3xl font-black mb-0.5 num" style={{ color: 'var(--orange)' }}>$4.99</div>
-            <div className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>One-time · PDF delivered instantly</div>
+            <div className="text-3xl font-black mb-0.5 num" style={{ color: 'var(--orange)' }}>FREE</div>
+            <div className="text-xs font-semibold" style={{ color: 'var(--muted)' }}>100% Free · PDF delivered instantly</div>
           </div>
         </div>
 

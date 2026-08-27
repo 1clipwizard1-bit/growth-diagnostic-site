@@ -17,14 +17,14 @@ export function CTA() {
 
             {/* Price block */}
             <div className="inline-flex flex-col items-center gap-2 mb-10">
-              <div className="text-5xl font-black num" style={{ color: 'var(--orange)' }}>$4.99</div>
-              <div className="text-sm font-semibold" style={{ color: 'var(--muted)' }}>One-time payment · No subscription · PDF delivered instantly</div>
+              <div className="text-5xl font-black num" style={{ color: 'var(--orange)' }}>FREE</div>
+              <div className="text-sm font-semibold" style={{ color: 'var(--muted)' }}>100% Free · No credit card required · PDF delivered instantly</div>
             </div>
 
             <div className="flex flex-col items-center gap-4">
               <a href="/diagnostic" className="btn-primary">
                 See Where Your Money Is Leaking
-                <span className="price-badge">$4.99</span>
+                <span className="price-badge">FREE</span>
                 <svg className="ml-1" width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
@@ -39,7 +39,7 @@ export function CTA() {
                   <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> 18 questions · 7 minutes
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> No subscription required
+                  <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> 100% Free diagnostic
                 </div>
                 <div className="flex items-center gap-1.5">
                   <span style={{ color: 'var(--orange)', fontWeight: 'bold' }}>✓</span> Industry-calibrated benchmarks
